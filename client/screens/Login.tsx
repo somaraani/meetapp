@@ -6,6 +6,7 @@ import {
   Text,
   Image,
   TouchableOpacity,
+  StatusBar,
 } from "react-native";
 
 interface Props {
@@ -18,50 +19,54 @@ const Login: FC<Props> = ({ navigation }) => {
 
   const submitHandler = () => {
     console.log(email, password);
+    navigation.navigate("Main");
   };
 
   return (
-    <View style={styles.container}>
-      <Image
-        source={require("../assets/logo.png")}
-        style={{ marginBottom: 70 }}
-      />
-      <View>
-        <Text style={{ color: "#fff", marginBottom: 15, fontWeight: "bold" }}>
-          Login to your account
-        </Text>
-        <TextInput
-          style={styles.input}
-          placeholder="email"
-          placeholderTextColor="rgba(255, 250, 255,.45)"
-          onChangeText={(value) => setEmail(value)}
+    <>
+      <StatusBar />
+      <View style={styles.container}>
+        <Image
+          source={require("../assets/logo.png")}
+          style={{ marginBottom: 70 }}
         />
-        <TextInput
-          style={styles.input}
-          placeholder="password"
-          placeholderTextColor="rgba(255, 250, 255,.45)"
-          onChangeText={(value) => setPassword(value)}
-          secureTextEntry={true}
-        />
-        <TouchableOpacity style={styles.button} onPress={submitHandler}>
-          <Text style={{ color: "black", fontWeight: "bold", fontSize: 18 }}>
-            Sign In
+        <View>
+          <Text style={{ color: "#fff", marginBottom: 15, fontWeight: "bold" }}>
+            Login to your account
           </Text>
-        </TouchableOpacity>
-      </View>
-      <Text style={{ color: "rgba(255, 250, 255, 0.6)", marginBottom: 70 }}>
-        Forgot password?
-      </Text>
-      <Text style={{ color: "#fff" }}>
-        Don’t have an account?{" "}
-        <Text
-          style={{ color: "#25B8DA", fontWeight: "bold" }}
-          onPress={() => navigation.navigate("Register")}
-        >
-          Sign Up
+          <TextInput
+            style={styles.input}
+            placeholder="email"
+            placeholderTextColor="rgba(255, 250, 255,.45)"
+            onChangeText={(value) => setEmail(value)}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="password"
+            placeholderTextColor="rgba(255, 250, 255,.45)"
+            onChangeText={(value) => setPassword(value)}
+            secureTextEntry={true}
+          />
+          <TouchableOpacity style={styles.button} onPress={submitHandler}>
+            <Text style={{ color: "white", fontWeight: "bold", fontSize: 18 }}>
+              Sign In
+            </Text>
+          </TouchableOpacity>
+        </View>
+        <Text style={{ color: "rgba(255, 250, 255, 0.6)", marginBottom: 70 }}>
+          Forgot password?
         </Text>
-      </Text>
-    </View>
+        <Text style={{ color: "#fff" }}>
+          Don’t have an account?{" "}
+          <Text
+            style={{ color: "#2196F3", fontWeight: "bold" }}
+            onPress={() => navigation.navigate("Register")}
+          >
+            Sign Up
+          </Text>
+        </Text>
+      </View>
+    </>
   );
 };
 
@@ -86,7 +91,7 @@ const styles = StyleSheet.create({
   },
   button: {
     width: 200,
-    backgroundColor: "white",
+    backgroundColor: "#2196F3",
     paddingVertical: 10,
     alignItems: "center",
     borderRadius: 8,

@@ -1,10 +1,41 @@
 import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
+import { createDrawerNavigator } from "@react-navigation/drawer";
 import Login from "./screens/Login";
 import Register from "./screens/Register";
+import DrawerContent from "./components/DrawerContent";
+import Meetings from "./screens/Meetings";
+import { Button, Text } from "react-native";
+import { TouchableOpacity } from "react-native-gesture-handler";
+import { Ionicons } from "@expo/vector-icons";
 
 const Enter = createStackNavigator();
+const Drawer = createDrawerNavigator();
+
+const MainContent = () => (
+  <Drawer.Navigator
+    drawerContent={(props) => <DrawerContent {...props} />}
+    initialRouteName="Meetings"
+    screenOptions={{ headerTitleAlign: "center" }}
+  >
+    <Drawer.Screen
+      name="Meetings"
+      component={Meetings}
+      options={{
+        headerShown: true,
+        headerRight: () => (
+          <TouchableOpacity
+            onPress={() => console.log("Pressed Add")}
+            style={{ marginRight: 15 }}
+          >
+            <Ionicons name="add-circle" size={30} color="#2196F3" />
+          </TouchableOpacity>
+        ),
+      }}
+    />
+  </Drawer.Navigator>
+);
 
 function App() {
   return (
@@ -26,6 +57,11 @@ function App() {
             headerStyle: { backgroundColor: "black" },
             headerTintColor: "#fff",
           }}
+        />
+        <Enter.Screen
+          name="Main"
+          component={MainContent}
+          options={{ headerShown: false }}
         />
       </Enter.Navigator>
     </NavigationContainer>

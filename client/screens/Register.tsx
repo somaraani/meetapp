@@ -15,10 +15,12 @@ const Register: FC<Props> = ({ navigation }) => {
 
   const submitHandler = () => {
     console.log(name, email, password, confirmPass);
+    navigation.navigate("Main");
   };
 
   return (
     <>
+      <StatusBar />
       <View style={styles.container}>
         <View>
           <Text style={{ color: "#fff", marginBottom: 15, fontWeight: "bold" }}>
