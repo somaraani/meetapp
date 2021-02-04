@@ -12,7 +12,7 @@ export class AuthService {
     ) { }
 
     async validate(email, password): Promise<any> {
-        const user = await this.usersService.findOne(email);
+        const user = await this.usersService.findByEmail(email);
 
         //TODO these passwords need to be hased in the database
 
@@ -25,7 +25,7 @@ export class AuthService {
     }
 
     async getJwt(user: User) {
-        const payload = { email: user.email, sub: user.id };
+        const payload = { email: user.email, id: user.id };
         return {
             access_token: this.jwtService.sign(payload)
         };

@@ -38,7 +38,7 @@ $ npm install
 # development
 $ npm run start
 
-# watch mode
+# watch mode (live updates. Run this when coding!)
 $ npm run start:dev
 
 # production mode
