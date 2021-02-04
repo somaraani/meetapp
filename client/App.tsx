@@ -6,7 +6,6 @@ import Login from "./screens/Login";
 import Register from "./screens/Register";
 import DrawerContent from "./components/DrawerContent";
 import Meetings from "./screens/Meetings";
-import { Button, Text } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -24,11 +23,11 @@ const MainContent = () => (
       component={Meetings}
       options={{
         headerShown: true,
+        headerStyle: {
+          paddingRight: 15,
+        },
         headerRight: () => (
-          <TouchableOpacity
-            onPress={() => console.log("Pressed Add")}
-            style={{ marginRight: 15 }}
-          >
+          <TouchableOpacity onPress={() => console.log("Pressed Add")}>
             <Ionicons name="add-circle" size={30} color="#2196F3" />
           </TouchableOpacity>
         ),
