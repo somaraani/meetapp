@@ -1,6 +1,7 @@
 import React, { FC, useState } from "react";
-import { StyleSheet, Text, TextInput, View } from "react-native";
+import { StatusBar, StyleSheet, Text, TextInput, View } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
+import { Ionicons } from "@expo/vector-icons";
 
 interface Props {
   navigation: any;
@@ -18,7 +19,18 @@ const Register: FC<Props> = ({ navigation }) => {
 
   return (
     <>
-      <View></View>
+      <StatusBar />
+      <View
+        style={{
+          paddingHorizontal: 16,
+          backgroundColor: "black",
+          paddingTop: 16,
+        }}
+      >
+        <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+          <Ionicons name="arrow-back" size={24} color="white" />
+        </TouchableOpacity>
+      </View>
       <View style={styles.container}>
         <View>
           <Text style={{ color: "#fff", marginBottom: 15, fontWeight: "bold" }}>
