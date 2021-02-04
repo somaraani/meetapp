@@ -4,7 +4,6 @@ import {
   View,
   TextInput,
   Text,
-  Alert,
   Image,
   TouchableOpacity,
 } from "react-native";
@@ -76,11 +75,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#000",
   },
   input: {
-    borderColor: "white",
-    borderWidth: 1,
+    backgroundColor: "rgba(255,255,255,0.1)",
     borderRadius: 4,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
+    paddingHorizontal: 11,
+    paddingVertical: 4,
     width: 200,
     color: "white",
     marginBottom: 15,
