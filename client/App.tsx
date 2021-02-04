@@ -10,11 +10,23 @@ function App() {
   return (
     <NavigationContainer>
       <Enter.Navigator
-        screenOptions={{ headerShown: false }}
-        initialRouteName="Register"
+        // screenOptions={{ headerShown: false }}
+        initialRouteName="Login"
       >
-        <Enter.Screen name="Login" component={Login} />
-        <Enter.Screen name="Register" component={Register} />
+        <Enter.Screen
+          name="Login"
+          component={Login}
+          options={{ headerShown: false }}
+        />
+        <Enter.Screen
+          name="Register"
+          component={Register}
+          options={{
+            title: "",
+            headerStyle: { backgroundColor: "black" },
+            headerTintColor: "#fff",
+          }}
+        />
       </Enter.Navigator>
     </NavigationContainer>
   );

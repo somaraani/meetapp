@@ -19,18 +19,6 @@ const Register: FC<Props> = ({ navigation }) => {
 
   return (
     <>
-      <StatusBar />
-      <View
-        style={{
-          paddingHorizontal: 16,
-          backgroundColor: "black",
-          paddingTop: 16,
-        }}
-      >
-        <TouchableOpacity onPress={() => navigation.navigate("Login")}>
-          <Ionicons name="arrow-back" size={24} color="white" />
-        </TouchableOpacity>
-      </View>
       <View style={styles.container}>
         <View>
           <Text style={{ color: "#fff", marginBottom: 15, fontWeight: "bold" }}>
