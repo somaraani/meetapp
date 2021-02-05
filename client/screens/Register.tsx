@@ -60,7 +60,7 @@ const Register: FC<Props> = ({ navigation }) => {
           <Text style={{ color: "#fff" }}>
             Already have an account?{" "}
             <Text
-              style={{ color: "#25B8DA", fontWeight: "bold" }}
+              style={{ color: "#2196F3", fontWeight: "bold" }}
               onPress={() => navigation.navigate("Login")}
             >
               Sign In
