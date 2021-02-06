@@ -16,7 +16,7 @@ import { AuthController } from './auth.controller';
     JwtModule.register({
       secret: jwtConstants.secret,
       //TODO figure out when tokens should expire
-      signOptions: { expiresIn: '600s' },
+      signOptions: { expiresIn: '1200s' },
     }),
   ],
   controllers: [AuthController],
