@@ -5,14 +5,23 @@ import { randomBytes } from 'crypto';
 import { CreateUserDto } from './dto/CreateUserDto';
 import { v4 as uuidv4 } from 'uuid';
 import { PublicUserDto } from './dto/PublicUserDto';
+import { InjectModel } from '@nestjs/mongoose';
+import { UserDocument } from './schemas/user.schema';
+import { Model } from 'mongoose';
+import { exception } from 'console';
+import { transformAuthInfo } from 'passport';
 
 @Injectable()
 export class UsersService {
 
+    constructor(
+        @InjectModel("user")
+        private userModel: Model<UserDocument>
+    ) { }
     //mock users
     private readonly users: User[] = [
         {
-            id: "1",
+            _id: "1",
             email: "first@testing.com",
             publicData: {
                 displayName: "a",
@@ -23,7 +32,7 @@ export class UsersService {
             }
         },
         {
-            id: "2",
+            _id: "2",
             email: "second@testing.com",
             publicData: {
                 displayName: "a",
@@ -35,20 +44,22 @@ export class UsersService {
         },
     ];
 
-    async update(id: string, data: User) : Promise<User | undefined> {
+    async update(id: string, data: User) : Promise<User> {
         //error if someone else is already using email being changed
         const userWithEmail = await this.findByEmail(data.email);
-        if(userWithEmail?.id != id) {
+        if(userWithEmail && userWithEmail?._id != id) {
             throw new ConflictException("Another user is associated with that email.");
         }
 
         //should update in db
-        const currUser: User | undefined = await this.findById(id);
+        const currUser: UserDocument | null = await this.findById(id);
 
         if (currUser) {
             //ensure user does not change their id
-            data.id = id;
-            Object.assign(currUser, data);
+            //currUser.privateData = data.privateData;
+            currUser.publicData = data.publicData;
+            currUser.email = data.email;
+            currUser.save();
 
             return currUser;
         } else {
@@ -56,7 +67,7 @@ export class UsersService {
         }
     }
 
-    async create(data: CreateUserDto) : Promise<User | undefined> {
+    async create(data: CreateUserDto) : Promise<User> {
         //error if someone else is already using email being changed
         const userWithEmail = await this.findByEmail(data.email);
         if(userWithEmail) {
@@ -66,26 +77,26 @@ export class UsersService {
         //this should push to a database
         //TODO look into UUID generation and where it should happen
 
-        const user = {
-            id: uuidv4(),
+        const user = new this.userModel(<User>{
             email: data.email,
             privateData: {
-                password: data.password
+                //password: data.password
+                password: 'password'
             },
             publicData: data.details
-        };
+        });
 
-        this.users.push(user);
+        user.save();
         return user;
     }
 
     async findAll(query?: string): Promise<PublicUserDto[]> {
         //should get from DB (and still use query if necessary)
-        var users: User[];
+        var users: UserDocument[];
         if (query) {
-            users = this.users.filter(user => user.publicData.displayName.indexOf(query) != -1);
+            users = await this.userModel.find({'publicData.displayName': { "$regex": query, "$options": "i" }});
         } else {
-            users = this.users;
+            users =  await this.userModel.find();
         }
 
         //convert User to PublicUser
@@ -95,13 +106,13 @@ export class UsersService {
         })) as PublicUserDto[];
     }
 
-    async findById(id: string): Promise<User | undefined> {
-        //should get from databse 
-        return this.users.find(user => user.id == id);
+    async findById(id: string): Promise<UserDocument | null> {
+        //should get from databse
+        return await this.userModel.findById(id);
     }
 
-    async findByEmail(email: string): Promise<User | undefined> {
+    async findByEmail(email: string): Promise<UserDocument | null> {
         //should get from databse 
-        return this.users.find(user => user.email == email);
+        return await this.userModel.findOne({email: email});
     }
 }
