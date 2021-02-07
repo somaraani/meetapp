@@ -21,7 +21,7 @@ export class UsersController {
 
     @Get(':id/public')
     async findOnePublic(@Param('id') id: string)  {
-        var user: User | null  = await this.usersService.findById(id);
+        var user = await this.usersService.findById(id);
         if(!user) {
             throw new NotFoundException("A user with that id does not exist.");
         }

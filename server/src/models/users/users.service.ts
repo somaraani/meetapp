@@ -21,7 +21,7 @@ export class UsersService {
     //mock users
     private readonly users: User[] = [
         {
-            _id: "1",
+            id: "1",
             email: "first@testing.com",
             publicData: {
                 displayName: "a",
@@ -32,7 +32,7 @@ export class UsersService {
             }
         },
         {
-            _id: "2",
+            id: "2",
             email: "second@testing.com",
             publicData: {
                 displayName: "a",
@@ -47,12 +47,12 @@ export class UsersService {
     async update(id: string, data: User) : Promise<User> {
         //error if someone else is already using email being changed
         const userWithEmail = await this.findByEmail(data.email);
-        if(userWithEmail && userWithEmail?._id != id) {
+        if(userWithEmail && userWithEmail.id != id) {
             throw new ConflictException("Another user is associated with that email.");
         }
 
         //should update in db
-        const currUser: UserDocument | null = await this.findById(id);
+        const currUser = await this.userModel.findById(id);
 
         if (currUser) {
             //ensure user does not change their id
@@ -106,12 +106,12 @@ export class UsersService {
         })) as PublicUserDto[];
     }
 
-    async findById(id: string): Promise<UserDocument | null> {
+    async findById(id: string): Promise<User | null> {
         //should get from databse
         return await this.userModel.findById(id);
     }
 
-    async findByEmail(email: string): Promise<UserDocument | null> {
+    async findByEmail(email: string): Promise<User | null> {
         //should get from databse 
         return await this.userModel.findOne({email: email});
     }

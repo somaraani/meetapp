@@ -11,5 +11,12 @@ export const UserSchema = new Schema({
     password: String
   }
 });
+UserSchema.set('toJSON', {
+  virtuals: true,
+  transform: (doc, ret) => {
+    delete ret._id
+    return ret;
+  }
+});
 
 export type UserDocument = User & Document
