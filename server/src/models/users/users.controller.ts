@@ -1,4 +1,4 @@
-import { Body, ConflictException, Controller, Get, Logger, NotFoundException, Param, Post, Put, Query, UnauthorizedException } from '@nestjs/common';
+import { Body, ConflictException, Controller, Get, Logger, NotFoundException, Param, Post, Put, Query, Req, UnauthorizedException } from '@nestjs/common';
 import { User } from '@types';
 import { authenticate, use } from 'passport';
 import { Public } from 'src/common/decorators/metadata/public';
@@ -21,7 +21,7 @@ export class UsersController {
 
     @Get(':id/public')
     async findOnePublic(@Param('id') id: string)  {
-        var user: User | undefined = await this.usersService.findById(id);
+        var user = await this.usersService.findById(id);
         if(!user) {
             throw new NotFoundException("A user with that id does not exist.");
         }
