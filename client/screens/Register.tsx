@@ -1,6 +1,7 @@
 import React, { FC, useState } from "react";
-import { StyleSheet, Text, TextInput, View } from "react-native";
+import { StatusBar, StyleSheet, Text, TextInput, View } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
+import { Ionicons } from "@expo/vector-icons";
 
 interface Props {
   navigation: any;
@@ -14,11 +15,12 @@ const Register: FC<Props> = ({ navigation }) => {
 
   const submitHandler = () => {
     console.log(name, email, password, confirmPass);
+    navigation.navigate("Main");
   };
 
   return (
     <>
-      <View></View>
+      <StatusBar />
       <View style={styles.container}>
         <View>
           <Text style={{ color: "#fff", marginBottom: 15, fontWeight: "bold" }}>
@@ -58,7 +60,7 @@ const Register: FC<Props> = ({ navigation }) => {
           <Text style={{ color: "#fff" }}>
             Already have an account?{" "}
             <Text
-              style={{ color: "#25B8DA", fontWeight: "bold" }}
+              style={{ color: "#2196F3", fontWeight: "bold" }}
               onPress={() => navigation.navigate("Login")}
             >
               Sign In
@@ -80,11 +82,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#000",
   },
   input: {
-    borderColor: "white",
-    borderWidth: 1,
+    backgroundColor: "rgba(255,255,255,0.1)",
     borderRadius: 4,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
+    paddingHorizontal: 11,
+    paddingVertical: 4,
     width: 200,
     color: "white",
     marginBottom: 15,
