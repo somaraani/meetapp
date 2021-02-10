@@ -4,6 +4,9 @@ import { StackNavigationProp } from "@react-navigation/stack";
 export type AuthParamList = {
   Login: undefined;
   Register: undefined;
+  Home: undefined;
+  Meetings: undefined;
+  MeetingPage: undefined;
 };
 
 export type AuthNavProps<T extends keyof AuthParamList> = {

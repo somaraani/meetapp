@@ -1,6 +1,8 @@
-import React from "react";
-import { FlatList, StyleSheet, Text, View } from "react-native";
+import React, { useContext } from "react";
+import { Button, FlatList, StyleSheet, Text, View } from "react-native";
 import MeetingCard from "../components/MeetingCard";
+import { AuthNavProps } from "../src/AuthParamList";
+import { AuthContext } from "../src/AuthProvider";
 
 const numColumns = 2;
 
@@ -14,7 +16,7 @@ const MeetingsData = [
   { id: "7", title: "Meeting 7", lat: 43.653225, lng: -79.383186 },
 ];
 
-const formatData = (data, numColumns) => {
+const formatData = (data: any, numColumns: any) => {
   const numberOfFullRows = Math.floor(data.length / numColumns);
 
   let numberOfElementsLastRow = data.length - numberOfFullRows * numColumns;
@@ -29,8 +31,8 @@ const formatData = (data, numColumns) => {
   return data;
 };
 
-const Meetings = ({ navigation }) => {
-  const renderItem = ({ item, index }) => {
+const Home = ({ navigation }: AuthNavProps<"Home">) => {
+  const renderItem = ({ item }: { item: any }) => {
     if (item.empty === true) {
       return <View style={styles.item} />;
     }
@@ -49,7 +51,7 @@ const Meetings = ({ navigation }) => {
   );
 };
 
-export default Meetings;
+export default Home;
 
 const styles = StyleSheet.create({
   container: {

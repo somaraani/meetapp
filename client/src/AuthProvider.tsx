@@ -13,34 +13,19 @@ interface AuthProviderProps {}
 
 const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User>(null);
-  const fakeUser = { username: "bob" };
-
-  const loginUser = async () => {
-    try {
-      await AsyncStorage.setItem("user", JSON.stringify(fakeUser));
-    } catch (e) {
-      console.log(e.message);
-    }
-  };
-
-  const logoutUser = async () => {
-    try {
-      await AsyncStorage.removeItem("user");
-    } catch (e) {
-      console.log(e.message);
-    }
-  };
 
   return (
     <AuthContext.Provider
       value={{
         user,
         login: () => {
+          const fakeUser = { username: "bob" };
           setUser(fakeUser);
-          loginUser();
+          AsyncStorage.setItem("user", JSON.stringify(fakeUser));
         },
         logout: () => {
-          logoutUser();
+          setUser(null);
+          AsyncStorage.removeItem("user");
         },
       }}
     >

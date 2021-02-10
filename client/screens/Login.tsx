@@ -1,5 +1,5 @@
 import { StackNavigationProp } from "@react-navigation/stack";
-import React, { FC, useState } from "react";
+import React, { FC, useContext, useState } from "react";
 import {
   StyleSheet,
   View,
@@ -9,14 +9,17 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { AuthNavProps, AuthParamList } from "../src/AuthParamList";
+import { AuthContext } from "../src/AuthProvider";
 
 const Login = ({ navigation }: AuthNavProps<"Login">) => {
+  const { login } = useContext(AuthContext);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const submitHandler = () => {
     console.log(email, password);
-    navigation.navigate("Main");
+    login();
   };
 
   return (
