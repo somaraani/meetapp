@@ -1,5 +1,5 @@
 import React from "react";
-import { FlatList, StatusBar, StyleSheet, Text, View } from "react-native";
+import { FlatList, StyleSheet, Text, View } from "react-native";
 import MeetingCard from "../components/MeetingCard";
 
 const numColumns = 2;
@@ -38,17 +38,14 @@ const Meetings = ({ navigation }) => {
   };
 
   return (
-    <>
-      <StatusBar />
-      <View style={styles.container}>
-        <FlatList
-          data={formatData(MeetingsData, numColumns)}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id}
-          numColumns={numColumns}
-        />
-      </View>
-    </>
+    <View style={styles.container}>
+      <FlatList
+        data={formatData(MeetingsData, numColumns)}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.id}
+        numColumns={numColumns}
+      />
+    </View>
   );
 };
 
