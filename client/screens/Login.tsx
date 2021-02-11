@@ -8,12 +8,12 @@ import {
   Image,
   TouchableOpacity,
 } from "react-native";
+import { getUsers } from "../api/ApiWrapper";
 import { AuthNavProps, AuthParamList } from "../src/AuthParamList";
 import { AuthContext } from "../src/AuthProvider";
 
 const Login = ({ navigation }: AuthNavProps<"Login">) => {
   const { login } = useContext(AuthContext);
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
