@@ -10,7 +10,7 @@ const MeetingCard = ({ item }: { item: any }) => {
     <View style={styles.container}>
       <TouchableOpacity
         onPress={() => {
-          navigation.navigate("MeetingPage", item);
+          navigation.navigate("MeetingTabs", item);
         }}
       >
         <View

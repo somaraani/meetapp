@@ -1,4 +1,3 @@
-import { StackNavigationProp } from "@react-navigation/stack";
 import React, { FC, useContext, useState } from "react";
 import {
   StyleSheet,
@@ -8,6 +7,7 @@ import {
   Image,
   TouchableOpacity,
 } from "react-native";
+import { authenticate } from "../api/ApiWrapper";
 import { AuthNavProps, AuthParamList } from "../src/AuthParamList";
 import { AuthContext } from "../src/AuthProvider";
 
@@ -18,8 +18,9 @@ const Login = ({ navigation }: AuthNavProps<"Login">) => {
   const [password, setPassword] = useState("");
 
   const submitHandler = () => {
-    console.log(email, password);
-    login();
+    authenticate(email, password)
+      .then(({ access_token }) => console.log(access_token))
+      .catch((e) => console.log(e));
   };
 
   return (
