@@ -14,7 +14,7 @@ export const UserSchema = new Schema({
 UserSchema.set('toJSON', {
   virtuals: true,
   transform: (doc, ret) => {
-    delete ret._id
+    delete ret._id;
     return ret;
   }
 });
