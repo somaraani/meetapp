@@ -19,7 +19,7 @@ const Login = ({ navigation }: AuthNavProps<"Login">) => {
 
   const submitHandler = () => {
     authenticate(email, password)
-      .then(({ access_token }) => console.log(access_token))
+      .then(({ access_token }) => login(access_token))
       .catch((e) => console.log(e));
   };
 

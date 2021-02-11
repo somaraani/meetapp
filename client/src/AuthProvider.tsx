@@ -1,8 +1,9 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { FC, useState } from "react";
 import jwt_decode from "jwt-decode";
+import { getUser } from "../api/ApiWrapper";
 
-type User = null | { username: string };
+type User = null | any;
 
 export const AuthContext = React.createContext<{
   user: User;
@@ -26,11 +27,14 @@ const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
       value={{
         user,
         login: (token) => {
-          const userInfo = jwt_decode(token);
-          console.log(userInfo);
-          const fakeUser = { username: "bob" };
-          setUser(fakeUser);
-          AsyncStorage.setItem("user", JSON.stringify(fakeUser));
+          const { id } = jwt_decode(token);
+          getUser(id, token)
+            .then((value) => {
+              console.log({ token, ...value });
+              setUser({ token, ...value });
+              AsyncStorage.setItem("user", JSON.stringify({ token, id }));
+            })
+            .catch((e) => console.log(e));
         },
         register: (token) => {},
         logout: () => {

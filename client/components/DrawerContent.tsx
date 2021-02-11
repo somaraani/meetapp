@@ -7,7 +7,7 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { color } from "react-native-reanimated";
 
 const DrawerContent = (props) => {
-  const { logout } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext);
 
   return (
     <View style={{ flex: 1 }}>
@@ -24,8 +24,10 @@ const DrawerContent = (props) => {
               />
 
               <View style={{ marginLeft: 15, flexDirection: "column" }}>
-                <Title style={styles.title}>Tasin Ahmed</Title>
-                <Caption style={styles.caption}>@tasinahmed</Caption>
+                <Title style={styles.title}>
+                  {user.publicData.displayName}
+                </Title>
+                <Caption style={styles.caption}>{user.email}</Caption>
               </View>
             </View>
           </View>

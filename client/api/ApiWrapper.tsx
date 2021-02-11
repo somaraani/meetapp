@@ -115,18 +115,25 @@ export function authenticate(email: string, password: string) {
   });
 }
 
-function postUsers(
+export function createUser(
   email: string,
   password: string,
   details: PublicUserData
 ): Promise<User> {
-  return fetchResource("users/", {
+  return fetchResource("users", {
     method: "POST",
     body: { email, password, details },
+    headers: {
+      "Content-Type": "application/json",
+    },
   });
 }
 
-function putUsersId(id: string, user: User, token: string): Promise<User> {
+export function updateUser(
+  id: string,
+  user: User,
+  token: string
+): Promise<User> {
   return fetchResource(`users/${id}/`, {
     method: "PUT",
     body: user,
@@ -136,7 +143,7 @@ function putUsersId(id: string, user: User, token: string): Promise<User> {
   });
 }
 
-function getUsersId(id: string, token: string): Promise<User> {
+export function getUser(id: string, token: string): Promise<User> {
   return fetchResource(`users/${id}/`, {
     method: "GET",
     headers: {
@@ -145,7 +152,10 @@ function getUsersId(id: string, token: string): Promise<User> {
   });
 }
 
-function getUsersIdPublic(id: string, token: string): Promise<PublicUserData> {
+export function getPublicUser(
+  id: string,
+  token: string
+): Promise<PublicUserData> {
   return fetchResource(`users/${id}/public`, {
     method: "GET",
     headers: {
@@ -154,7 +164,7 @@ function getUsersIdPublic(id: string, token: string): Promise<PublicUserData> {
   });
 }
 
-function getUsers(
+export function getUsers(
   userId_query: string,
   userEmail_query: string,
   token: string

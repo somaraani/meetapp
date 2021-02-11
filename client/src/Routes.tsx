@@ -99,7 +99,7 @@ export const Routes = () => {
     AsyncStorage.getItem("user")
       .then((userString) => {
         if (userString) {
-          login();
+          login(JSON.parse(userString).token);
         }
         setLoading(false);
       })

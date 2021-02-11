@@ -1,19 +1,30 @@
-import React, { FC, useState } from "react";
+import React, { FC, useContext, useState } from "react";
 import { StyleSheet, Text, TextInput, View } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { Ionicons } from "@expo/vector-icons";
 import { AuthNavProps, AuthParamList } from "../src/AuthParamList";
 import { StackNavigationProp } from "@react-navigation/stack";
+import { authenticate, createUser } from "../api/ApiWrapper";
+import { AuthContext } from "../src/AuthProvider";
 
 const Register = ({ navigation }: AuthNavProps<"Register">) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPass, setConfirmPass] = useState("");
+  const { login } = useContext(AuthContext);
 
   const submitHandler = () => {
-    console.log(name, email, password, confirmPass);
-    navigation.navigate("Main");
+    createUser(email, password, {
+      displayName: name,
+      displayPicture: "sample picture",
+    })
+      .then(() =>
+        authenticate(email, password)
+          .then(({ access_token }) => login(access_token))
+          .catch((e) => console.log(e))
+      )
+      .catch((e) => console.log(e));
   };
 
   return (
