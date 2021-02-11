@@ -13,3 +13,10 @@ export interface PublicUserData {
 export interface PrivateUserData {
     password: string
 }
+
+export interface Invitation {
+    invitationID: string,
+    meetingID: string,
+    userID: string,
+    status: string
+}
