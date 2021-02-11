@@ -1,3 +1,6 @@
+import {PublicUserData, User} from "@types"
+import { Value } from "react-native-reanimated";
+
 const API_URL = 'http://localhost:3000/';
 
 function ApiError(message, data, status) {
@@ -71,11 +74,12 @@ const fetchResource = (path, userOptions = {}) => {
     });
 };
 
+/* EXAMPLES
 function getUsers() {
     return fetchResource('users');
   }
   
-  function signIn(username, password) {
+function signIn(username, password) {
     return fetchResource('signin', {
       method: 'POST',
       body: {
@@ -83,9 +87,9 @@ function getUsers() {
         password,
       },
     });
-  }
+}
   
-  function uploadAvatar(userId, file) {
+function uploadAvatar(userId, file) {
     return fetchResource(`users/${ userId }/avatar/`, {
       method: 'PUT',
       body: file,
@@ -93,7 +97,56 @@ function getUsers() {
         'Content-Type': file.type,
       },
     });
-  }
+}
+*/
 
+function postUsers(email:string, password:string, details:PublicUserData): Promise<User> {
+  return fetchResource('users/', {
+    method: 'POST',
+    body: {email, password, details},
+
+  });
+}
+
+function putUsersId(id:string, user:User, token:string): Promise<User> {
+  return fetchResource(`users/${ id }/`, {
+    method: "PUT",
+    body: user,
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+}
+
+function getUsersId(id:string, token:string): Promise<User> {
+  return fetchResource(`users/${ id }/`, {
+    method: "GET",
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+}
+
+function getUsersIdPublic(id:string, token:string): Promise<PublicUserData> {
+  return fetchResource(`users/${ id}/public`, {
+    method: "GET",
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+}
+
+function getUsers(userId_query:string, userEmail_query:string, token:string): Promise<User[]> {
+  var url = new URL('users/')
+  var params = {id:userId_query, email:userEmail_query}
+  url.search = new URLSearchParams(params).toString();
+
+  return fetchResource(url, {
+    method: "GET",
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  })
+}
 
 export default fetchResource;
