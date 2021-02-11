@@ -17,7 +17,7 @@ export class AuthService {
         //TODO these passwords need to be hased in the database
 
         if (user && user.privateData.password === password) {
-            const { privateData, ...result } = user;
+            const result = {id: user.id, email: user.email};
             return result;
         }
 
