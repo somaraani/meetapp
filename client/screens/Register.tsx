@@ -1,9 +1,7 @@
 import React, { FC, useContext, useState } from "react";
 import { StyleSheet, Text, TextInput, View } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
-import { Ionicons } from "@expo/vector-icons";
 import { AuthNavProps, AuthParamList } from "../src/AuthParamList";
-import { StackNavigationProp } from "@react-navigation/stack";
 import { authenticate, createUser } from "../api/ApiWrapper";
 import { AuthContext } from "../src/AuthProvider";
 

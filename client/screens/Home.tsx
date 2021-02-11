@@ -12,8 +12,20 @@ const MeetingsData = [
     latitude: 43.653225,
     longitude: -79.383186,
     members: [
-      { latitude: 43.799554407720585, longitude: -79.35446070585937 },
-      { latitude: 43.719188449399326, longitude: -79.58128653338825 },
+      {
+        latitude: 43.799554407720585,
+        longitude: -79.35446070585937,
+        mode: "BICYCLING",
+        distance: null,
+        eta: null,
+      },
+      {
+        latitude: 43.719188449399326,
+        longitude: -79.58128653338825,
+        mode: "WALKING",
+        distance: null,
+        eta: null,
+      },
     ],
   },
   { id: "2", title: "Meeting 2", latitude: 28.599171, longitude: -81.201653 },
