@@ -2,7 +2,9 @@
 import { Injectable } from '@nestjs/common';
 import { UsersService } from '../models/users/users.service';
 import { JwtService } from '@nestjs/jwt';
+import * as jwt from 'jsonwebtoken';
 import { User } from '../../../shared/types'
+import { jwt as jwtConstants } from './constants';
 
 @Injectable()
 export class AuthService {
@@ -29,5 +31,20 @@ export class AuthService {
         return {
             access_token: this.jwtService.sign(payload)
         };
+    }
+
+    verifyJwt(token: string) {
+        try {
+            const decoded = <any>jwt.verify(token, jwtConstants.secret);
+            return {
+                id: decoded.id,
+                email: decoded.email,
+
+            }
+        }
+        catch (e)
+        {
+            return null;
+        }
     }
 }

@@ -7,6 +7,7 @@ import { JwtAuthGuard } from './authentication/jwt-auth.guard';
 import { UsersModule } from './models/users/users.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
+import { AppGateway } from './app.gateway';
 
 @Module({
   imports: [ConfigModule.forRoot(), UsersModule, AuthModule, MongooseModule.forRoot(<string>process.env.DB_CONNECTION_URI)],
@@ -17,7 +18,8 @@ import { ConfigModule } from '@nestjs/config';
       //adds auth to all endpoints
       provide: APP_GUARD,
       useClass: JwtAuthGuard
-    }
+    },
+    AppGateway
   ],
 })
 export class AppModule { }
