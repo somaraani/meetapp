@@ -50,7 +50,8 @@ export class UsersController {
     @Public()
     create(@Body() data: CreateUserDto) {
         this.logger.debug(`Request to create user with email ${data.email}`);
-        return this.usersService.create(data);
+        const id = this.usersService.create(data);
+        return { id };
     }
 
     @Get(':id')

@@ -2,7 +2,8 @@
 import { Injectable } from '@nestjs/common';
 import { UsersService } from '../models/users/users.service';
 import { JwtService } from '@nestjs/jwt';
-import { User } from '../../../shared/types'
+import { User } from '../../../shared/types';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
@@ -15,8 +16,7 @@ export class AuthService {
         const user = await this.usersService.findByEmail(email);
 
         //TODO these passwords need to be hased in the database
-
-        if (user && user.privateData.password === password) {
+        if (user && await bcrypt.compare(password, user.privateData.password)) {
             const result = {id: user.id, email: user.email};
             return result;
         }
