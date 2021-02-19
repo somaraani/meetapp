@@ -8,6 +8,7 @@ import { UsersModule } from './models/users/users.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 import { AppGateway } from './app.gateway';
+import { SocketService } from './socket/socket.service';
 
 @Module({
   imports: [ConfigModule.forRoot(), UsersModule, AuthModule, MongooseModule.forRoot(<string>process.env.DB_CONNECTION_URI)],
@@ -19,7 +20,8 @@ import { AppGateway } from './app.gateway';
       provide: APP_GUARD,
       useClass: JwtAuthGuard
     },
-    AppGateway
+    AppGateway,
+    SocketService
   ],
 })
 export class AppModule { }

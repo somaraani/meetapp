@@ -3,30 +3,33 @@ import { BaseWsExceptionFilter, SubscribeMessage, WebSocketGateway, WsException 
 import { exception } from 'console';
 import { listen, Socket } from 'socket.io';
 import { AuthService } from './authentication/auth.service';
+import { SocketService } from './socket/socket.service';
 
 @WebSocketGateway()
 export class AppGateway {
   constructor(
     private authService: AuthService,
-) { }
-
-  @SubscribeMessage('message')
-  handleMessage(client: any, payload: any): string {
-    return 'Hello world!';
-  }
+    private socketService: SocketService,
+  ) { }
 
   handleConnection(client: Socket) {
     const token = client.handshake.query.token;
     const tokenData = this.authService.verifyJwt(token);
-    if (!tokenData){
+    if (!tokenData) {
       client.disconnect(true);
       return;
     }
-    console.log('conn');
-    
+    this.socketService.addConnection(tokenData.id, client);
+    console.log(`socket ${client.id} connected`);
+  }
+
+  @SubscribeMessage('message')
+  handleMessage(client: Socket, payload: any): string {
+    return 'Hello world!';
   }
 
   handleDisconnect(client: Socket) {
-    console.log('dc');
+    console.log(`socket ${client.id} disconnected`);
+    this.socketService.removeConnection(client);
   }
 }
