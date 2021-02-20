@@ -15,7 +15,6 @@ export class AuthService {
     async validate(email, password): Promise<any> {
         const user = await this.usersService.findByEmail(email);
 
-        //TODO these passwords need to be hased in the database
         if (user && await bcrypt.compare(password, user.privateData.password)) {
             const result = {id: user.id, email: user.email};
             return result;
