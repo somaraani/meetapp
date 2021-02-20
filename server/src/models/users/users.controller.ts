@@ -19,6 +19,13 @@ export class UsersController {
         return this.usersService.findAll(q);
     }
 
+    @Get('self')
+    async findUserSelf(@Auth() auth)  {
+        //gets the user's id based on their JWT
+        var user = await this.usersService.findById(auth.userId);
+        return user;
+    }
+
     @Get(':id/public')
     async findOnePublic(@Param('id') id: string)  {
         var user = await this.usersService.findById(id);

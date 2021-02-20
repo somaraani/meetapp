@@ -1,11 +1,13 @@
 import React, { FC, useState } from "react";
-import { StyleSheet, Text, TextInput, View } from "react-native";
+import { StatusBar, StyleSheet, Text, TextInput, View } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { Ionicons } from "@expo/vector-icons";
-import { AuthNavProps, AuthParamList } from "../src/AuthParamList";
-import { StackNavigationProp } from "@react-navigation/stack";
 
-const Register = ({ navigation }: AuthNavProps<"Register">) => {
+interface Props {
+  navigation: any;
+}
+
+const Register: FC<Props> = ({ navigation }) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -17,53 +19,56 @@ const Register = ({ navigation }: AuthNavProps<"Register">) => {
   };
 
   return (
-    <View style={styles.container}>
-      <View>
-        <Text style={{ color: "#fff", marginBottom: 15, fontWeight: "bold" }}>
-          Create your account
-        </Text>
-        <TextInput
-          style={styles.input}
-          placeholder="full name"
-          placeholderTextColor="rgba(255, 250, 255,.45)"
-          onChangeText={(value) => setName(value)}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="email"
-          placeholderTextColor="rgba(255, 250, 255,.45)"
-          onChangeText={(value) => setEmail(value)}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="password"
-          placeholderTextColor="rgba(255, 250, 255,.45)"
-          secureTextEntry={true}
-          onChangeText={(value) => setPassword(value)}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="confirm password"
-          placeholderTextColor="rgba(255, 250, 255,.45)"
-          secureTextEntry={true}
-          onChangeText={(value) => setConfirmPass(value)}
-        />
-        <TouchableOpacity style={styles.button} onPress={submitHandler}>
-          <Text style={{ color: "black", fontWeight: "bold", fontSize: 18 }}>
-            Sign Up
+    <>
+      <StatusBar />
+      <View style={styles.container}>
+        <View>
+          <Text style={{ color: "#fff", marginBottom: 15, fontWeight: "bold" }}>
+            Create your account
           </Text>
-        </TouchableOpacity>
-        <Text style={{ color: "#fff" }}>
-          Already have an account?{" "}
-          <Text
-            style={{ color: "#2196F3", fontWeight: "bold" }}
-            onPress={() => navigation.navigate("Login")}
-          >
-            Sign In
+          <TextInput
+            style={styles.input}
+            placeholder="full name"
+            placeholderTextColor="rgba(255, 250, 255,.45)"
+            onChangeText={(value) => setName(value)}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="email"
+            placeholderTextColor="rgba(255, 250, 255,.45)"
+            onChangeText={(value) => setEmail(value)}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="password"
+            placeholderTextColor="rgba(255, 250, 255,.45)"
+            secureTextEntry={true}
+            onChangeText={(value) => setPassword(value)}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="confirm password"
+            placeholderTextColor="rgba(255, 250, 255,.45)"
+            secureTextEntry={true}
+            onChangeText={(value) => setConfirmPass(value)}
+          />
+          <TouchableOpacity style={styles.button} onPress={submitHandler}>
+            <Text style={{ color: "black", fontWeight: "bold", fontSize: 18 }}>
+              Sign Up
+            </Text>
+          </TouchableOpacity>
+          <Text style={{ color: "#fff" }}>
+            Already have an account?{" "}
+            <Text
+              style={{ color: "#2196F3", fontWeight: "bold" }}
+              onPress={() => navigation.navigate("Login")}
+            >
+              Sign In
+            </Text>
           </Text>
-        </Text>
+        </View>
       </View>
-    </View>
+    </>
   );
 };
 

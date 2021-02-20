@@ -74,79 +74,99 @@ const fetchResource = (path, userOptions = {}) => {
     });
 };
 
-/* EXAMPLES
-function getUsers() {
-    return fetchResource('users');
+
+class ApiWrapper {
+
+    token:string;
+    id:string;
+
+    signIn(email:string, password:string): void {
+        fetchResource('authenticate/', {
+            method: 'POST',
+            body: {email, password},
+      
+        }).then(value => (this.token) = value);
+
+        fetchResource(`users/self/`, {
+          method: "GET",
+          headers: {
+            'Authorization': `Bearer ${this.token}`,
+          },
+        }).then(value => (this.id) = value);
+    }
+
+    signOut(): void {
+        this.token = null;
+        this.id = null;
+    }
+
+    isSignedIn():boolean {
+        if (this.token) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    createUser(email:string, password:string, details:PublicUserData): Promise<User> {
+        return fetchResource('users/', {
+          method: 'POST',
+          body: {email, password, details},
+      
+        });
+    }
+
+    updateUser(user:User): Promise<User> {
+        return fetchResource(`users/${ this.id }/`, {
+          method: "PUT",
+          body: user,
+          headers: {
+            'Authorization': `Bearer ${this.token}`,
+          },
+        });
+    }
+
+    getUser(id:string): Promise<User> {
+        return fetchResource(`users/${ id }/`, {
+          method: "GET",
+          headers: {
+            'Authorization': `Bearer ${this.token}`,
+          },
+        });
+    }
+
+    getSelfUserId(): Promise<User> {
+      return fetchResource(`users/self/`, {
+        method: "GET",
+        headers: {
+          'Authorization': `Bearer ${this.token}`,
+        },
+      });
   }
-  
-function signIn(username, password) {
-    return fetchResource('signin', {
-      method: 'POST',
-      body: {
-        username,
-        password,
-      },
-    });
-}
-  
-function uploadAvatar(userId, file) {
-    return fetchResource(`users/${ userId }/avatar/`, {
-      method: 'PUT',
-      body: file,
-      headers: {
-        'Content-Type': file.type,
-      },
-    });
-}
-*/
 
-function postUsers(email:string, password:string, details:PublicUserData): Promise<User> {
-  return fetchResource('users/', {
-    method: 'POST',
-    body: {email, password, details},
+    getPublicUser(id:string): Promise<PublicUserData> {
+        return fetchResource(`users/${ id}/public`, {
+          method: "GET",
+          headers: {
+            'Authorization': `Bearer ${this.token}`,
+          },
+        });
+    }
 
-  });
-}
+    getUsers(userId_query:string, userEmail_query:string): Promise<User[]> {
+        var url = new URL('users/')
+        var params = {id:userId_query, email:userEmail_query}
+        url.search = new URLSearchParams(params).toString();
+      
+        return fetchResource(url, {
+          method: "GET",
+          headers: {
+            'Authorization': `Bearer ${this.token}`,
+          },
+        })
+    }
 
-function putUsersId(id:string, user:User, token:string): Promise<User> {
-  return fetchResource(`users/${ id }/`, {
-    method: "PUT",
-    body: user,
-    headers: {
-      'Authorization': `Bearer ${token}`,
-    },
-  });
-}
-
-function getUsersId(id:string, token:string): Promise<User> {
-  return fetchResource(`users/${ id }/`, {
-    method: "GET",
-    headers: {
-      'Authorization': `Bearer ${token}`,
-    },
-  });
-}
-
-function getUsersIdPublic(id:string, token:string): Promise<PublicUserData> {
-  return fetchResource(`users/${ id}/public`, {
-    method: "GET",
-    headers: {
-      'Authorization': `Bearer ${token}`,
-    },
-  });
-}
-
-function getUsers(userId_query:string, userEmail_query:string, token:string): Promise<User[]> {
-  var url = new URL('users/')
-  var params = {id:userId_query, email:userEmail_query}
-  url.search = new URLSearchParams(params).toString();
-
-  return fetchResource(url, {
-    method: "GET",
-    headers: {
-      'Authorization': `Bearer ${token}`,
-    },
-  })
 }
 
 export default fetchResource;

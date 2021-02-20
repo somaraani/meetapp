@@ -1,13 +1,10 @@
-import React, { useContext } from "react";
-import { Button, StyleSheet, Text, View } from "react-native";
-import { AuthContext } from "../src/AuthProvider";
+import React from "react";
+import { StyleSheet, Text, View } from "react-native";
 
-const DrawerContent = () => {
-  const { logout } = useContext(AuthContext);
-
+const DrawerContent = (props) => {
   return (
     <View>
-      <Button title="Logout" onPress={logout} />
+      <Text>This is a test</Text>
     </View>
   );
 };

@@ -1,8 +1,6 @@
-import React, { useContext } from "react";
-import { Button, FlatList, StyleSheet, Text, View } from "react-native";
+import React from "react";
+import { FlatList, StatusBar, StyleSheet, Text, View } from "react-native";
 import MeetingCard from "../components/MeetingCard";
-import { AuthNavProps } from "../src/AuthParamList";
-import { AuthContext } from "../src/AuthProvider";
 
 const numColumns = 2;
 
@@ -16,7 +14,7 @@ const MeetingsData = [
   { id: "7", title: "Meeting 7", lat: 43.653225, lng: -79.383186 },
 ];
 
-const formatData = (data: any, numColumns: any) => {
+const formatData = (data, numColumns) => {
   const numberOfFullRows = Math.floor(data.length / numColumns);
 
   let numberOfElementsLastRow = data.length - numberOfFullRows * numColumns;
@@ -31,8 +29,8 @@ const formatData = (data: any, numColumns: any) => {
   return data;
 };
 
-const Home = ({ navigation }: AuthNavProps<"Home">) => {
-  const renderItem = ({ item }: { item: any }) => {
+const Meetings = ({ navigation }) => {
+  const renderItem = ({ item, index }) => {
     if (item.empty === true) {
       return <View style={styles.item} />;
     }
@@ -40,18 +38,21 @@ const Home = ({ navigation }: AuthNavProps<"Home">) => {
   };
 
   return (
-    <View style={styles.container}>
-      <FlatList
-        data={formatData(MeetingsData, numColumns)}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id}
-        numColumns={numColumns}
-      />
-    </View>
+    <>
+      <StatusBar />
+      <View style={styles.container}>
+        <FlatList
+          data={formatData(MeetingsData, numColumns)}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id}
+          numColumns={numColumns}
+        />
+      </View>
+    </>
   );
 };
 
-export default Home;
+export default Meetings;
 
 const styles = StyleSheet.create({
   container: {
