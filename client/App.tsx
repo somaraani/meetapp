@@ -75,24 +75,24 @@ async function registerForPushNotificationsAsync() {
 
 function App() {
   useEffect(() => {
-    const socket = io('http://192.168.219.58:3000', {
-        transports: ['websocket'],
-        upgrade: false,
-        query: {token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IjUzcmUzZjNkMzJ0QGdtYWlsLmNvbSIsImlkIjoiNjAyMDNmMDFlMjRmNDExNWI4MThjYTViIiwiaWF0IjoxNjEzNjg3MDQwLCJleHAiOjE2MTM2ODgyNDB9.kwbPuINxAd37hQ5n53SQUPUhMv2krP3_3pg-UPvCy-0'}
-      });
-      socket.on('connect', function() {
-        console.log('Connected');
+    // const socket = io('http://192.168.219.58:3000', {
+    //     transports: ['websocket'],
+    //     upgrade: false,
+    //     query: {token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IjUzcmUzZjNkMzJ0QGdtYWlsLmNvbSIsImlkIjoiNjAyMDNmMDFlMjRmNDExNWI4MThjYTViIiwiaWF0IjoxNjEzNjg3MDQwLCJleHAiOjE2MTM2ODgyNDB9.kwbPuINxAd37hQ5n53SQUPUhMv2krP3_3pg-UPvCy-0'}
+    //   });
+    //   socket.on('connect', function() {
+    //     console.log('Connected');
 
-        socket.emit('message', {id:0,message:0}, (response: any)  =>
-          console.log('Identity:', response),
-        );
-      });
+    //     socket.emit('message', {id:0,message:0}, (response: any)  =>
+    //       console.log('Identity:', response),
+    //     );
+    //   });
      
-      socket.on('disconnect', function() {
-        console.log('disconnected');
-      });
+    //   socket.on('disconnect', function() {
+    //     console.log('disconnected');
+    //   });
    
-    //registerForPushNotificationsAsync().then(token => console.log(token));
+    // //registerForPushNotificationsAsync().then(token => console.log(token));
   }, []);
 
   return (
