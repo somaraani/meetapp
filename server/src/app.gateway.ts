@@ -1,7 +1,6 @@
 import { UseFilters, UseGuards } from '@nestjs/common';
 import { BaseWsExceptionFilter, SubscribeMessage, WebSocketGateway, WsException } from '@nestjs/websockets';
-import { exception } from 'console';
-import { listen, Socket } from 'socket.io';
+import { Socket } from 'socket.io';
 import { AuthService } from './authentication/auth.service';
 import { SocketService } from './socket/socket.service';
 
@@ -9,7 +8,7 @@ import { SocketService } from './socket/socket.service';
 export class AppGateway {
   constructor(
     private authService: AuthService,
-    private socketService: SocketService,
+    private socketService: SocketService
   ) { }
 
   handleConnection(client: Socket) {
@@ -21,11 +20,6 @@ export class AppGateway {
     }
     this.socketService.addConnection(tokenData.id, client);
     console.log(`socket ${client.id} connected`);
-  }
-
-  @SubscribeMessage('message')
-  handleMessage(client: Socket, payload: any): string {
-    return 'Hello world!';
   }
 
   handleDisconnect(client: Socket) {
