@@ -3,8 +3,10 @@ import { Injectable } from '@nestjs/common';
 import { UsersService } from '../models/users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as jwt from 'jsonwebtoken';
-import { User } from '../../../shared/types'
 import { jwt as jwtConstants } from './constants';
+import { User } from '@types';
+import * as bcrypt from 'bcrypt';
+
 
 @Injectable()
 export class AuthService {
@@ -16,9 +18,7 @@ export class AuthService {
     async validate(email, password): Promise<any> {
         const user = await this.usersService.findByEmail(email);
 
-        //TODO these passwords need to be hased in the database
-
-        if (user && user.privateData.password === password) {
+        if (user && await bcrypt.compare(password, user.privateData.password)) {
             const result = {id: user.id, email: user.email};
             return result;
         }

@@ -9,9 +9,10 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 import { AppGateway } from './app.gateway';
 import { SocketService } from './socket/socket.service';
+import { MeetingsModule } from './models/meetings/meetings.module';
 
 @Module({
-  imports: [ConfigModule.forRoot(), UsersModule, AuthModule, MongooseModule.forRoot(<string>process.env.DB_CONNECTION_URI)],
+  imports: [ConfigModule.forRoot(), UsersModule, MeetingsModule, AuthModule, MongooseModule.forRoot(<string>process.env.DB_CONNECTION_URI)],
   controllers: [AppController],
   providers: [
     AppService,
