@@ -8,9 +8,17 @@ import { UsersModule } from './models/users/users.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 import { MeetingsModule } from './models/meetings/meetings.module';
+import { InvitationsModule } from './models/invitations/invitations.module';
 
 @Module({
-  imports: [ConfigModule.forRoot(), UsersModule, MeetingsModule, AuthModule, MongooseModule.forRoot(<string>process.env.DB_CONNECTION_URI)],
+  imports: [
+            ConfigModule.forRoot(), 
+            UsersModule,
+            MeetingsModule, 
+            InvitationsModule, 
+            AuthModule, 
+            MongooseModule.forRoot(<string>process.env.DB_CONNECTION_URI)
+          ],
   controllers: [AppController],
   providers: [
     AppService,

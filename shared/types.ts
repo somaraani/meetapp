@@ -35,9 +35,9 @@ export interface PrivateUserData {
 }
 
 export interface Invitation {
-    invitationID: string,
-    meetingID: string,
-    userID: string,
+    id: string,
+    meetingId: string,
+    userId: string,
     status: string
 }
 
