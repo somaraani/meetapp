@@ -1,15 +1,18 @@
-import { UseFilters, UseGuards } from '@nestjs/common';
-import { BaseWsExceptionFilter, SubscribeMessage, WebSocketGateway, WsException } from '@nestjs/websockets';
-import { Socket } from 'socket.io';
+import { OnGatewayInit, WebSocketGateway } from '@nestjs/websockets';
+import { Server, Socket } from 'socket.io';
 import { AuthService } from './authentication/auth.service';
 import { SocketService } from './socket/socket.service';
 
 @WebSocketGateway()
-export class AppGateway {
+export class AppGateway implements OnGatewayInit {
   constructor(
     private authService: AuthService,
     private socketService: SocketService
   ) { }
+
+  afterInit(server: Server){
+    this.socketService.setServer(server);
+  }
 
   handleConnection(client: Socket) {
     const token = client.handshake.query.token;

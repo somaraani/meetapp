@@ -10,9 +10,11 @@ import { ConfigModule } from '@nestjs/config';
 import { AppGateway } from './app.gateway';
 import { SocketService } from './socket/socket.service';
 import { MeetingsModule } from './models/meetings/meetings.module';
+import { NotificationsModule } from './models/notifications/notifications.module';
+import { SocketModule } from './socket/socket.module';
 
 @Module({
-  imports: [ConfigModule.forRoot(), UsersModule, MeetingsModule, AuthModule, MongooseModule.forRoot(<string>process.env.DB_CONNECTION_URI)],
+  imports: [ConfigModule.forRoot(), UsersModule, MeetingsModule, AuthModule, NotificationsModule, SocketModule, MongooseModule.forRoot(<string>process.env.DB_CONNECTION_URI)],
   controllers: [AppController],
   providers: [
     AppService,
@@ -21,8 +23,7 @@ import { MeetingsModule } from './models/meetings/meetings.module';
       provide: APP_GUARD,
       useClass: JwtAuthGuard
     },
-    AppGateway,
-    SocketService
+    AppGateway
   ],
 })
 export class AppModule { }
