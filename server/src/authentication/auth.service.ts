@@ -7,7 +7,6 @@ import { jwt as jwtConstants } from './constants';
 import { User } from '@types';
 import * as bcrypt from 'bcrypt';
 
-
 @Injectable()
 export class AuthService {
     constructor(

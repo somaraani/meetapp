@@ -8,7 +8,6 @@ import { UsersModule } from './models/users/users.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 import { AppGateway } from './app.gateway';
-import { SocketService } from './socket/socket.service';
 import { MeetingsModule } from './models/meetings/meetings.module';
 import { NotificationsModule } from './models/notifications/notifications.module';
 import { SocketModule } from './socket/socket.module';
