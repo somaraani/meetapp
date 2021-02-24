@@ -1,9 +1,10 @@
-import { Body, ConflictException, Controller, Get, Logger, NotFoundException, Param, Post, Put, Query, Req, UnauthorizedException } from '@nestjs/common';
+import { Body, ConflictException, Controller, Get, Logger, NotFoundException, Param, Post, Put, Query, Req, UnauthorizedException, UsePipes } from '@nestjs/common';
 import { User } from '@types';
 import { authenticate, use } from 'passport';
 import { Public } from 'src/common/decorators/metadata/public';
 import { Auth } from 'src/common/decorators/requests/auth.decorator';
 import { CreateUserDto } from './dto/CreateUserDto';
+import { UpdateUserPipe } from './user.pipes';
 import { UsersService } from './users.service'
 
 @Controller('users')
@@ -36,7 +37,7 @@ export class UsersController {
     }
 
     @Put(':id')
-    update(@Param('id') id: string, @Auth() auth, @Body() data: User) {
+    update(@Param('id') id: string, @Auth() auth, @Body(UpdateUserPipe) data: User) {
         this.logger.debug(`Request to update user with id: ${id}`);
 
         if(auth.userId !== id) {
