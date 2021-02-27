@@ -3,15 +3,14 @@ import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 
-const MeetingCard = ({ item }) => {
+const MeetingCard = ({ item }: { item: any }) => {
   const navigation = useNavigation();
 
   return (
     <View style={styles.container}>
       <TouchableOpacity
         onPress={() => {
-          navigation.navigate("MeetingPage", item);
-          console.log(item);
+          navigation.navigate("MeetingTabs", item);
         }}
       >
         <View
