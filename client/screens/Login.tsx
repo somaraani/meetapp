@@ -1,4 +1,4 @@
-import React, { FC, useState } from "react";
+import React, { FC, useContext, useState } from "react";
 import {
   StyleSheet,
   View,
@@ -6,67 +6,65 @@ import {
   Text,
   Image,
   TouchableOpacity,
-  StatusBar,
 } from "react-native";
+import { authenticate } from "../api/ApiWrapper";
+import { AuthNavProps, AuthParamList } from "../src/AuthParamList";
+import { AuthContext } from "../src/AuthProvider";
 
-interface Props {
-  navigation: any;
-}
+const Login = ({ navigation }: AuthNavProps<"Login">) => {
+  const { login } = useContext(AuthContext);
 
-const Login: FC<Props> = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const submitHandler = () => {
-    console.log(email, password);
-    navigation.navigate("Main");
+    authenticate(email, password)
+      .then(({ access_token }) => login(access_token))
+      .catch((e) => console.log(e));
   };
 
   return (
-    <>
-      <StatusBar />
-      <View style={styles.container}>
-        <Image
-          source={require("../assets/logo.png")}
-          style={{ marginBottom: 70 }}
+    <View style={styles.container}>
+      <Image
+        source={require("../assets/logo.png")}
+        style={{ marginBottom: 70 }}
+      />
+      <View>
+        <Text style={{ color: "#fff", marginBottom: 15, fontWeight: "bold" }}>
+          Login to your account
+        </Text>
+        <TextInput
+          style={styles.input}
+          placeholder="email"
+          placeholderTextColor="rgba(255, 250, 255,.45)"
+          onChangeText={(value) => setEmail(value)}
         />
-        <View>
-          <Text style={{ color: "#fff", marginBottom: 15, fontWeight: "bold" }}>
-            Login to your account
+        <TextInput
+          style={styles.input}
+          placeholder="password"
+          placeholderTextColor="rgba(255, 250, 255,.45)"
+          onChangeText={(value) => setPassword(value)}
+          secureTextEntry={true}
+        />
+        <TouchableOpacity style={styles.button} onPress={submitHandler}>
+          <Text style={{ color: "white", fontWeight: "bold", fontSize: 18 }}>
+            Sign In
           </Text>
-          <TextInput
-            style={styles.input}
-            placeholder="email"
-            placeholderTextColor="rgba(255, 250, 255,.45)"
-            onChangeText={(value) => setEmail(value)}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="password"
-            placeholderTextColor="rgba(255, 250, 255,.45)"
-            onChangeText={(value) => setPassword(value)}
-            secureTextEntry={true}
-          />
-          <TouchableOpacity style={styles.button} onPress={submitHandler}>
-            <Text style={{ color: "white", fontWeight: "bold", fontSize: 18 }}>
-              Sign In
-            </Text>
-          </TouchableOpacity>
-        </View>
-        <Text style={{ color: "rgba(255, 250, 255, 0.6)", marginBottom: 70 }}>
-          Forgot password?
-        </Text>
-        <Text style={{ color: "#fff" }}>
-          Don’t have an account?{" "}
-          <Text
-            style={{ color: "#2196F3", fontWeight: "bold" }}
-            onPress={() => navigation.navigate("Register")}
-          >
-            Sign Up
-          </Text>
-        </Text>
+        </TouchableOpacity>
       </View>
-    </>
+      <Text style={{ color: "rgba(255, 250, 255, 0.6)", marginBottom: 70 }}>
+        Forgot password?
+      </Text>
+      <Text style={{ color: "#fff" }}>
+        Don’t have an account?{" "}
+        <Text
+          style={{ color: "#2196F3", fontWeight: "bold" }}
+          onPress={() => navigation.navigate("Register")}
+        >
+          Sign Up
+        </Text>
+      </Text>
+    </View>
   );
 };
 
