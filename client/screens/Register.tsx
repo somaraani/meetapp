@@ -1,74 +1,78 @@
-import React, { FC, useState } from "react";
-import { StatusBar, StyleSheet, Text, TextInput, View } from "react-native";
+import React, { FC, useContext, useState } from "react";
+import { StyleSheet, Text, TextInput, View } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
-import { Ionicons } from "@expo/vector-icons";
+import { AuthNavProps, AuthParamList } from "../src/AuthParamList";
+import { authenticate, createUser } from "../api/ApiWrapper";
+import { AuthContext } from "../src/AuthProvider";
 
-interface Props {
-  navigation: any;
-}
-
-const Register: FC<Props> = ({ navigation }) => {
+const Register = ({ navigation }: AuthNavProps<"Register">) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPass, setConfirmPass] = useState("");
+  const { login } = useContext(AuthContext);
 
   const submitHandler = () => {
-    console.log(name, email, password, confirmPass);
-    navigation.navigate("Main");
+    createUser(email, password, {
+      displayName: name,
+      displayPicture: "sample picture",
+    })
+      .then(() =>
+        authenticate(email, password)
+          .then(({ access_token }) => login(access_token))
+          .catch((e) => console.log(e))
+      )
+      .catch((e) => console.log(e));
   };
 
   return (
-    <>
-      <StatusBar />
-      <View style={styles.container}>
-        <View>
-          <Text style={{ color: "#fff", marginBottom: 15, fontWeight: "bold" }}>
-            Create your account
+    <View style={styles.container}>
+      <View>
+        <Text style={{ color: "#fff", marginBottom: 15, fontWeight: "bold" }}>
+          Create your account
+        </Text>
+        <TextInput
+          style={styles.input}
+          placeholder="full name"
+          placeholderTextColor="rgba(255, 250, 255,.45)"
+          onChangeText={(value) => setName(value)}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="email"
+          placeholderTextColor="rgba(255, 250, 255,.45)"
+          onChangeText={(value) => setEmail(value)}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="password"
+          placeholderTextColor="rgba(255, 250, 255,.45)"
+          secureTextEntry={true}
+          onChangeText={(value) => setPassword(value)}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="confirm password"
+          placeholderTextColor="rgba(255, 250, 255,.45)"
+          secureTextEntry={true}
+          onChangeText={(value) => setConfirmPass(value)}
+        />
+        <TouchableOpacity style={styles.button} onPress={submitHandler}>
+          <Text style={{ color: "black", fontWeight: "bold", fontSize: 18 }}>
+            Sign Up
           </Text>
-          <TextInput
-            style={styles.input}
-            placeholder="full name"
-            placeholderTextColor="rgba(255, 250, 255,.45)"
-            onChangeText={(value) => setName(value)}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="email"
-            placeholderTextColor="rgba(255, 250, 255,.45)"
-            onChangeText={(value) => setEmail(value)}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="password"
-            placeholderTextColor="rgba(255, 250, 255,.45)"
-            secureTextEntry={true}
-            onChangeText={(value) => setPassword(value)}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="confirm password"
-            placeholderTextColor="rgba(255, 250, 255,.45)"
-            secureTextEntry={true}
-            onChangeText={(value) => setConfirmPass(value)}
-          />
-          <TouchableOpacity style={styles.button} onPress={submitHandler}>
-            <Text style={{ color: "black", fontWeight: "bold", fontSize: 18 }}>
-              Sign Up
-            </Text>
-          </TouchableOpacity>
-          <Text style={{ color: "#fff" }}>
-            Already have an account?{" "}
-            <Text
-              style={{ color: "#2196F3", fontWeight: "bold" }}
-              onPress={() => navigation.navigate("Login")}
-            >
-              Sign In
-            </Text>
+        </TouchableOpacity>
+        <Text style={{ color: "#fff" }}>
+          Already have an account?{" "}
+          <Text
+            style={{ color: "#2196F3", fontWeight: "bold" }}
+            onPress={() => navigation.navigate("Login")}
+          >
+            Sign In
           </Text>
-        </View>
+        </Text>
       </View>
-    </>
+    </View>
   );
 };
 
