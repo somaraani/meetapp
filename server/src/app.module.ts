@@ -7,10 +7,13 @@ import { JwtAuthGuard } from './authentication/jwt-auth.guard';
 import { UsersModule } from './models/users/users.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
+import { AppGateway } from './app.gateway';
 import { MeetingsModule } from './models/meetings/meetings.module';
+import { NotificationsModule } from './models/notifications/notifications.module';
+import { SocketModule } from './socket/socket.module';
 
 @Module({
-  imports: [ConfigModule.forRoot(), UsersModule, MeetingsModule, AuthModule, MongooseModule.forRoot(<string>process.env.DB_CONNECTION_URI)],
+  imports: [ConfigModule.forRoot(), UsersModule, MeetingsModule, AuthModule, NotificationsModule, SocketModule, MongooseModule.forRoot(<string>process.env.DB_CONNECTION_URI)],
   controllers: [AppController],
   providers: [
     AppService,
@@ -18,7 +21,8 @@ import { MeetingsModule } from './models/meetings/meetings.module';
       //adds auth to all endpoints
       provide: APP_GUARD,
       useClass: JwtAuthGuard
-    }
+    },
+    AppGateway
   ],
 })
 export class AppModule { }

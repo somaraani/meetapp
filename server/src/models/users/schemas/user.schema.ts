@@ -1,7 +1,8 @@
 import { User } from '@types';
 import {Schema, Document} from 'mongoose';
+import { CreateSchema } from 'src/database/util';
 
-export const UserSchema = new Schema({
+export const UserSchema = CreateSchema({
   email: String,
   publicData: {
     displayName: String,
@@ -9,13 +10,6 @@ export const UserSchema = new Schema({
   },
   privateData: {
     password: String
-  }
-});
-UserSchema.set('toJSON', {
-  virtuals: true,
-  transform: (doc, ret) => {
-    delete ret._id;
-    return ret;
   }
 });
 

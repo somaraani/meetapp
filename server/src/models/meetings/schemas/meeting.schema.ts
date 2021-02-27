@@ -1,7 +1,8 @@
 import { Meeting } from '@types';
 import {Schema, Document} from 'mongoose';
+import { CreateSchema } from 'src/database/util';
 
-export const MeetingSchema = new Schema({
+export const MeetingSchema = CreateSchema({
   status: {type: String, default: "pending"},
   ownerId: String, 
   eta: String,
@@ -20,14 +21,6 @@ export const MeetingSchema = new Schema({
         journeyId: String
       }
     ]
-});
-
-MeetingSchema.set('toJSON', {
-  virtuals: true,
-  transform: (doc, ret) => {
-    delete ret._id;
-    return ret;
-  }
 });
 
 export type MeetingDocument = Meeting & Document

@@ -35,7 +35,7 @@ export interface PrivateUserData {
 }
 
 export interface Invitation {
-    invitationID: string,
+    id: string,
     meetingID: string,
     userID: string,
     status: string
@@ -63,8 +63,9 @@ export interface Coordinate {
 }
 
 export interface Notification {
-    notificationId: string,
+    id: string,
     userId: string,
     title: string,
-    message: string
+    message: string,
+    read: boolean
 }
