@@ -10,6 +10,7 @@ import { UserDocument } from './schemas/user.schema';
 import { Model } from 'mongoose';
 import { exception } from 'console';
 import { transformAuthInfo } from 'passport';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -76,17 +77,18 @@ export class UsersService {
 
         //this should push to a database
         //TODO look into UUID generation and where it should happen
-
+        const saltOrRounds = 10;
+        const hashedPassword = await bcrypt.hash(data.password, saltOrRounds);
         const user = new this.userModel(<User>{
             email: data.email,
             privateData: {
-                //password: data.password
-                password: 'password'
+                password: hashedPassword
             },
             publicData: data.details
         });
 
-        user.save();
+        await user.save();
+        user.privateData.password = '';
         return user;
     }
 
