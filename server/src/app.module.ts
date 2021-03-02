@@ -9,11 +9,20 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 import { AppGateway } from './app.gateway';
 import { MeetingsModule } from './models/meetings/meetings.module';
+import { InvitationsModule } from './models/invitations/invitations.module';
 import { NotificationsModule } from './models/notifications/notifications.module';
 import { SocketModule } from './socket/socket.module';
 
 @Module({
-  imports: [ConfigModule.forRoot(), UsersModule, MeetingsModule, AuthModule, NotificationsModule, SocketModule, MongooseModule.forRoot(<string>process.env.DB_CONNECTION_URI)],
+  imports: [
+    ConfigModule.forRoot(),
+    UsersModule, 
+    MeetingsModule, 
+    InvitationsModule, 
+    AuthModule, 
+    NotificationsModule, 
+    SocketModule, 
+    MongooseModule.forRoot(<string>process.env.DB_CONNECTION_URI)],
   controllers: [AppController],
   providers: [
     AppService,
