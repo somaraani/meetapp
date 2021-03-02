@@ -53,18 +53,38 @@ export interface Journey {
 }
 
 export interface JourneySetting {
-    transitType: string,
-    tolls: boolean
+    transitMode?: TransitMode[],
+    avoid?: TravelRestriction[]
+}
+
+export enum TransitMode {
+    bus = "bus",
+    subway = "subway",
+    train = "train",
+    tram = "tram",
+    rail = "rail"
+}
+
+export enum TravelRestriction {
+    tolls = "tolls",
+    highways = "highways",
 }
 
 export interface Coordinate {
-    long: number,
+    lng: number,
     lat: number
 }
 
 export interface Notification {
-    notificationId: string,
+    id: string,
     userId: string,
     title: string,
-    message: string
+    message: string,
+    read: boolean
+}
+
+export interface DirectionResponse {
+    path: Coordinate[],
+    eta: string,
+    distance: number
 }

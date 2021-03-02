@@ -87,7 +87,7 @@ export class UsersService {
             publicData: data.details
         });
 
-        user.save();
+        await user.save();
         user.privateData.password = '';
         return user;
     }
