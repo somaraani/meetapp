@@ -1,9 +1,9 @@
-import {PublicUserData, User} from "@types"
+import {Coordinate, Meeting, MeetingDetail, Notification, PublicUserData, User} from "@types"
 const axios = require('axios');
 const API_URL = 'http://localhost:3000/';
 
 class ApiWrapper {
-  private token: string;
+  public token: string;
   private id:string;
   constructor(){
     this.token = "";
@@ -56,7 +56,6 @@ class ApiWrapper {
   async getPublicUser(id:string): Promise<PublicUserData> {
     let res = await axios.get(`${ API_URL }users/${ id}/public/`, { headers: {"Authorization" : `Bearer ${this.token}`} });
     let data = res.data;
-    console.log(data);
     return data;
   }
 
@@ -64,16 +63,57 @@ class ApiWrapper {
 
     let res = await axios.get(`${ API_URL }users/`, { headers: {"Authorization" : `Bearer ${this.token}`},  params: { query: query }  });
     let data = res.data;
-    console.log(data);
     return data;
 
   }
+
+  async createMeeting(description:string, time:string, location:Coordinate): Promise<Meeting> {
+    let payload = { description:description, time:time, location:location };
+    let res = await axios.post(`${ API_URL }meetings/`, payload, { headers: {"Authorization" : `Bearer ${this.token}`} });
+    let data = res.data;
+    return data;
+  }
+
+  async getMeetingsByUserId(userId:string): Promise<Meeting[]> {
+    let res = await axios.get(`${ API_URL }meetings/`, { headers: {"Authorization" : `Bearer ${this.token}`}, params: { userId: userId } });
+    let data = res.data;
+    return data;
+  }
+
+  async getMeeting(meetingID:string): Promise<Meeting> {
+    let res = await axios.get(`${ API_URL }meetings/${ meetingID}/`, { headers: {"Authorization" : `Bearer ${this.token}`} });
+    let data = res.data;
+    return data;
+  }
+
+  async updateMeeting(meetingId:string, MeetingDetail:MeetingDetail): Promise<Meeting> {
+    let payload = MeetingDetail;
+    let res = await axios.put(`${ API_URL }meetings/${ meetingId }/details/`, payload, { headers: {"Authorization" : `Bearer ${this.token}`} });
+    let data = res.data;
+    return data;
+  }
+
+  async deleteMeeting(meetingID:string): Promise<void> {
+    await axios.delete(`${ API_URL }meetings/${ meetingID}/`, { headers: {"Authorization" : `Bearer ${this.token}`} });
+  }
+
+  async getNotifications(): Promise<Notification[]> {
+    let res = await axios.get(`${ API_URL }notifications/`, { headers: {"Authorization" : `Bearer ${this.token}`} });
+    let data = res.data;
+    return data;
+  }
+
+
+
+
+
 }
 
 
 
+
 /* Create User Test - Passed
-api.createUser("nav66@gmail.com", "password", {displayName:"TESTACCOUNT55", displayPicture:"https://images.unsplash.com/photo-1535498051285-5613026fae05?ixid=MXwxMjA3fDB8MHxzZWFyY2h8Mnx8ZGlzcGxheXxlbnwwfHwwfA%3D%3D&ixlib=rb-1.2.1&w=1000&q=80"});
+api.createUser("nav67@gmail.com", "password", {displayName:"TESTACCOUNT55", displayPicture:"https://images.unsplash.com/photo-1535498051285-5613026fae05?ixid=MXwxMjA3fDB8MHxzZWFyY2h8Mnx8ZGlzcGxheXxlbnwwfHwwfA%3D%3D&ixlib=rb-1.2.1&w=1000&q=80"});
 */
 
 /* Sign In Test - Passed
@@ -114,4 +154,18 @@ api.signIn('nav67@gmail.com', 'password').then(()=>{
 api.signIn('nav67@gmail.com', 'password').then(()=>{
   api.getPublicUser("603d366137fe8d1b08225d48");
 });
+*/
+
+/* Updating and getting meeting - Passed
+api.signIn('nav67@gmail.com', 'password').then(()=>{
+  api.updateMeeting('603dd5b44f26be3570f491d7', {description:"Updated Meeting 1", location:{lat:1,lng:3}, time:'2021-03-04'}).then(()=> {
+    api.getMeeting('603dd5b44f26be3570f491d7')
+  });
+*/
+
+/* Tested Deleting Meeting - Passed
+api.signIn('nav67@gmail.com', 'password').then(()=>{
+  api.deleteMeeting('603dd5b44f26be3570f491d7').then(()=> {
+    api.getMeetingsByUserId('603dce964f26be3570f491d4')
+  });
 */
