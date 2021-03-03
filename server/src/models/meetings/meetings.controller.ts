@@ -57,8 +57,14 @@ export class MeetingsController {
     }
 
     @Put(':id/details')
-    update(@Param('id') meetingId: string, @Auth() auth, @Body() data: MeetingDetail) {
+    async update(@Param('id') meetingId: string, @Auth() auth, @Body() data: MeetingDetail) {
         this.logger.debug(`Request to update meeting with id: ${meetingId}`);
+        const meeting: Meeting | null = await this.meetingsService.update(meetingId, auth.userId, data);
+
+        if(!meeting) {
+            throw new NotFoundException("Meeting with that ID was not found.");
+        }
+
         return this.meetingsService.update(meetingId, auth.userId, data);
     }
    
