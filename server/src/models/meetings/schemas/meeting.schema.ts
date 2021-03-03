@@ -10,13 +10,14 @@ export const MeetingSchema = CreateSchema({
     description: String,
     time: String, 
     location: {
-      long: String,
-      lat: String
+      lng: Number,
+      lat: Number
     }
   },
   participants: 
     [
       {
+        _id: false,
         userId: String,
         journeyId: String
       }
