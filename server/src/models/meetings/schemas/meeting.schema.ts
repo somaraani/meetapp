@@ -1,5 +1,5 @@
 import { Meeting } from '@types';
-import {Schema, Document} from 'mongoose';
+import { Document} from 'mongoose';
 import { CreateSchema } from 'src/database/util';
 
 export const MeetingSchema = CreateSchema({
@@ -10,7 +10,7 @@ export const MeetingSchema = CreateSchema({
     description: String,
     time: String, 
     location: {
-      long: String,
+      lng: String,
       lat: String
     }
   },

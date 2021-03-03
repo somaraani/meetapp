@@ -1,5 +1,5 @@
 
-import {  BadRequestException, ConflictException, Injectable } from '@nestjs/common';
+import {  BadRequestException, ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Invitation } from '@types'
 import { InjectModel } from '@nestjs/mongoose';
 import { InvitationDocument } from './schemas/invitation.schema';
@@ -17,12 +17,20 @@ export class InvitationsService {
         private meetingService: MeetingsService
     ) { }
 
-    async update(inviteId: string, accepted: boolean) : Promise<Invitation | null> {
+    async update(inviteId: string, userId: string, accepted: boolean) : Promise<Invitation | null> {
         const invite = await this.invitiationModel.findById(inviteId);
 
         if(!invite) {
             return null;
         } 
+
+        if(invite.status != "pending") {
+            throw new ConflictException("This meeting was already processed");
+        }
+
+        if(userId != invite.userId) {
+            throw new UnauthorizedException("Only user that was invited can accept this meeting.");
+        }
 
         if(accepted) {
             invite.status = "accepted";
@@ -42,12 +50,18 @@ export class InvitationsService {
             throw new BadRequestException("A user with that ID does not exist.");
         }
 
-        if(await this.meetingService.findById(meetingId) == null) {
+        const meeting = await this.meetingService.findById(meetingId);
+        if(meeting == null) {
             throw new BadRequestException("A meeting with that ID does not exist.");
         }
 
-        if((await this.findAll(userId, meetingId)).length > 0) {
-            throw new ConflictException("A meeting for that user and meeting already exist.");
+        if(meeting.participants.find(x => x.userId == userId)) {
+            throw new ConflictException("User is already part of meeting.");
+        }
+
+        var currentInvites = await this.findAll(userId, meetingId, "pending");
+        if(currentInvites?.length > 0) {
+            throw new ConflictException("There is already a pending invitation for this meeting and user");
         }
 
         const invite = new this.invitiationModel(<Invitation>{

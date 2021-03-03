@@ -1,5 +1,5 @@
 
-import { ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { Journey, JourneySetting, Meeting, MeetingDetail } from '@types'
 import { InjectModel } from '@nestjs/mongoose';
 import { JourneyDocument } from './schemas/journey.schema';
@@ -18,7 +18,7 @@ export class JourneysService {
         const currJourney = await this.journeyModel.findById(journeyId);
 
         if(!currJourney) {
-            return null;
+            throw new NotFoundException("A journey with that Id was not found.");
         }
 
         if(currJourney.userId != userId) {

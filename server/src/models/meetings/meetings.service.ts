@@ -42,19 +42,13 @@ export class MeetingsService {
                 description: data.description,
                 time: data.time,
                 location: data.location
-            }, 
-            participants: [
-                {
-                }
-            ]
+            }
         });
 
         await meeting.save();
 
         //add owner to participants 
-        await this.addUser(userId, meeting.id);
-
-        return meeting;
+        return this.addUser(userId, meeting.id);
     }
 
     async delete(id: string) {
@@ -75,7 +69,7 @@ export class MeetingsService {
     }
 
     //adds a user to the current meeting and creates a journey for them
-    async addUser(userId: string, meetingId: string) {
+    async addUser(userId: string, meetingId: string): Promise<Meeting> {
         var meeting = await this.meetingModel.findById(meetingId);
 
         if(!meeting) {
@@ -89,7 +83,8 @@ export class MeetingsService {
             journeyId: journey.id
         });
 
-        meeting.save();
+        await meeting.save();
+        return meeting;
     }
 
 }
