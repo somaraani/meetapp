@@ -1,17 +1,19 @@
 
-import { ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
-import { Meeting, MeetingDetail } from '@types'
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { Meeting, MeetingDetail, MeetingParticipant } from '@types'
 import { CreateMeetingDTO } from './dto/CreateMeetingDto';
 import { InjectModel } from '@nestjs/mongoose';
 import { MeetingDocument } from './schemas/meeting.schema';
 import { Model } from 'mongoose';
+import { JourneysService } from '../journeys/journeys.service';
 
 @Injectable()
 export class MeetingsService {
 
     constructor(
         @InjectModel("meeting")
-        private meetingModel: Model<MeetingDocument>
+        private meetingModel: Model<MeetingDocument>, 
+        private journeyService: JourneysService
     ) { }
 
     async update(meetingId: string, userId: string, data: MeetingDetail) : Promise<Meeting | null> {
@@ -43,13 +45,15 @@ export class MeetingsService {
             }, 
             participants: [
                 {
-                    userId: userId,
-                    journeyId: "123" //TODO create a journey for user 
                 }
             ]
         });
 
-        meeting.save();
+        await meeting.save();
+
+        //add owner to participants 
+        await this.addUser(userId, meeting.id);
+
         return meeting;
     }
 
@@ -68,6 +72,24 @@ export class MeetingsService {
 
     async findById(id: string): Promise<Meeting | null> {
         return await this.meetingModel.findById(id);
+    }
+
+    //adds a user to the current meeting and creates a journey for them
+    async addUser(userId: string, meetingId: string) {
+        var meeting = await this.meetingModel.findById(meetingId);
+
+        if(!meeting) {
+            throw new NotFoundException("A meeting with this id does not exist");
+        }
+
+        var journey = await this.journeyService.create(userId, meetingId);
+
+        meeting.participants.push(<MeetingParticipant> {
+            userId: userId,
+            journeyId: journey.id
+        });
+
+        meeting.save();
     }
 
 }

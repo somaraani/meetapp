@@ -4,10 +4,11 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { MeetingSchema } from './schemas/meeting.schema';
 import { MeetingsController } from './meetings.controller';
 import { MeetingsService } from './meetings.service';
+import { JourneysModule } from '../journeys/journeys.module';
 
 
 @Module({
-  imports: [MongooseModule.forFeature([{name: 'meeting', schema: MeetingSchema}])],
+  imports: [MongooseModule.forFeature([{name: 'meeting', schema: MeetingSchema}]), JourneysModule],
   controllers: [MeetingsController],
   providers: [MeetingsService],
   exports: [MeetingsService]

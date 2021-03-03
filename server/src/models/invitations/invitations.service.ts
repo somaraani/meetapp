@@ -26,13 +26,12 @@ export class InvitationsService {
 
         if(accepted) {
             invite.status = "accepted";
+            this.meetingService.addUser(invite.userId, invite.meetingId);
         } else {
             invite.status = "declined";
         }
 
         invite.save();
-
-        //TODO create journey and add it to meeting
 
         return invite;
     }
