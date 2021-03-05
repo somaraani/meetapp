@@ -28,7 +28,7 @@ const Login = ({ navigation }: AuthNavProps<"Login">) => {
       console.log(error.response.status);
 
       if ((email === "" || password === "") && error.response.status === 401) {
-        ToastAndroid.show("Fields cannot be empty", ToastAndroid.SHORT);
+        ToastAndroid.show("Fields must not be empty", ToastAndroid.SHORT);
       } else if (error.response.status === 401) {
         ToastAndroid.show("Invalid email or password", ToastAndroid.SHORT);
       }
