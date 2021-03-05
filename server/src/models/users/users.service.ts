@@ -1,5 +1,5 @@
 
-import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { User } from '@types'
 import { randomBytes } from 'crypto';
 import { CreateUserDto } from './dto/CreateUserDto';
@@ -73,6 +73,9 @@ export class UsersService {
         const userWithEmail = await this.findByEmail(data.email);
         if(userWithEmail) {
             throw new ConflictException("Another user is associated with that email.");
+        }
+        if(data.password !== data.confirmPass) {
+            throw new BadRequestException("Password does not match");
         }
 
         //this should push to a database

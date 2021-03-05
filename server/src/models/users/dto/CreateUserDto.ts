@@ -11,5 +11,9 @@ export class CreateUserDto {
     password: string
 
     @IsNotEmpty()
+    @MinLength(8)
+    confirmPass: string
+
+    @IsNotEmpty()
     details: PublicUserData
 }
