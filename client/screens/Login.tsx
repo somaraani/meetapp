@@ -6,6 +6,7 @@ import {
   Text,
   Image,
   TouchableOpacity,
+  ToastAndroid,
 } from "react-native";
 import { AuthNavProps, AuthParamList } from "../src/AuthParamList";
 import { AuthContext } from "../src/AuthProvider";
@@ -24,7 +25,13 @@ const Login = ({ navigation }: AuthNavProps<"Login">) => {
       let token = await login(email, password);
       console.log(token);
     } catch (error) {
-      console.log(error);
+      console.log(error.response.status);
+
+      if ((email === "" || password === "") && error.response.status === 401) {
+        ToastAndroid.show("Fields cannot be empty", ToastAndroid.SHORT);
+      } else if (error.response.status === 401) {
+        ToastAndroid.show("Invalid email or password", ToastAndroid.SHORT);
+      }
     }
   };
 
