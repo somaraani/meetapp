@@ -10,19 +10,32 @@ const Register = ({ navigation }: AuthNavProps<"Register">) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPass, setConfirmPass] = useState("");
-  const { login } = useContext(AuthContext);
+  const { register, login } = useContext(AuthContext);
 
-  const submitHandler = () => {
-    createUser(email, password, {
-      displayName: name,
-      displayPicture: "sample picture",
-    })
-      .then(() =>
-        authenticate(email, password)
-          .then(({ access_token }) => login(access_token))
-          .catch((e) => console.log(e))
-      )
-      .catch((e) => console.log(e));
+  const submitHandler = async () => {
+    // createUser(email, password, {
+    //   displayName: name,
+    //   displayPicture: "sample picture",
+    // })
+    //   .then(() =>
+    //     authenticate(email, password)
+    //       .then(({ access_token }) => login(access_token))
+    //       .catch((e) => console.log(e))
+    //   )
+    //   .catch((e) => console.log(e));
+    try {
+      await register(email, password, {
+        displayName: name,
+        displayPicture:
+          "https://images.unsplash.com/photo-1535498051285-5613026fae05?ixid=MXwxMjA3fDB8MHxzZWFyY2h8Mnx8ZGlzcGxheXxlbnwwfHwwfA%3D%3D&ixlib=rb-1.2.1&w=1000&q=80",
+      });
+
+      let token = await login(email, password);
+
+      console.log(token);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
