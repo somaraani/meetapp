@@ -92,14 +92,14 @@ const Meetings = ({ navigation }) => {
 };
 
 export const Routes = () => {
-  const { user, login } = useContext(AuthContext);
+  const { user, returnUser } = useContext(AuthContext);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     AsyncStorage.getItem("user")
-      .then((userString) => {
-        if (userString) {
-          login(JSON.parse(userString).token);
+      .then((token) => {
+        if (token) {
+          returnUser(token);
         }
         setLoading(false);
       })

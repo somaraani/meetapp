@@ -24,10 +24,12 @@ const DrawerContent = (props) => {
               />
 
               <View style={{ marginLeft: 15, flexDirection: "column" }}>
-                <Title style={styles.title}>
+                {/* <Title style={styles.title}>
                   {user.publicData.displayName}
-                </Title>
-                <Caption style={styles.caption}>{user.email}</Caption>
+                </Title> */}
+                <Title style={styles.title}>Tasin Ahmed</Title>
+                {/* <Caption style={styles.caption}>{user.email}</Caption> */}
+                <Caption style={styles.caption}>tasin@gmail.com</Caption>
               </View>
             </View>
           </View>
