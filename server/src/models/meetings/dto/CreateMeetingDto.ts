@@ -3,6 +3,8 @@ import {  IsISO8601, IsNotEmpty } from 'class-validator';
 
 export class CreateMeetingDTO {
 
+    name: string;
+    
     description: string;
 
     @IsISO8601()
