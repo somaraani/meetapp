@@ -19,6 +19,8 @@ import { MeetingContext } from "./MeetingContext";
 import MeetingMembers from "../screens/MeetingMembers";
 import MeetingSettings from "../screens/MeetingSettings";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialIcons } from "@expo/vector-icons";
+import AddMeeting from "../screens/AddMeeting";
 
 const Stack = createStackNavigator<AuthParamList>();
 const Drawer = createDrawerNavigator<AuthParamList>();
@@ -77,8 +79,16 @@ const Meetings = ({ navigation }) => {
               <Entypo name="menu" size={24} color="black" />
             </TouchableOpacity>
           ),
+          headerRight: () => (
+            <TouchableOpacity onPress={() => navigation.navigate("AddMeeting")}>
+              <MaterialIcons name="add" size={30} color="#2196F3" />
+            </TouchableOpacity>
+          ),
           headerLeftContainerStyle: {
-            marginLeft: 15,
+            marginLeft: 20,
+          },
+          headerRightContainerStyle: {
+            marginRight: 20,
           },
         }}
       />
@@ -86,6 +96,11 @@ const Meetings = ({ navigation }) => {
         name="MeetingTabs"
         component={MeetingTabs}
         options={({ route }) => ({ title: route.params.title })}
+      />
+      <Stack.Screen
+        name="AddMeeting"
+        component={AddMeeting}
+        options={{ title: "Create Meeting" }}
       />
     </Stack.Navigator>
   );
