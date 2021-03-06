@@ -1,5 +1,5 @@
 import React, { FC, useContext, useState } from "react";
-import { StyleSheet, Text, TextInput, View } from "react-native";
+import { StyleSheet, Text, TextInput, View, ToastAndroid } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { AuthNavProps, AuthParamList } from "../src/AuthParamList";
 import { authenticate, createUser } from "../api/ApiWrapper";
@@ -24,17 +24,38 @@ const Register = ({ navigation }: AuthNavProps<"Register">) => {
     //   )
     //   .catch((e) => console.log(e));
     try {
-      await register(email, password, {
-        displayName: name,
-        displayPicture:
-          "https://images.unsplash.com/photo-1535498051285-5613026fae05?ixid=MXwxMjA3fDB8MHxzZWFyY2h8Mnx8ZGlzcGxheXxlbnwwfHwwfA%3D%3D&ixlib=rb-1.2.1&w=1000&q=80",
-      });
+      if (
+        name !== "" &&
+        email !== "" &&
+        password !== "" &&
+        confirmPass !== "" &&
+        password === confirmPass
+      ) {
+        await register(email, password, {
+          displayName: name,
+          displayPicture:
+            "https://images.unsplash.com/photo-1535498051285-5613026fae05?ixid=MXwxMjA3fDB8MHxzZWFyY2h8Mnx8ZGlzcGxheXxlbnwwfHwwfA%3D%3D&ixlib=rb-1.2.1&w=1000&q=80",
+        });
 
-      let token = await login(email, password);
+        let token = await login(email, password);
 
-      console.log(token);
+        console.log(token);
+      } else if (
+        name === "" ||
+        email === "" ||
+        password === "" ||
+        confirmPass === ""
+      ) {
+        ToastAndroid.show("Fields must not be empty", ToastAndroid.SHORT);
+      } else if (password !== confirmPass) {
+        ToastAndroid.show("Password does not match", ToastAndroid.SHORT);
+      }
     } catch (error) {
-      console.log(error);
+      if (error.response.status === 400) {
+        ToastAndroid.show("Invalid email or password", ToastAndroid.SHORT);
+      } else if (error.response.status === 409) {
+        ToastAndroid.show("Email already in use", ToastAndroid.SHORT);
+      }
     }
   };
 
