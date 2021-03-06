@@ -7,6 +7,7 @@ export const MeetingSchema = CreateSchema({
   ownerId: String, 
   eta: String,
   details: {
+    name: String, 
     description: String,
     time: String, 
     location: {
