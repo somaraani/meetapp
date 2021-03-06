@@ -6,8 +6,8 @@ import {
   Text,
   Image,
   TouchableOpacity,
+  ToastAndroid,
 } from "react-native";
-import { authenticate } from "../api/ApiWrapper";
 import { AuthNavProps, AuthParamList } from "../src/AuthParamList";
 import { AuthContext } from "../src/AuthProvider";
 
@@ -17,10 +17,22 @@ const Login = ({ navigation }: AuthNavProps<"Login">) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const submitHandler = () => {
-    authenticate(email, password)
-      .then(({ access_token }) => login(access_token))
-      .catch((e) => console.log(e));
+  const submitHandler = async () => {
+    // authenticate(email, password)
+    //   .then(({ access_token }) => login(access_token))
+    //   .catch((e) => console.log(e));
+    try {
+      let token = await login(email, password);
+      console.log(token);
+    } catch (error) {
+      console.log(error.response.status);
+
+      if ((email === "" || password === "") && error.response.status === 401) {
+        ToastAndroid.show("Fields must not be empty", ToastAndroid.SHORT);
+      } else if (error.response.status === 401) {
+        ToastAndroid.show("Invalid email or password", ToastAndroid.SHORT);
+      }
+    }
   };
 
   return (
