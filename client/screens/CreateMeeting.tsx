@@ -1,8 +1,34 @@
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-
+import { ApiContext } from "../src/ApiProvider";
+import dateFormat from "dateformat";
 
 const CreateMeeting = ({ navigation }) => {
+  const { createMeeting } = useContext(ApiContext);
+
+  const onCreate = async () => {
+    let time = dateFormat(
+      new Date("December 17, 2021 03:24:00"),
+      "isoDateTime"
+    );
+
+    try {
+      let data = await createMeeting(
+        "New Meeting 2",
+        "Testing meeting creation",
+        time,
+        {
+          lat: 43.653225,
+          lng: -79.383186,
+        }
+      );
+
+      console.log(data.details.name);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     navigation.setOptions({
       headerRight: () => (
@@ -13,7 +39,7 @@ const CreateMeeting = ({ navigation }) => {
             paddingHorizontal: 10,
             borderRadius: 8,
           }}
-          onPress={() => }
+          onPress={onCreate}
         >
           <Text style={{ color: "white", fontWeight: "bold" }}>CREATE</Text>
         </TouchableOpacity>

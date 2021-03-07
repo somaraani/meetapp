@@ -32,7 +32,7 @@ export const ApiContext = React.createContext<{
     return "";
   },
   logout: () => {},
-  createMeeting: () => {},
+  createMeeting: async () => {},
 });
 
 interface ApiProviderProps {}
@@ -42,37 +42,52 @@ let api = new ApiWrapper();
 const ApiProvider: FC<ApiProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User>(null);
 
+  const login = async (email, password) => {
+    // const { id } = jwt_decode(token);
+    // getUser(id, token)
+    //   .then((value) => {
+    //     console.log({ token, ...value });
+    //     setUser({ token, ...value });
+    //     AsyncStorage.setItem("user", JSON.stringify({ token, id }));
+    //   })
+    //   .catch((e) => console.log(e));
+    let token = await api.signIn(email, password);
+    setUser(token);
+    AsyncStorage.setItem("user", token);
+
+    return token;
+  };
+
+  const register = async (email, password, details) => {
+    let data = await api.createUser(email, password, details);
+
+    return data;
+  };
+
+  const returnUser = (token) => {
+    setUser(token);
+  };
+
+  const logout = () => {
+    setUser(null);
+    AsyncStorage.removeItem("user");
+  };
+
+  const createMeeting = async (name, description, time, location) => {
+    let data = await api.createMeeting(name, description, time, location);
+
+    return data;
+  };
+
   return (
     <ApiContext.Provider
       value={{
         user,
-        login: async (email, password) => {
-          // const { id } = jwt_decode(token);
-          // getUser(id, token)
-          //   .then((value) => {
-          //     console.log({ token, ...value });
-          //     setUser({ token, ...value });
-          //     AsyncStorage.setItem("user", JSON.stringify({ token, id }));
-          //   })
-          //   .catch((e) => console.log(e));
-          let token = await api.signIn(email, password);
-          setUser(token);
-          AsyncStorage.setItem("user", token);
-
-          return token;
-        },
-        register: async (email, password, details) => {
-          let data = await api.createUser(email, password, details);
-
-          return data;
-        },
-        returnUser: (token) => {
-          setUser(token);
-        },
-        logout: () => {
-          setUser(null);
-          AsyncStorage.removeItem("user");
-        },
+        login,
+        register,
+        returnUser,
+        logout,
+        createMeeting,
       }}
     >
       {children}
