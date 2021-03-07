@@ -24,9 +24,9 @@ export class InvitationsController {
     }
 
     @Patch(':id')
-    update(@Param('id') inviteId: string, @Body() data: PatchInviteDTO) {
+    update(@Auth() auth, @Param('id') inviteId: string, @Body() data: PatchInviteDTO) {
         this.logger.debug(`Request to reply: ${data.accepted} to invite ${inviteId}`);
-        return this.invitationsService.update(inviteId, data.accepted);
+        return this.invitationsService.update(inviteId, auth.userId, data.accepted);
     }
    
 }

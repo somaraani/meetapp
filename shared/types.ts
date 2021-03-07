@@ -44,16 +44,17 @@ export interface Invitation {
 
 export interface Journey {
     id: string, 
+    userId: string,
     meetingId: string,
-    startLocation: Coordinate,
     eta: string,
     lastUpdated: string,
     locations: Coordinate[],
     path: Coordinate[],
-    journeySetting: JourneySetting
+    settings: JourneySetting
 }
 
 export interface JourneySetting {
+    startLocation: Coordinate,
     transitMode?: TransitMode[],
     avoid?: TravelRestriction[]
 }

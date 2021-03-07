@@ -1,4 +1,4 @@
-import { OnGatewayInit, WebSocketGateway } from '@nestjs/websockets';
+import { OnGatewayInit, SubscribeMessage, WebSocketGateway } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { AuthService } from './authentication/auth.service';
 import { SocketService } from './socket/socket.service';
@@ -23,10 +23,21 @@ export class AppGateway implements OnGatewayInit {
     }
     this.socketService.addConnection(tokenData.id, client);
     console.log(`socket ${client.id} connected`);
+
+    this.socketService.joinRoom(tokenData.id, 'meetingId');
   }
 
   handleDisconnect(client: Socket) {
     console.log(`socket ${client.id} disconnected`);
     this.socketService.removeConnection(client);
   }
+
+  @SubscribeMessage('location')
+  handleMessage(client: Socket, payload: string): void {
+    console.log("sent message")
+
+    this.socketService.emitToRoom('meetingId', 'location', "User location updated");
+    //can send to service here
+   }
+   
 }
