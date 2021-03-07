@@ -8,6 +8,7 @@ export interface Meeting {
 }
 
 export interface MeetingDetail {
+    name: string,
     description: string,
     time: string,
     location: Coordinate,   
