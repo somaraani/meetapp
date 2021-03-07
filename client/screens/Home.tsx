@@ -1,5 +1,5 @@
-import React, { useContext } from "react";
-import { Button, FlatList, StyleSheet, Text, View } from "react-native";
+import React from "react";
+import { FlatList, StyleSheet, View } from "react-native";
 import MeetingCard from "../components/MeetingCard";
 import { AuthNavProps } from "../src/AuthParamList";
 
