@@ -1,5 +1,5 @@
 import { Meeting } from '@types';
-import {Schema, Document} from 'mongoose';
+import { Document} from 'mongoose';
 import { CreateSchema } from 'src/database/util';
 
 export const MeetingSchema = CreateSchema({
@@ -7,16 +7,18 @@ export const MeetingSchema = CreateSchema({
   ownerId: String, 
   eta: String,
   details: {
+    name: String, 
     description: String,
     time: String, 
     location: {
-      long: String,
-      lat: String
+      lng: Number,
+      lat: Number
     }
   },
   participants: 
     [
       {
+        _id: false,
         userId: String,
         journeyId: String
       }

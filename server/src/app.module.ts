@@ -12,6 +12,7 @@ import { MeetingsModule } from './models/meetings/meetings.module';
 import { InvitationsModule } from './models/invitations/invitations.module';
 import { NotificationsModule } from './models/notifications/notifications.module';
 import { SocketModule } from './socket/socket.module';
+import { JourneysModule } from './models/journeys/journeys.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { SocketModule } from './socket/socket.module';
     UsersModule, 
     MeetingsModule, 
     InvitationsModule, 
+    JourneysModule,
     AuthModule, 
     NotificationsModule, 
     SocketModule, 
