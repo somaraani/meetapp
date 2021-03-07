@@ -4,7 +4,7 @@ import { createDrawerNavigator } from "@react-navigation/drawer";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { AuthNavProps, AuthParamList } from "./AuthParamList";
-import { AuthContext } from "./AuthProvider";
+import { ApiContext } from "./ApiProvider";
 import Login from "../screens/Login";
 import Register from "../screens/Register";
 import {
@@ -151,46 +151,12 @@ const Meetings = ({ navigation }) => {
       <Stack.Screen
         name="CreateMeeting"
         component={CreateMeeting}
-        options={{
-          title: "Create Meeting",
-          headerRight: () => (
-            <TouchableOpacity
-              style={{
-                backgroundColor: "#2196F3",
-                paddingVertical: 5,
-                paddingHorizontal: 10,
-                borderRadius: 8,
-              }}
-            >
-              <Text style={{ color: "white", fontWeight: "bold" }}>CREATE</Text>
-            </TouchableOpacity>
-          ),
-          headerRightContainerStyle: {
-            marginRight: 20,
-          },
-        }}
+        options={{ title: "Create Meeting" }}
       />
       <Stack.Screen
         name="JoinMeeting"
         component={JoinMeeting}
-        options={{
-          title: "Join Meeting",
-          headerRight: () => (
-            <TouchableOpacity
-              style={{
-                backgroundColor: "#2196F3",
-                paddingVertical: 5,
-                paddingHorizontal: 10,
-                borderRadius: 8,
-              }}
-            >
-              <Text style={{ color: "white", fontWeight: "bold" }}>JOIN</Text>
-            </TouchableOpacity>
-          ),
-          headerRightContainerStyle: {
-            marginRight: 20,
-          },
-        }}
+        options={{ title: "Join Meeting" }}
       />
     </Stack.Navigator>
   );
@@ -230,7 +196,7 @@ const styles = StyleSheet.create({
 });
 
 export const Routes = () => {
-  const { user, returnUser } = useContext(AuthContext);
+  const { user, returnUser } = useContext(ApiContext);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
