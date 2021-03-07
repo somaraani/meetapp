@@ -1,14 +1,14 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 
-const AddMeeting = () => {
+const CreateMeeting = () => {
   return (
     <View>
-      <Text>Add Meeting</Text>
+      <Text>Create a new meeting</Text>
     </View>
   );
 };
 
-export default AddMeeting;
+export default CreateMeeting;
 
 const styles = StyleSheet.create({});
