@@ -7,7 +7,15 @@ import { AuthNavProps, AuthParamList } from "./AuthParamList";
 import { AuthContext } from "./AuthProvider";
 import Login from "../screens/Login";
 import Register from "../screens/Register";
-import { ActivityIndicator, StatusBar, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  StatusBar,
+  Text,
+  View,
+  StyleSheet,
+  Modal,
+  Pressable,
+} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Home from "../screens/Home";
 import DrawerContent from "../components/DrawerContent";
@@ -20,7 +28,8 @@ import MeetingMembers from "../screens/MeetingMembers";
 import MeetingSettings from "../screens/MeetingSettings";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { MaterialIcons } from "@expo/vector-icons";
-import AddMeeting from "../screens/AddMeeting";
+import CreateMeeting from "../screens/CreateMeeting";
+import JoinMeeting from "../screens/JoinMeeting";
 
 const Stack = createStackNavigator<AuthParamList>();
 const Drawer = createDrawerNavigator<AuthParamList>();
@@ -66,6 +75,8 @@ const MeetingTabs = ({ navigation, route }) => {
 };
 
 const Meetings = ({ navigation }) => {
+  const [modalVisible, setModalVisible] = useState(false);
+
   return (
     <Stack.Navigator initialRouteName="Home">
       <Stack.Screen
@@ -80,9 +91,49 @@ const Meetings = ({ navigation }) => {
             </TouchableOpacity>
           ),
           headerRight: () => (
-            <TouchableOpacity onPress={() => navigation.navigate("AddMeeting")}>
-              <MaterialIcons name="add" size={30} color="#2196F3" />
-            </TouchableOpacity>
+            <>
+              <Modal
+                animationType="fade"
+                transparent={true}
+                visible={modalVisible}
+                onRequestClose={() => setModalVisible(!modalVisible)}
+              >
+                <Pressable
+                  onPress={() => setModalVisible(!modalVisible)}
+                  style={styles.backdrop}
+                >
+                  <Pressable style={styles.modalView}>
+                    <Text style={styles.modalTitle}>Add Meeting</Text>
+                    <Text style={styles.modalText}>
+                      Create a new meeting, or Join an existing meeting?
+                    </Text>
+                    <View style={styles.modalBtns}>
+                      <Pressable
+                        onPress={() => {
+                          setModalVisible(!modalVisible);
+                          navigation.navigate("CreateMeeting");
+                        }}
+                      >
+                        <Text style={[styles.modalBtn, { marginRight: 10 }]}>
+                          CREATE
+                        </Text>
+                      </Pressable>
+                      <Pressable
+                        onPress={() => {
+                          setModalVisible(!modalVisible);
+                          navigation.navigate("JoinMeeting");
+                        }}
+                      >
+                        <Text style={styles.modalBtn}>JOIN</Text>
+                      </Pressable>
+                    </View>
+                  </Pressable>
+                </Pressable>
+              </Modal>
+              <TouchableOpacity onPress={() => setModalVisible(true)}>
+                <MaterialIcons name="add" size={30} color="#2196F3" />
+              </TouchableOpacity>
+            </>
           ),
           headerLeftContainerStyle: {
             marginLeft: 20,
@@ -98,13 +149,51 @@ const Meetings = ({ navigation }) => {
         options={({ route }) => ({ title: route.params.title })}
       />
       <Stack.Screen
-        name="AddMeeting"
-        component={AddMeeting}
+        name="CreateMeeting"
+        component={CreateMeeting}
         options={{ title: "Create Meeting" }}
+      />
+      <Stack.Screen
+        name="JoinMeeting"
+        component={JoinMeeting}
+        options={{ title: "Join Meeting" }}
       />
     </Stack.Navigator>
   );
 };
+
+const styles = StyleSheet.create({
+  backdrop: {
+    backgroundColor: "rgba(0,0,0,0.4)",
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalView: {
+    backgroundColor: "white",
+    padding: 25,
+    elevation: 5,
+    maxWidth: "75%",
+  },
+  modalTitle: {
+    fontWeight: "bold",
+    fontSize: 18,
+    marginBottom: 8,
+  },
+  modalText: {
+    fontSize: 16,
+    marginBottom: 5,
+  },
+  modalBtns: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+  },
+  modalBtn: {
+    color: "#2196F3",
+    fontWeight: "bold",
+    fontSize: 14,
+  },
+});
 
 export const Routes = () => {
   const { user, returnUser } = useContext(AuthContext);
