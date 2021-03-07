@@ -151,12 +151,46 @@ const Meetings = ({ navigation }) => {
       <Stack.Screen
         name="CreateMeeting"
         component={CreateMeeting}
-        options={{ title: "Create Meeting" }}
+        options={{
+          title: "Create Meeting",
+          headerRight: () => (
+            <TouchableOpacity
+              style={{
+                backgroundColor: "#2196F3",
+                paddingVertical: 5,
+                paddingHorizontal: 10,
+                borderRadius: 8,
+              }}
+            >
+              <Text style={{ color: "white", fontWeight: "bold" }}>CREATE</Text>
+            </TouchableOpacity>
+          ),
+          headerRightContainerStyle: {
+            marginRight: 20,
+          },
+        }}
       />
       <Stack.Screen
         name="JoinMeeting"
         component={JoinMeeting}
-        options={{ title: "Join Meeting" }}
+        options={{
+          title: "Join Meeting",
+          headerRight: () => (
+            <TouchableOpacity
+              style={{
+                backgroundColor: "#2196F3",
+                paddingVertical: 5,
+                paddingHorizontal: 10,
+                borderRadius: 8,
+              }}
+            >
+              <Text style={{ color: "white", fontWeight: "bold" }}>JOIN</Text>
+            </TouchableOpacity>
+          ),
+          headerRightContainerStyle: {
+            marginRight: 20,
+          },
+        }}
       />
     </Stack.Navigator>
   );
