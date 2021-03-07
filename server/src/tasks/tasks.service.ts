@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression, SchedulerRegistry } from '@nestjs/schedule';
-import { CronJob } from 'cron';
+import { CronJob, CronTime } from 'cron';
 
 @Injectable()
 export class TasksService {
@@ -19,5 +19,19 @@ export class TasksService {
     deleteCronJob(name: string) {
         this.schedulerRegistry.deleteCronJob(name);
         this.logger.debug(`Deleted future task for ${name}`);
+    }
+
+    updateCronTime(name: string, date: Date) {
+        if(!this.hasCronJob(name)) {
+            this.logger.error(`Trying to update task ${name} that does not exist.`);
+            return;
+        }
+
+        const job = this.schedulerRegistry.getCronJob(name);
+        job.setTime(new CronTime(date));
+    }
+
+    hasCronJob(name: string) : boolean {
+        return this.schedulerRegistry.doesExists("cron", name);
     }
 }

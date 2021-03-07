@@ -27,6 +27,13 @@ export class JourneysService {
 
         currJourney.settings = settings;
         currJourney.save();
+
+        //TODO after journey is updated, its possible meeting 'active' date is different, therefore we 
+        //need to modify the future task 
+
+        //need to use google maps API to set new time to leave for journey
+        await this.calculateETA(journeyId);
+
         return currJourney;
     }
 
@@ -44,6 +51,11 @@ export class JourneysService {
 
     async findById(id: string): Promise<Journey | null> {
         return await this.journeyModel.findById(id);
+    }
+
+    //updates this journeys ETA and time to leave using google maps API
+    async calculateETA(journeyId: string) {
+
     }
 
 }

@@ -1,11 +1,13 @@
 
 import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { Meeting, MeetingDetail, MeetingParticipant } from '@types'
+import { Journey, Meeting, MeetingDetail, MeetingParticipant } from '@types'
 import { CreateMeetingDTO } from './dto/CreateMeetingDto';
 import { InjectModel } from '@nestjs/mongoose';
 import { MeetingDocument } from './schemas/meeting.schema';
 import { Model } from 'mongoose';
 import { JourneysService } from '../journeys/journeys.service';
+import { TasksService } from 'src/tasks/tasks.service';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class MeetingsService {
@@ -13,7 +15,9 @@ export class MeetingsService {
     constructor(
         @InjectModel("meeting")
         private meetingModel: Model<MeetingDocument>, 
-        private journeyService: JourneysService
+        private journeyService: JourneysService,
+        private taskService: TasksService,
+        private notificationService: NotificationsService
     ) { }
 
     async update(meetingId: string, userId: string, data: MeetingDetail) : Promise<Meeting | null> {
@@ -29,6 +33,10 @@ export class MeetingsService {
 
         currMeeting.details = data;
         currMeeting.save();
+
+        //update task time in case of changed ETA
+        this.updateTasks(meetingId);
+
         return currMeeting;
     }
 
@@ -47,8 +55,7 @@ export class MeetingsService {
         });
 
         await meeting.save();
-
-        //add owner to participants 
+        this.createTasks(meeting.id);
         return this.addUser(userId, meeting.id);
     }
 
@@ -86,6 +93,99 @@ export class MeetingsService {
 
         await meeting.save();
         return meeting;
+    }
+
+    async updateTasks(meetingId: string) {
+        var meeting = await this.meetingModel.findById(meetingId);
+
+        if(!meeting) {
+            return;
+        }
+
+        if(!this.taskService.hasCronJob(this.meetingJob(meetingId))) {
+            return;
+        }
+
+        var dayBefore: Date = new Date(new Date(meeting.eta).getTime() - (24 * 60 * 60 * 1000)); 
+        this.taskService.updateCronTime(this.meetingJob(meetingId), dayBefore);
+    }
+
+    //creates/updates future tasks for this meeting
+    async createTasks(meetingId: string) {
+        var meeting = await this.meetingModel.findById(meetingId);
+
+        if(!meeting) {
+            return;
+        }
+
+        var dayBefore: Date = new Date(new Date(meeting.eta).getTime() - (24 * 60 * 60 * 1000)); 
+
+        //this will always run 24H before start of meeting
+        this.taskService.addCronJob(this.meetingJob(meetingId), dayBefore, async () => {
+
+            //get updated meeting object (in future)
+            const meet = await this.meetingModel.findById(meeting?.id);
+
+            if(!meet) {
+                return;
+            }
+
+            //recalculate ALL etas
+            await this.updateETAs(meet.id);
+
+            //send notification for all user's in meeting reminding them its in 24 hour
+            //this.notificationService.addNotification() -> should send to everyone in meeting (how?)
+
+            //create future events for reminding each user 1 hour before THEY have to leave
+            meet.participants.forEach(async participant => {
+                const journey: Journey | null = await this.journeyService.findById(participant.journeyId);
+
+                if(!journey) {
+                    return;
+                }
+               
+                var hourBefore : Date = new Date(); // this should be 1 hour before they have to leave
+                
+                this.taskService.addCronJob(this.journeyJob(journey.id), hourBefore, async () => {
+                    //this runs 1 hour before each user has to leave (individually)
+
+                    //calculate time they have to leave 1 last time
+                    await this.journeyService.calculateETA(journey.id);
+
+                    // send notif
+                    // this should only take userId, title, message
+                    this.notificationService.addNotification({
+                        id: "",
+                        userId: participant.userId,
+                        title: "You must leave soon!",
+                        message: `You must leave in 1 hour to make it to ${meet.details.name}`, //this should tell them when exacty they should leave (if different than 1 hour)
+                        read: false
+                    });
+                })
+
+                //TODO find which the earliest time to leave is, and make the meeting ACTIVE at that time
+
+            });
+
+        });
+    }
+
+    //updates ETA's for all journeys in this meeting
+    async updateETAs(meetingId: string) {
+        var meeting = await this.meetingModel.findById(meetingId);
+        
+        meeting?.participants.forEach(async participant => {
+            await this.journeyService.calculateETA(participant.journeyId);
+        });
+        
+    }
+
+    private meetingJob(meetingId: string) {
+        return "M_" + meetingId + "_24H";
+    }
+
+    private journeyJob(journeyId: string) {
+        return "J_" + journeyId + "_1H";
     }
 
 }
