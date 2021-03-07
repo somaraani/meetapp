@@ -89,11 +89,17 @@ export class ApiWrapper {
   }
 
   async createMeeting(
+    name: string,
     description: string,
     time: string,
     location: Coordinate
   ): Promise<Meeting> {
-    let payload = { description: description, time: time, location: location };
+    let payload = {
+      name: name,
+      description: description,
+      time: time,
+      location: location,
+    };
     let res = await axios.post(`${API_URL}meetings/`, payload, {
       headers: { Authorization: `Bearer ${this.token}` },
     });
