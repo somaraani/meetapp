@@ -1,13 +1,13 @@
 import { DrawerContentScrollView, DrawerItem } from "@react-navigation/drawer";
 import React, { useContext } from "react";
 import { Button, StyleSheet, View } from "react-native";
-import { AuthContext } from "../src/AuthProvider";
+import { ApiContext } from "../src/ApiProvider";
 import { Avatar, Caption, Drawer, Text, Title } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { color } from "react-native-reanimated";
 
 const DrawerContent = (props) => {
-  const { user, logout } = useContext(AuthContext);
+  const { user, logout } = useContext(ApiContext);
 
   return (
     <View style={{ flex: 1 }}>

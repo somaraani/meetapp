@@ -2,10 +2,11 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { FC, useState } from "react";
 import jwt_decode from "jwt-decode";
 import { ApiWrapper } from "../api/ApiWrapper";
+import { Coordinate } from "@types";
 
 type User = null | any;
 
-export const AuthContext = React.createContext<{
+export const ApiContext = React.createContext<{
   user: User;
   login: (email: string, password: string) => Promise<string>;
   returnUser: (token: string) => void;
@@ -15,6 +16,12 @@ export const AuthContext = React.createContext<{
     details: { displayName: string; displayPicture: string }
   ) => Promise<string>;
   logout: () => void;
+  createMeeting: (
+    name: string,
+    description: string,
+    time: string,
+    location: Coordinate
+  ) => void;
 }>({
   user: null,
   login: async () => {
@@ -25,17 +32,18 @@ export const AuthContext = React.createContext<{
     return "";
   },
   logout: () => {},
+  createMeeting: () => {},
 });
 
-interface AuthProviderProps {}
+interface ApiProviderProps {}
 
 let api = new ApiWrapper();
 
-const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
+const ApiProvider: FC<ApiProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User>(null);
 
   return (
-    <AuthContext.Provider
+    <ApiContext.Provider
       value={{
         user,
         login: async (email, password) => {
@@ -68,8 +76,8 @@ const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
       }}
     >
       {children}
-    </AuthContext.Provider>
+    </ApiContext.Provider>
   );
 };
 
-export default AuthProvider;
+export default ApiProvider;
