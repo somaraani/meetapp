@@ -8,17 +8,17 @@ export const JourneySchema = CreateSchema({
   eta: String, 
   lastUpdated: String,
   locations: [{
-    lng: String,
-    lat: String
+    lng: Number,
+    lat: Number
   }],
   path: [{
-    lng: String,
-    lat: String
+    lng: Number,
+    lat: Number
   }],
   settings: {
     startLocation: {
-      lng: String,
-      lat: String
+      lng: Number,
+      lat: Number
     }, 
     transitType: String,
     tolls: Boolean
