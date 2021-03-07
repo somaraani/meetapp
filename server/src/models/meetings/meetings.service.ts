@@ -39,6 +39,7 @@ export class MeetingsService {
             ownerId: userId,
             eta: data.time,
             details: {
+                name: data.name,
                 description: data.description,
                 time: data.time,
                 location: data.location

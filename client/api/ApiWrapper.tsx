@@ -1,22 +1,33 @@
-import {Coordinate, Meeting, MeetingDetail, Notification, PublicUserData, User} from "@types"
-const axios = require('axios');
-const API_URL = 'http://localhost:3000/';
+import {
+  Coordinate,
+  Meeting,
+  MeetingDetail,
+  Notification,
+  PublicUserData,
+  User,
+} from "@types";
+const axios = require("axios");
+const API_URL = "http://10.0.2.2:3000/";
 
-class ApiWrapper {
+export class ApiWrapper {
   public token: string;
-  private id:string;
-  constructor(){
+  private id: string;
+  constructor() {
     this.token = "";
     this.id = "";
   }
 
-  async signIn(email:string, password:string): Promise<void> {
-    let payload = { email: email, password: password};
-    let res = await axios.post(`${ API_URL }authenticate/`, payload);
+  async signIn(email: string, password: string): Promise<string> {
+    let payload = { email: email, password: password };
+    let res = await axios.post(`${API_URL}authenticate/`, payload);
     let data = res.data;
-    this.token = data.access_token;    
-    let res2 = await axios.get(`${ API_URL }users/self/`, { headers: {"Authorization" : `Bearer ${this.token}`} });
-    this.id = (res2.data).id;
+    this.token = data.access_token;
+    let res2 = await axios.get(`${API_URL}users/self/`, {
+      headers: { Authorization: `Bearer ${this.token}` },
+    });
+    this.id = res2.data.id;
+
+    return data.access_token;
   }
 
   signOut(): void {
@@ -24,93 +35,117 @@ class ApiWrapper {
     this.id = "";
   }
 
-  isSignedIn():boolean {
+  isSignedIn(): boolean {
     if (this.token) {
       return true;
-    }
-    else {
+    } else {
       return false;
     }
   }
 
-  async createUser(email:string, password:string, details:PublicUserData): Promise<User> {
+  async createUser(
+    email: string,
+    password: string,
+    details: PublicUserData
+  ): Promise<User> {
     let payload = { email: email, password: password, details: details };
-    let res = await axios.post(`${ API_URL }users/`, payload);
+    let res = await axios.post(`${API_URL}users/`, payload);
     let data = res.data;
     return data;
   }
 
-  async updateUser(user:User): Promise<User> {
+  async updateUser(user: User): Promise<User> {
     let payload = { user: user };
-    let res = await axios.put(`${ API_URL }users/${ this.id }/`, payload, { headers: {"Authorization" : `Bearer ${this.token}`} });
+    let res = await axios.put(`${API_URL}users/${this.id}/`, payload, {
+      headers: { Authorization: `Bearer ${this.token}` },
+    });
     let data = res.data;
     return data;
   }
 
   async getUser(): Promise<User> {
-    let res = await axios.get(`${ API_URL }users/self/`, { headers: {"Authorization" : `Bearer ${this.token}`} });
+    let res = await axios.get(`${API_URL}users/self/`, {
+      headers: { Authorization: `Bearer ${this.token}` },
+    });
     let data = res.data;
     return data;
   }
 
-  async getPublicUser(id:string): Promise<PublicUserData> {
-    let res = await axios.get(`${ API_URL }users/${ id}/public/`, { headers: {"Authorization" : `Bearer ${this.token}`} });
+  async getPublicUser(id: string): Promise<PublicUserData> {
+    let res = await axios.get(`${API_URL}users/${id}/public/`, {
+      headers: { Authorization: `Bearer ${this.token}` },
+    });
     let data = res.data;
     return data;
   }
 
-  async getUsers(query:string): Promise<User[]> {
-
-    let res = await axios.get(`${ API_URL }users/`, { headers: {"Authorization" : `Bearer ${this.token}`},  params: { query: query }  });
-    let data = res.data;
-    return data;
-
-  }
-
-  async createMeeting(description:string, time:string, location:Coordinate): Promise<Meeting> {
-    let payload = { description:description, time:time, location:location };
-    let res = await axios.post(`${ API_URL }meetings/`, payload, { headers: {"Authorization" : `Bearer ${this.token}`} });
+  async getUsers(query: string): Promise<User[]> {
+    let res = await axios.get(`${API_URL}users/`, {
+      headers: { Authorization: `Bearer ${this.token}` },
+      params: { query: query },
+    });
     let data = res.data;
     return data;
   }
 
-  async getMeetingsByUserId(userId:string): Promise<Meeting[]> {
-    let res = await axios.get(`${ API_URL }meetings/`, { headers: {"Authorization" : `Bearer ${this.token}`}, params: { userId: userId } });
+  async createMeeting(
+    description: string,
+    time: string,
+    location: Coordinate
+  ): Promise<Meeting> {
+    let payload = { description: description, time: time, location: location };
+    let res = await axios.post(`${API_URL}meetings/`, payload, {
+      headers: { Authorization: `Bearer ${this.token}` },
+    });
     let data = res.data;
     return data;
   }
 
-  async getMeeting(meetingID:string): Promise<Meeting> {
-    let res = await axios.get(`${ API_URL }meetings/${ meetingID}/`, { headers: {"Authorization" : `Bearer ${this.token}`} });
+  async getMeetingsByUserId(userId: string): Promise<Meeting[]> {
+    let res = await axios.get(`${API_URL}meetings/`, {
+      headers: { Authorization: `Bearer ${this.token}` },
+      params: { userId: userId },
+    });
     let data = res.data;
     return data;
   }
 
-  async updateMeeting(meetingId:string, MeetingDetail:MeetingDetail): Promise<Meeting> {
+  async getMeeting(meetingID: string): Promise<Meeting> {
+    let res = await axios.get(`${API_URL}meetings/${meetingID}/`, {
+      headers: { Authorization: `Bearer ${this.token}` },
+    });
+    let data = res.data;
+    return data;
+  }
+
+  async updateMeeting(
+    meetingId: string,
+    MeetingDetail: MeetingDetail
+  ): Promise<Meeting> {
     let payload = MeetingDetail;
-    let res = await axios.put(`${ API_URL }meetings/${ meetingId }/details/`, payload, { headers: {"Authorization" : `Bearer ${this.token}`} });
+    let res = await axios.put(
+      `${API_URL}meetings/${meetingId}/details/`,
+      payload,
+      { headers: { Authorization: `Bearer ${this.token}` } }
+    );
     let data = res.data;
     return data;
   }
 
-  async deleteMeeting(meetingID:string): Promise<void> {
-    await axios.delete(`${ API_URL }meetings/${ meetingID}/`, { headers: {"Authorization" : `Bearer ${this.token}`} });
+  async deleteMeeting(meetingID: string): Promise<void> {
+    await axios.delete(`${API_URL}meetings/${meetingID}/`, {
+      headers: { Authorization: `Bearer ${this.token}` },
+    });
   }
 
   async getNotifications(): Promise<Notification[]> {
-    let res = await axios.get(`${ API_URL }notifications/`, { headers: {"Authorization" : `Bearer ${this.token}`} });
+    let res = await axios.get(`${API_URL}notifications/`, {
+      headers: { Authorization: `Bearer ${this.token}` },
+    });
     let data = res.data;
     return data;
   }
-
-
-
-
-
 }
-
-
-
 
 /* Create User Test - Passed
 api.createUser("nav67@gmail.com", "password", {displayName:"TESTACCOUNT55", displayPicture:"https://images.unsplash.com/photo-1535498051285-5613026fae05?ixid=MXwxMjA3fDB8MHxzZWFyY2h8Mnx8ZGlzcGxheXxlbnwwfHwwfA%3D%3D&ixlib=rb-1.2.1&w=1000&q=80"});
