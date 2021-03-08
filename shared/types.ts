@@ -22,7 +22,8 @@ export interface MeetingParticipant {
 export interface User {
     id: string,
     email: string,
-    publicData: PublicUserData
+    expoPushToken?: string,
+    publicData: PublicUserData,
     privateData: PrivateUserData
 }
 

@@ -4,6 +4,7 @@ import { CreateSchema } from 'src/database/util';
 
 export const UserSchema = CreateSchema({
   email: String,
+  expoPushToken: String,
   publicData: {
     displayName: String,
     displayPicture: String,

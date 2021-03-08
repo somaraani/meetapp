@@ -1,9 +1,10 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import React, { Context, FC, ReactElement, ReactNode, useEffect, useRef, useState  } from "react";
+import React, { Context, FC, ReactElement, ReactNode, useContext, useEffect, useRef, useState  } from "react";
 import jwt_decode from "jwt-decode";
 import Constants from 'expo-constants';
 import * as Notifications from 'expo-notifications';
 import { Platform } from "react-native";
+import { ApiContext } from "./ApiProvider";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -23,13 +24,14 @@ async function registerForPushNotificationsAsync() {
       finalStatus = status;
     }
     if (finalStatus !== 'granted') {
-      alert('Failed to get push token for push notification!');
-      return;
+      console.log('Push permission not granted');
+      return null;
     }
     token = (await Notifications.getExpoPushTokenAsync()).data;
     console.log(token);
   } else {
     console.log('Must use physical device for Push Notifications');
+    return null;
   }
 
   if (Platform.OS === 'android') {
@@ -46,17 +48,37 @@ async function registerForPushNotificationsAsync() {
 
 const NotificationProvider : any = ({ children } : any) => {
 
-  const [expoPushToken, setExpoPushToken] = useState<any>('');
-  const [notification, setNotification] = useState<any>(false);
+  const {user, updateExpoPushToken} = useContext(ApiContext);
   const notificationListener = useRef<any>();
   const responseListener = useRef<any>();
 
+  const removeSubscriptions = () => {
+    if (notificationListener.current){
+      Notifications.removeNotificationSubscription(notificationListener.current);
+    }
+    if (responseListener.current){
+      Notifications.removeNotificationSubscription(responseListener.current);
+    }
+  }
+
+  const registerToken = async (token:string | undefined) => {
+    updateExpoPushToken(token);
+  }
+
   useEffect(() => {
-    registerForPushNotificationsAsync().then(token => setExpoPushToken(token));
+    if (!user){
+      removeSubscriptions();
+      return;
+    }
+    registerForPushNotificationsAsync().then(token => {
+      if (token){
+        registerToken(token);
+      }
+    });
 
     // This listener is fired whenever a notification is received while the app is foregrounded
     notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
-      setNotification(notification);
+      console.log(notification);
     });
 
     // This listener is fired whenever a user taps on or interacts with a notification (works when app is foregrounded, backgrounded, or killed)
@@ -65,10 +87,9 @@ const NotificationProvider : any = ({ children } : any) => {
     });
 
     return () => {
-      Notifications.removeNotificationSubscription(notificationListener.current);
-      Notifications.removeNotificationSubscription(responseListener.current);
+      removeSubscriptions();
     };
-  }, []);
+  }, [user]);
 
   return (
       children
