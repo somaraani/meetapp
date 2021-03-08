@@ -15,7 +15,8 @@ const MeetingPage = ({ navigation }: AuthNavProps<"Home">) => {
 
   return (
     <View>
-      <MapView
+      <Text>Hello</Text>
+      {/* <MapView
         style={styles.map}
         initialRegion={{
           latitude: latitude,
@@ -66,7 +67,7 @@ const MeetingPage = ({ navigation }: AuthNavProps<"Home">) => {
               mode={member.mode}
             />
           ))}
-      </MapView>
+      </MapView> */}
     </View>
   );
 };

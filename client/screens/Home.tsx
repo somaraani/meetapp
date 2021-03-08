@@ -1,6 +1,9 @@
-import React, { useContext } from "react";
-import { Button, FlatList, StyleSheet, Text, View } from "react-native";
+import { useIsFocused } from "@react-navigation/core";
+import { Meeting } from "@types";
+import React, { useContext, useEffect, useState } from "react";
+import { FlatList, StyleSheet, View } from "react-native";
 import MeetingCard from "../components/MeetingCard";
+import { ApiContext } from "../src/ApiProvider";
 import { AuthNavProps } from "../src/AuthParamList";
 
 const numColumns = 2;
@@ -34,7 +37,7 @@ const MeetingsData = [
   { id: "5", title: "Meeting 5", latitude: 43.1065603, longitude: -79.0639039 },
 ];
 
-const formatData = (data: any, numColumns: any) => {
+const formatData = (data: Meeting[], numColumns: any) => {
   const numberOfFullRows = Math.floor(data.length / numColumns);
 
   let numberOfElementsLastRow = data.length - numberOfFullRows * numColumns;
@@ -50,6 +53,10 @@ const formatData = (data: any, numColumns: any) => {
 };
 
 const Home = ({ navigation }: AuthNavProps<"Home">) => {
+  const { getMeetings } = useContext(ApiContext);
+  const [meetings, setMeetings] = useState<Meeting[]>([]);
+  const isFocused = useIsFocused();
+
   const renderItem = ({ item }: { item: any }) => {
     if (item.empty === true) {
       return <View style={styles.item} />;
@@ -57,10 +64,23 @@ const Home = ({ navigation }: AuthNavProps<"Home">) => {
     return <MeetingCard item={item} />;
   };
 
+  useEffect(() => {
+    async function fetchMeetings() {
+      try {
+        setMeetings(await getMeetings());
+        // console.log(meetings);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    fetchMeetings();
+  }, [isFocused]);
+
   return (
     <View style={styles.container}>
       <FlatList
-        data={formatData(MeetingsData, numColumns)}
+        data={formatData(meetings, numColumns)}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
         numColumns={numColumns}

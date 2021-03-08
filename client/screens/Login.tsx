@@ -9,10 +9,10 @@ import {
   ToastAndroid,
 } from "react-native";
 import { AuthNavProps, AuthParamList } from "../src/AuthParamList";
-import { AuthContext } from "../src/AuthProvider";
+import { ApiContext } from "../src/ApiProvider";
 
 const Login = ({ navigation }: AuthNavProps<"Login">) => {
-  const { login } = useContext(AuthContext);
+  const { login } = useContext(ApiContext);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
