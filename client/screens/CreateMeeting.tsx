@@ -14,7 +14,7 @@ const CreateMeeting = ({ navigation }) => {
 
     try {
       let data = await createMeeting(
-        "New Meeting 2",
+        "New Meeting 6",
         "Testing meeting creation",
         time,
         {
@@ -23,7 +23,7 @@ const CreateMeeting = ({ navigation }) => {
         }
       );
 
-      console.log(data.details.name);
+      console.log(data);
     } catch (error) {
       console.log(error);
     }
