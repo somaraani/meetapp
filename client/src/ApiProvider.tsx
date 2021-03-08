@@ -2,7 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { FC, useState } from "react";
 import jwt_decode from "jwt-decode";
 import { ApiWrapper } from "../api/ApiWrapper";
-import { Coordinate } from "@types";
+import { Coordinate, Meeting } from "@types";
 
 type User = null | any;
 
@@ -22,6 +22,7 @@ export const ApiContext = React.createContext<{
     time: string,
     location: Coordinate
   ) => void;
+  getMeetings: () => Promise<Meeting[]>;
 }>({
   user: null,
   login: async () => {
@@ -33,6 +34,7 @@ export const ApiContext = React.createContext<{
   },
   logout: () => {},
   createMeeting: async () => {},
+  getMeetings: async () => {},
 });
 
 interface ApiProviderProps {}
@@ -71,10 +73,17 @@ const ApiProvider: FC<ApiProviderProps> = ({ children }) => {
   const logout = () => {
     setUser(null);
     AsyncStorage.removeItem("user");
+    api = new ApiWrapper();
   };
 
   const createMeeting = async (name, description, time, location) => {
     let data = await api.createMeeting(name, description, time, location);
+
+    return data;
+  };
+
+  const getMeetings = async () => {
+    let data = await api.getMeetings();
 
     return data;
   };
@@ -88,6 +97,7 @@ const ApiProvider: FC<ApiProviderProps> = ({ children }) => {
         returnUser,
         logout,
         createMeeting,
+        getMeetings,
       }}
     >
       {children}
