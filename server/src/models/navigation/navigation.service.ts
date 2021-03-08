@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { Client } from "@googlemaps/google-maps-services-js";
+import { Client, Status } from "@googlemaps/google-maps-services-js";
 import { Coordinate, JourneySetting } from '@types';
 import { DirectionsResponseData } from '@googlemaps/google-maps-services-js/dist/directions';
+import { settings } from 'cluster';
 
 @Injectable()
 export class NavigationService {
@@ -11,17 +12,20 @@ export class NavigationService {
         this.client = new Client()
     }
 
-    async getDirections(start: Coordinate, end: Coordinate, setting: JourneySetting) : Promise<DirectionsResponseData>{
-        
+    async getDirections(setting: JourneySetting, end: Coordinate) : Promise<DirectionsResponseData | null> {
         const response = await this.client.directions({
             params: {
-                origin: start,
+                origin: setting.startLocation,
                 destination:end,
                 avoid: setting.avoid,
                 transit_mode: setting.transitMode,
                 key:<string>process.env.GOOGLE_MAPS_API_KEY
             }
         });
+
+        if (response.data.status !== Status.OK){
+            return null;
+        }
         return response.data;
     }
 }
