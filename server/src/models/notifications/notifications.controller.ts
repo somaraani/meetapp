@@ -14,5 +14,4 @@ export class NotificationsController {
         //TODO: use userId from query string. Currently retreiving userId for self
         return this.notificationService.findByUser(auth.userId);
     }
-
 }
