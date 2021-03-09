@@ -146,7 +146,7 @@ const Meetings = ({ navigation }) => {
       <Stack.Screen
         name="MeetingTabs"
         component={MeetingTabs}
-        options={({ route }) => ({ title: route.params.title })}
+        options={({ route }) => ({ title: route.params.details.name })}
       />
       <Stack.Screen
         name="CreateMeeting"
