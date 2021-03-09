@@ -4,7 +4,6 @@ import { StyleSheet, Text, View } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 
 const MeetingCard = ({ item }: { item: any }) => {
-  console.log("Hello");
   const navigation = useNavigation();
 
   return (

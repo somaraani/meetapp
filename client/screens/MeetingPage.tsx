@@ -13,8 +13,6 @@ const MeetingPage = ({ route, navigation }: AuthNavProps<"Home">) => {
   const LATITUDE_DELTA = 0.28;
   const LONGITUDE_DELTA = LATITUDE_DELTA * (width / height);
 
-  console.log(item);
-
   return (
     <View>
       <MapView
