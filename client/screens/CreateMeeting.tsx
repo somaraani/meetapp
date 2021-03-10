@@ -9,10 +9,10 @@ import {
   Pressable,
 } from "react-native";
 import { ApiContext } from "../src/ApiProvider";
-import dateFormat from "dateformat";
 import { TextInput, Button } from "react-native-paper";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
-import { TouchableNativeFeedback } from "react-native-gesture-handler";
+import moment from "moment";
+import config from "../config";
 
 const CreateMeeting = ({ navigation }) => {
   const { createMeeting } = useContext(ApiContext);
@@ -20,7 +20,7 @@ const CreateMeeting = ({ navigation }) => {
   const [description, setDescription] = useState("");
   const [lat, setLat] = useState("");
   const [lng, setLng] = useState("");
-  const [date, setDate] = useState(new Date());
+  const [date, setDate] = useState(moment().add(1, "d"));
   const [disabled, setDisabled] = useState(true);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
 
@@ -64,7 +64,7 @@ const CreateMeeting = ({ navigation }) => {
   }, [name, lat, lng]);
 
   return (
-    <View style={{ padding: 25 }}>
+    <View style={{ flex: 1, padding: 25 }}>
       <TextInput
         label="Meeting Name"
         value={name}
@@ -73,6 +73,7 @@ const CreateMeeting = ({ navigation }) => {
         theme={{ colors: { primary: "#2196F3" } }}
         style={styles.input}
       />
+
       <Pressable
         onPress={() => {
           showDatePicker();
@@ -84,7 +85,7 @@ const CreateMeeting = ({ navigation }) => {
           mode="outlined"
           style={styles.input}
           editable={false}
-          value={date.toLocaleString()}
+          value={moment(date).format("MMMM Do YYYY, h:mm a")}
           onChangeText={(text) => setDate(text)}
         />
       </Pressable>
