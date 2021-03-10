@@ -3,7 +3,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { AuthNavProps, AuthParamList } from "./AuthParamList";
+import { AuthParamList } from "./AuthParamList";
 import { ApiContext } from "./ApiProvider";
 import Login from "../screens/Login";
 import Register from "../screens/Register";
@@ -13,8 +13,6 @@ import {
   Text,
   View,
   StyleSheet,
-  Modal,
-  Pressable,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Home from "../screens/Home";
@@ -29,7 +27,6 @@ import MeetingSettings from "../screens/MeetingSettings";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { MaterialIcons } from "@expo/vector-icons";
 import CreateMeeting from "../screens/CreateMeeting";
-import JoinMeeting from "../screens/JoinMeeting";
 
 const Stack = createStackNavigator<AuthParamList>();
 const Drawer = createDrawerNavigator<AuthParamList>();
@@ -75,8 +72,6 @@ const MeetingTabs = ({ navigation, route }) => {
 };
 
 const Meetings = ({ navigation }) => {
-  const [modalVisible, setModalVisible] = useState(false);
-
   return (
     <Stack.Navigator initialRouteName="Home">
       <Stack.Screen
@@ -91,49 +86,11 @@ const Meetings = ({ navigation }) => {
             </TouchableOpacity>
           ),
           headerRight: () => (
-            <>
-              <Modal
-                animationType="fade"
-                transparent={true}
-                visible={modalVisible}
-                onRequestClose={() => setModalVisible(!modalVisible)}
-              >
-                <Pressable
-                  onPress={() => setModalVisible(!modalVisible)}
-                  style={styles.backdrop}
-                >
-                  <Pressable style={styles.modalView}>
-                    <Text style={styles.modalTitle}>Add Meeting</Text>
-                    <Text style={styles.modalText}>
-                      Create a new meeting, or Join an existing meeting?
-                    </Text>
-                    <View style={styles.modalBtns}>
-                      <Pressable
-                        onPress={() => {
-                          setModalVisible(!modalVisible);
-                          navigation.navigate("CreateMeeting");
-                        }}
-                      >
-                        <Text style={[styles.modalBtn, { marginRight: 10 }]}>
-                          CREATE
-                        </Text>
-                      </Pressable>
-                      <Pressable
-                        onPress={() => {
-                          setModalVisible(!modalVisible);
-                          navigation.navigate("JoinMeeting");
-                        }}
-                      >
-                        <Text style={styles.modalBtn}>JOIN</Text>
-                      </Pressable>
-                    </View>
-                  </Pressable>
-                </Pressable>
-              </Modal>
-              <TouchableOpacity onPress={() => setModalVisible(true)}>
-                <MaterialIcons name="add" size={30} color="#2196F3" />
-              </TouchableOpacity>
-            </>
+            <TouchableOpacity
+              onPress={() => navigation.navigate("CreateMeeting")}
+            >
+              <MaterialIcons name="add" size={30} color="#2196F3" />
+            </TouchableOpacity>
           ),
           headerLeftContainerStyle: {
             marginLeft: 20,
@@ -152,11 +109,6 @@ const Meetings = ({ navigation }) => {
         name="CreateMeeting"
         component={CreateMeeting}
         options={{ title: "Create Meeting" }}
-      />
-      <Stack.Screen
-        name="JoinMeeting"
-        component={JoinMeeting}
-        options={{ title: "Join Meeting" }}
       />
     </Stack.Navigator>
   );
