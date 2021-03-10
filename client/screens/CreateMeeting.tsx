@@ -73,7 +73,12 @@ const CreateMeeting = ({ navigation }) => {
         theme={{ colors: { primary: "#2196F3" } }}
         style={styles.input}
       />
-      <Pressable onPress={showDatePicker}>
+      <Pressable
+        onPress={() => {
+          showDatePicker();
+          Keyboard.dismiss();
+        }}
+      >
         <TextInput
           label="Meeting Time"
           mode="outlined"
