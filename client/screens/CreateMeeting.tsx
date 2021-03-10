@@ -5,10 +5,14 @@ import {
   TouchableOpacity,
   View,
   ToastAndroid,
+  Keyboard,
+  Pressable,
 } from "react-native";
 import { ApiContext } from "../src/ApiProvider";
 import dateFormat from "dateformat";
 import { TextInput, Button } from "react-native-paper";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
+import { TouchableNativeFeedback } from "react-native-gesture-handler";
 
 const CreateMeeting = ({ navigation }) => {
   const { createMeeting } = useContext(ApiContext);
@@ -16,16 +20,26 @@ const CreateMeeting = ({ navigation }) => {
   const [description, setDescription] = useState("");
   const [lat, setLat] = useState("");
   const [lng, setLng] = useState("");
+  const [date, setDate] = useState(new Date());
   const [disabled, setDisabled] = useState(true);
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+
+  const showDatePicker = () => {
+    setDatePickerVisibility(true);
+  };
+
+  const hideDatePicker = () => {
+    setDatePickerVisibility(false);
+  };
+
+  const handleConfirm = (date) => {
+    setDate(date);
+    hideDatePicker();
+  };
 
   const onCreate = async () => {
-    let time = dateFormat(
-      new Date("December 17, 2021 03:24:00"),
-      "isoDateTime"
-    );
-
     try {
-      let data = await createMeeting(name, description, time, {
+      await createMeeting(name, description, date.toISOString(), {
         lat: parseFloat(lat),
         lng: parseFloat(lng),
       });
@@ -42,7 +56,7 @@ const CreateMeeting = ({ navigation }) => {
   };
 
   useEffect(() => {
-    if (name && lat && lng) {
+    if (name && lat && lng && date) {
       setDisabled(false);
     } else {
       setDisabled(true);
@@ -58,6 +72,22 @@ const CreateMeeting = ({ navigation }) => {
         mode="outlined"
         theme={{ colors: { primary: "#2196F3" } }}
         style={styles.input}
+      />
+      <Pressable onPress={showDatePicker}>
+        <TextInput
+          label="Meeting Time"
+          mode="outlined"
+          style={styles.input}
+          editable={false}
+          value={date.toLocaleString()}
+          onChangeText={(text) => setDate(text)}
+        />
+      </Pressable>
+      <DateTimePickerModal
+        isVisible={isDatePickerVisible}
+        mode="datetime"
+        onConfirm={handleConfirm}
+        onCancel={hideDatePicker}
       />
       <View style={{ flexDirection: "row" }}>
         <TextInput
