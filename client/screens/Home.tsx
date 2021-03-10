@@ -1,7 +1,7 @@
 import { useIsFocused } from "@react-navigation/core";
 import { Meeting } from "@types";
 import React, { useContext, useEffect, useState } from "react";
-import { FlatList, StyleSheet, View } from "react-native";
+import { FlatList, StyleSheet, Text, View, Image } from "react-native";
 import MeetingCard from "../components/MeetingCard";
 import { ApiContext } from "../src/ApiProvider";
 import { AuthNavProps } from "../src/AuthParamList";
@@ -49,16 +49,30 @@ const Home = ({ navigation }: AuthNavProps<"Home">) => {
     fetchMeetings();
   }, [isFocused]);
 
-  return (
-    <View style={styles.container}>
-      <FlatList
-        data={formatData(meetings, numColumns)}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id}
-        numColumns={numColumns}
-      />
-    </View>
-  );
+  if (meetings.length === 0) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Image
+          source={require("../assets/empty.png")}
+          style={{ marginBottom: 30 }}
+        />
+        <Text style={{ maxWidth: "80%", textAlign: "center", fontSize: 18 }}>
+          No Meetings to show. Get started by creating a new meeting!
+        </Text>
+      </View>
+    );
+  } else {
+    return (
+      <View style={styles.container}>
+        <FlatList
+          data={formatData(meetings, numColumns)}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id}
+          numColumns={numColumns}
+        />
+      </View>
+    );
+  }
 };
 
 export default Home;
