@@ -25,12 +25,4 @@ export const JourneySchema = CreateSchema({
   }
 });
 
-JourneySchema.set('toJSON', {
-  virtuals: true,
-  transform: (doc, ret) => {
-    delete ret._id;
-    return ret;
-  }
-});
-
 export type JourneyDocument = Journey & Document
