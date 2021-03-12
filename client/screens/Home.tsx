@@ -1,40 +1,14 @@
-import React, { useContext } from "react";
-import { Button, FlatList, StyleSheet, Text, View } from "react-native";
+import { useIsFocused } from "@react-navigation/core";
+import { Meeting } from "@types";
+import React, { useContext, useEffect, useState } from "react";
+import { FlatList, StyleSheet, Text, View, Image } from "react-native";
 import MeetingCard from "../components/MeetingCard";
+import { ApiContext } from "../src/ApiProvider";
 import { AuthNavProps } from "../src/AuthParamList";
 
 const numColumns = 2;
 
-const MeetingsData = [
-  {
-    id: "1",
-    title: "Meeting 1",
-    latitude: 43.653225,
-    longitude: -79.383186,
-    members: [
-      {
-        latitude: 43.799554407720585,
-        longitude: -79.35446070585937,
-        mode: "BICYCLING",
-        distance: null,
-        eta: null,
-      },
-      {
-        latitude: 43.719188449399326,
-        longitude: -79.58128653338825,
-        mode: "WALKING",
-        distance: null,
-        eta: null,
-      },
-    ],
-  },
-  { id: "2", title: "Meeting 2", latitude: 28.599171, longitude: -81.201653 },
-  { id: "3", title: "Meeting 3", latitude: 40.712776, longitude: -74.005974 },
-  { id: "4", title: "Meeting 4", latitude: 48.858372, longitude: 2.294481 },
-  { id: "5", title: "Meeting 5", latitude: 43.1065603, longitude: -79.0639039 },
-];
-
-const formatData = (data: any, numColumns: any) => {
+const formatData = (data: Meeting[], numColumns: any) => {
   const numberOfFullRows = Math.floor(data.length / numColumns);
 
   let numberOfElementsLastRow = data.length - numberOfFullRows * numColumns;
@@ -50,6 +24,10 @@ const formatData = (data: any, numColumns: any) => {
 };
 
 const Home = ({ navigation }: AuthNavProps<"Home">) => {
+  const { getMeetings } = useContext(ApiContext);
+  const [meetings, setMeetings] = useState<Meeting[]>([]);
+  const isFocused = useIsFocused();
+
   const renderItem = ({ item }: { item: any }) => {
     if (item.empty === true) {
       return <View style={styles.item} />;
@@ -57,16 +35,44 @@ const Home = ({ navigation }: AuthNavProps<"Home">) => {
     return <MeetingCard item={item} />;
   };
 
-  return (
-    <View style={styles.container}>
-      <FlatList
-        data={formatData(MeetingsData, numColumns)}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id}
-        numColumns={numColumns}
-      />
-    </View>
-  );
+  useEffect(() => {
+    async function fetchMeetings() {
+      try {
+        let meetingList = await getMeetings();
+        setMeetings(meetingList.reverse());
+        // console.log(meetings);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    fetchMeetings();
+  }, [isFocused]);
+
+  if (meetings.length === 0) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Image
+          source={require("../assets/empty.png")}
+          style={{ marginBottom: 30 }}
+        />
+        <Text style={{ maxWidth: "80%", textAlign: "center", fontSize: 18 }}>
+          No Meetings to show. Get started by creating a new meeting!
+        </Text>
+      </View>
+    );
+  } else {
+    return (
+      <View style={styles.container}>
+        <FlatList
+          data={formatData(meetings, numColumns)}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id}
+          numColumns={numColumns}
+        />
+      </View>
+    );
+  }
 };
 
 export default Home;

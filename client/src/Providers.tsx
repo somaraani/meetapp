@@ -1,14 +1,14 @@
 import React, { FC } from "react";
-import AuthProvider from "./AuthProvider";
+import ApiProvider from "./ApiProvider";
 import { Routes } from "./Routes";
 
 interface ProvidersProps {}
 
 const Providers: FC<ProvidersProps> = () => {
   return (
-    <AuthProvider>
+    <ApiProvider>
       <Routes />
-    </AuthProvider>
+    </ApiProvider>
   );
 };
 

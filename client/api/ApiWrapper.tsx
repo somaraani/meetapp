@@ -1,3 +1,4 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   Coordinate,
   Meeting,
@@ -13,6 +14,15 @@ export class ApiWrapper {
   public token: string;
   private id: string;
   constructor() {
+    AsyncStorage.getItem("user").then(async (token) => {
+      if (token) {
+        this.token = token;
+        this.id = (await this.getUser()).id;
+      } else {
+        this.token = "";
+        this.id = "";
+      }
+    });
     this.token = "";
     this.id = "";
   }
@@ -89,11 +99,17 @@ export class ApiWrapper {
   }
 
   async createMeeting(
+    name: string,
     description: string,
     time: string,
     location: Coordinate
   ): Promise<Meeting> {
-    let payload = { description: description, time: time, location: location };
+    let payload = {
+      name: name,
+      description: description,
+      time: time,
+      location: location,
+    };
     let res = await axios.post(`${API_URL}meetings/`, payload, {
       headers: { Authorization: `Bearer ${this.token}` },
     });
@@ -101,10 +117,10 @@ export class ApiWrapper {
     return data;
   }
 
-  async getMeetingsByUserId(userId: string): Promise<Meeting[]> {
+  async getMeetings(): Promise<Meeting[]> {
     let res = await axios.get(`${API_URL}meetings/`, {
       headers: { Authorization: `Bearer ${this.token}` },
-      params: { userId: userId },
+      params: { userId: this.id },
     });
     let data = res.data;
     return data;
