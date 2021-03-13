@@ -23,7 +23,8 @@ const Login = ({ navigation }: AuthNavProps<"Login">) => {
     //   .catch((e) => console.log(e));
     try {
       let token = await login(email, password);
-      console.log(token);
+
+      ToastAndroid.show("Login Successful!", ToastAndroid.SHORT);
     } catch (error) {
       console.log(error.response.status);
 
