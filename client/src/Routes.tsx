@@ -27,6 +27,7 @@ import MeetingSettings from "../screens/MeetingSettings";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { MaterialIcons } from "@expo/vector-icons";
 import CreateMeeting from "../screens/CreateMeeting";
+import LocationPicker from "../screens/LocationPicker";
 
 const Stack = createStackNavigator<AuthParamList>();
 const Drawer = createDrawerNavigator<AuthParamList>();
@@ -109,6 +110,11 @@ const Meetings = ({ navigation }) => {
         name="CreateMeeting"
         component={CreateMeeting}
         options={{ title: "Create Meeting" }}
+      />
+      <Stack.Screen
+        name="LocationPicker"
+        component={LocationPicker}
+        options={{ title: "Search Location" }}
       />
     </Stack.Navigator>
   );
