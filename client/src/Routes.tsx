@@ -202,13 +202,7 @@ export const Routes = () => {
               name="Register"
               component={Register}
               options={{
-                headerTitle: "",
-                headerStyle: {
-                  elevation: 0, // remove shadow on Android
-                  shadowOpacity: 0,
-                  backgroundColor: "#f6f6f6",
-                },
-                headerBackTitleVisible: false,
+                headerShown: false,
               }}
             />
           </Stack.Navigator>
