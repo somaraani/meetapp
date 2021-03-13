@@ -16,10 +16,7 @@ const DrawerContent = (props) => {
           <View style={styles.userInfoSection}>
             <View style={{ flexDirection: "row", marginTop: 15 }}>
               <Avatar.Image
-                source={{
-                  uri:
-                    "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixid=MXwxMjA3fDB8MHxzZWFyY2h8MXx8dXNlcnxlbnwwfHwwfA%3D%3D&ixlib=rb-1.2.1&w=1000&q=80",
-                }}
+                source={require("../assets/profile.jpg")}
                 size={50}
               />
 
