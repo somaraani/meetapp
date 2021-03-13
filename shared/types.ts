@@ -1,16 +1,16 @@
 export interface Meeting {
     id: string,
     status: string,
-    meetingDetails: MeetingDetail,
-    meetingParticipants: MeetingParticipant[]
+    ownerId: string,
+    eta: string,
+    details: MeetingDetail,
+    participants: MeetingParticipant[]
 }
 
 export interface MeetingDetail {
     description: string,
-    ownerId: string,
-    originalEta: string,
-    currentEta: string,
-    meetingLocation: Coordinate,   
+    time: string,
+    location: Coordinate,   
 }
 
 export interface MeetingParticipant {
@@ -20,9 +20,8 @@ export interface MeetingParticipant {
 
 export interface User {
     id: string,
-    email: string,
-    publicData: PublicUserData
-    privateData: PrivateUserData
+    private: PrivateUserData,
+    public: PublicUserData
 }
 
 export interface PublicUserData {
