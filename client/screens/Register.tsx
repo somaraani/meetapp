@@ -40,7 +40,7 @@ const Register = ({ navigation }: AuthNavProps<"Register">) => {
 
         let token = await login(email, password);
 
-        console.log(token);
+        ToastAndroid.show("Successfully Registered!", ToastAndroid.SHORT);
       } else if (
         name === "" ||
         email === "" ||
