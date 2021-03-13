@@ -4,7 +4,7 @@ import { Button, StyleSheet, View } from "react-native";
 import { ApiContext } from "../src/ApiProvider";
 import { Avatar, Caption, Drawer, Text, Title } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import { DrawerActions } from "@react-navigation/native";
+import { CommonActions, DrawerActions } from "@react-navigation/native";
 
 const DrawerContent = (props) => {
   const { user, logout, getUser } = useContext(ApiContext);
@@ -43,14 +43,28 @@ const DrawerContent = (props) => {
                 <Icon name="home" color={color} size={size} />
               )}
               label="Meetings"
-              onPress={() => props.navigation.navigate("Meetings")}
+              onPress={() =>
+                props.navigation.dispatch({
+                  ...CommonActions.reset({
+                    index: 0,
+                    routes: [{ name: "Meetings" }],
+                  }),
+                })
+              }
             />
             <DrawerItem
               icon={({ color, size }) => (
                 <Icon name="cog" color={color} size={size} />
               )}
               label="Settings"
-              onPress={() => props.navigation.navigate("MainSettings")}
+              onPress={() =>
+                props.navigation.dispatch({
+                  ...CommonActions.reset({
+                    index: 0,
+                    routes: [{ name: "MainSettings" }],
+                  }),
+                })
+              }
             />
             <DrawerItem
               icon={({ color, size }) => (
