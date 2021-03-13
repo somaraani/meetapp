@@ -172,10 +172,10 @@ export const Routes = () => {
           flex: 1,
           justifyContent: "center",
           alignItems: "center",
-          backgroundColor: "black",
+          backgroundColor: "#f6f6f6",
         }}
       >
-        <ActivityIndicator size="large" color="white" />
+        <ActivityIndicator size="large" color="black" />
       </View>
     );
   }
