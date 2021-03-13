@@ -2,7 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { FC, useState } from "react";
 import jwt_decode from "jwt-decode";
 import { ApiWrapper } from "../api/ApiWrapper";
-import { Coordinate, Meeting, PublicUserData } from "@types";
+import { Coordinate, Meeting, User as UserType } from "@types";
 
 type User = null | any;
 
@@ -23,7 +23,7 @@ export const ApiContext = React.createContext<{
     location: Coordinate
   ) => void;
   getMeetings: () => Promise<Meeting[]>;
-  getPublicUser: () => Promise<PublicUserData>;
+  getUser: () => Promise<UserType>;
 }>({
   user: null,
   login: async () => {
@@ -38,7 +38,7 @@ export const ApiContext = React.createContext<{
   getMeetings: async () => {
     return [];
   },
-  getPublicUser: async () => {},
+  getUser: async () => {},
 });
 
 interface ApiProviderProps {}
@@ -92,6 +92,12 @@ const ApiProvider: FC<ApiProviderProps> = ({ children }) => {
     return data;
   };
 
+  const getUser = async () => {
+    let data = await api.getUser();
+
+    return data;
+  };
+
   return (
     <ApiContext.Provider
       value={{
@@ -102,6 +108,7 @@ const ApiProvider: FC<ApiProviderProps> = ({ children }) => {
         logout,
         createMeeting,
         getMeetings,
+        getUser,
       }}
     >
       {children}
