@@ -1,5 +1,5 @@
 import { DrawerContentScrollView, DrawerItem } from "@react-navigation/drawer";
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Button, StyleSheet, View } from "react-native";
 import { ApiContext } from "../src/ApiProvider";
 import { Avatar, Caption, Drawer, Text, Title } from "react-native-paper";
@@ -7,7 +7,18 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { DrawerActions } from "@react-navigation/native";
 
 const DrawerContent = (props) => {
-  const { user, logout } = useContext(ApiContext);
+  const { user, logout, getUser } = useContext(ApiContext);
+  let [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+
+  useEffect(() => {
+    async function getUserInfo() {
+      let data = await getUser();
+      setName(data.publicData.displayName);
+      setEmail(data.email);
+    }
+    getUserInfo();
+  }, []);
 
   return (
     <View style={{ flex: 1 }}>
@@ -21,12 +32,8 @@ const DrawerContent = (props) => {
               />
 
               <View style={{ marginLeft: 15, flexDirection: "column" }}>
-                {/* <Title style={styles.title}>
-                  {user.publicData.displayName}
-                </Title> */}
-                <Title style={styles.title}>Tasin Ahmed</Title>
-                {/* <Caption style={styles.caption}>{user.email}</Caption> */}
-                <Caption style={styles.caption}>tasin@gmail.com</Caption>
+                <Title style={styles.title}>{name}</Title>
+                <Caption style={styles.caption}>{email}</Caption>
               </View>
             </View>
           </View>
