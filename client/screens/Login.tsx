@@ -2,12 +2,12 @@ import React, { FC, useContext, useState } from "react";
 import {
   StyleSheet,
   View,
-  TextInput,
   Text,
   Image,
   TouchableOpacity,
   ToastAndroid,
 } from "react-native";
+import { TextInput, Button } from "react-native-paper";
 import { AuthNavProps, AuthParamList } from "../src/AuthParamList";
 import { ApiContext } from "../src/ApiProvider";
 
@@ -42,32 +42,37 @@ const Login = ({ navigation }: AuthNavProps<"Login">) => {
         style={{ marginBottom: 70 }}
       />
       <View>
-        <Text style={{ color: "#fff", marginBottom: 15, fontWeight: "bold" }}>
+        <Text style={{ color: "#000", marginBottom: 15, fontWeight: "bold" }}>
           Login to your account
         </Text>
         <TextInput
           style={styles.input}
-          placeholder="email"
-          placeholderTextColor="rgba(255, 250, 255,.45)"
+          placeholder="Email"
           onChangeText={(value) => setEmail(value)}
+          theme={{ colors: { primary: "#2196F3" } }}
+          mode="outlined"
         />
         <TextInput
           style={styles.input}
-          placeholder="password"
-          placeholderTextColor="rgba(255, 250, 255,.45)"
+          placeholder="Password"
           onChangeText={(value) => setPassword(value)}
           secureTextEntry={true}
+          theme={{ colors: { primary: "#2196F3" } }}
+          mode="outlined"
         />
-        <TouchableOpacity style={styles.button} onPress={submitHandler}>
-          <Text style={{ color: "white", fontWeight: "bold", fontSize: 18 }}>
-            Sign In
-          </Text>
-        </TouchableOpacity>
+        <Button
+          onPress={submitHandler}
+          mode="contained"
+          theme={{ colors: { primary: "#2196F3" } }}
+          style={{ marginBottom: 10 }}
+        >
+          Sign In
+        </Button>
       </View>
-      <Text style={{ color: "rgba(255, 250, 255, 0.6)", marginBottom: 70 }}>
+      <Text style={{ color: "rgba(0, 0, 0, 0.6)", marginBottom: 70 }}>
         Forgot password?
       </Text>
-      <Text style={{ color: "#fff" }}>
+      <Text style={{ color: "#000" }}>
         Don’t have an account?{" "}
         <Text
           style={{ color: "#2196F3", fontWeight: "bold" }}
@@ -87,23 +92,20 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#000",
+    backgroundColor: "#f6f6f6",
   },
   input: {
-    backgroundColor: "rgba(255,255,255,0.1)",
-    borderRadius: 4,
-    paddingHorizontal: 11,
-    paddingVertical: 4,
-    width: 200,
-    color: "white",
+    width: 250,
     marginBottom: 15,
     fontSize: 16,
+    height: 40,
   },
   button: {
     width: 200,
     backgroundColor: "#2196F3",
     paddingVertical: 10,
     alignItems: "center",
+    alignSelf: "center",
     borderRadius: 8,
     marginBottom: 10,
   },
