@@ -4,7 +4,7 @@ import { Button, StyleSheet, View } from "react-native";
 import { ApiContext } from "../src/ApiProvider";
 import { Avatar, Caption, Drawer, Text, Title } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import { color } from "react-native-reanimated";
+import { DrawerActions } from "@react-navigation/native";
 
 const DrawerContent = (props) => {
   const { user, logout } = useContext(ApiContext);
@@ -64,7 +64,10 @@ const DrawerContent = (props) => {
             <Icon name="exit-to-app" color={color} size={size} />
           )}
           label="Sign out"
-          onPress={logout}
+          onPress={() => {
+            props.navigation.dispatch(DrawerActions.closeDrawer());
+            logout();
+          }}
         />
       </Drawer.Section>
     </View>
