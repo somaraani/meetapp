@@ -182,7 +182,6 @@ export const Routes = () => {
 
   return (
     <>
-      <StatusBar />
       <NavigationContainer>
         {user ? (
           <Drawer.Navigator
@@ -204,12 +203,12 @@ export const Routes = () => {
               component={Register}
               options={{
                 headerTitle: "",
-                headerTintColor: "white",
                 headerStyle: {
-                  backgroundColor: "black",
+                  elevation: 0, // remove shadow on Android
+                  shadowOpacity: 0,
+                  backgroundColor: "#f6f6f6",
                 },
-                headerBackTitleVisible: true,
-                headerBackTitle: "Login",
+                headerBackTitleVisible: false,
               }}
             />
           </Stack.Navigator>
