@@ -72,21 +72,21 @@ const Register = ({ navigation }: AuthNavProps<"Register">) => {
         </Text>
         <TextInput
           style={styles.input}
-          placeholder="full name"
+          placeholder="Full name"
           onChangeText={(value) => setName(value)}
           theme={{ colors: { primary: "#2196F3" } }}
           mode="outlined"
         />
         <TextInput
           style={styles.input}
-          placeholder="email"
+          placeholder="Email"
           onChangeText={(value) => setEmail(value)}
           theme={{ colors: { primary: "#2196F3" } }}
           mode="outlined"
         />
         <TextInput
           style={styles.input}
-          placeholder="password"
+          placeholder="Password"
           secureTextEntry={true}
           onChangeText={(value) => setPassword(value)}
           theme={{ colors: { primary: "#2196F3" } }}
@@ -94,7 +94,7 @@ const Register = ({ navigation }: AuthNavProps<"Register">) => {
         />
         <TextInput
           style={styles.input}
-          placeholder="confirm password"
+          placeholder="Confirm password"
           secureTextEntry={true}
           onChangeText={(value) => setConfirmPass(value)}
           theme={{ colors: { primary: "#2196F3" } }}
