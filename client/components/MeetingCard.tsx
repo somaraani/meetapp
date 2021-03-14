@@ -21,7 +21,7 @@ const MeetingCard = ({ item }: { item: any }) => {
             alignItems: "center",
           }}
         >
-          <Text>{item.title}</Text>
+          <Text>{item.details.name}</Text>
         </View>
       </TouchableOpacity>
     </View>

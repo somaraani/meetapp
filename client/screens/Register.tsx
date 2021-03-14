@@ -3,14 +3,14 @@ import { StyleSheet, Text, TextInput, View, ToastAndroid } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { AuthNavProps, AuthParamList } from "../src/AuthParamList";
 import { authenticate, createUser } from "../api/ApiWrapper";
-import { AuthContext } from "../src/AuthProvider";
+import { ApiContext } from "../src/ApiProvider";
 
 const Register = ({ navigation }: AuthNavProps<"Register">) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPass, setConfirmPass] = useState("");
-  const { register, login } = useContext(AuthContext);
+  const { register, login } = useContext(ApiContext);
 
   const submitHandler = async () => {
     // createUser(email, password, {
