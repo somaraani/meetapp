@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Cron, CronExpression, SchedulerRegistry } from '@nestjs/schedule';
+import { SchedulerRegistry } from '@nestjs/schedule';
 import { CronJob, CronTime } from 'cron';
 
 @Injectable()
@@ -10,24 +10,30 @@ export class TasksService {
 
     addCronJob(name: string, time: Date, fun: () => void) {
         this.logger.debug(`Creating future task for ${name} to run at ${time.toISOString()}`);
+
+        if(this.hasCronJob(name)) {
+            this.logger.log(`Job ${name} already exists, will update runtime instead to ${time.toISOString()}`)
+            this.schedulerRegistry.deleteCronJob(name);
+        }
+
+        if(time.getTime() - new Date().getTime() <= 0) {
+            this.logger.log(`Job date is set in past, will run now instead.`)
+            fun();
+            return;
+        }
+
         const job = new CronJob(time, fun);
         this.schedulerRegistry.addCronJob(name, job);
         job.start();
     }
 
     deleteCronJob(name: string) {
-        this.schedulerRegistry.deleteCronJob(name);
-        this.logger.debug(`Deleted future task for ${name}`);
-    }
-
-    updateCronTime(name: string, date: Date) {
         if(!this.hasCronJob(name)) {
-            this.logger.error(`Trying to update task ${name} that does not exist.`);
             return;
         }
 
-        const job = this.schedulerRegistry.getCronJob(name);
-        job.setTime(new CronTime(date));
+        this.schedulerRegistry.deleteCronJob(name);
+        this.logger.debug(`Deleted future task for ${name}`);
     }
 
     hasCronJob(name: string) : boolean {

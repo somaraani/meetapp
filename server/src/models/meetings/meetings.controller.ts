@@ -65,7 +65,7 @@ export class MeetingsController {
             throw new NotFoundException("Meeting with that ID was not found.");
         }
 
-        return this.meetingsService.update(meetingId, auth.userId, data);
+        return meeting;
     }
    
 }
