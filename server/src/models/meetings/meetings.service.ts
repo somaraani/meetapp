@@ -158,8 +158,6 @@ export class MeetingsService {
         var dayBefore: Date = new Date(new Date(meeting.eta).getTime() - (24 * 60 * 60 * 1000)); 
 
         this.taskService.addCronJob(this.meetingJobName(meetingId), dayBefore, async () => {
-            console.log("in job");
-            
             //get updated meeting object (in future)
             const meet = await this.meetingModel.findById(meeting?.id);
 

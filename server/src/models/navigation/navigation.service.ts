@@ -2,7 +2,6 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { Client, Status, TransitMode, TravelMode } from "@googlemaps/google-maps-services-js";
 import { Coordinate, JourneySetting  } from '@types';
 import { DirectionsResponseData } from '@googlemaps/google-maps-services-js/dist/directions';
-import { settings } from 'cluster';
 
 @Injectable()
 export class NavigationService {
@@ -39,7 +38,7 @@ export class NavigationService {
             params: {
                 origin: setting.startLocation,
                 destination: end,
-                avoid: [],
+                avoid: setting.avoid,
                 mode: travelMode,
                 transit_mode: transitMode,
                 key:<string>process.env.GOOGLE_MAPS_API_KEY

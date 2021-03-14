@@ -45,11 +45,11 @@ export class JourneysService {
         // }
 
         currJourney.settings = settings;
+
         await currJourney.save();
+        await this.journeyJob(currJourney.id);
 
-        this.journeyJob(currJourney.id);
-
-        return currJourney;
+        return this.journeyModel.findById(currJourney.id);
     }
 
     async create(userId: string, meetingId: string) : Promise<Journey> {

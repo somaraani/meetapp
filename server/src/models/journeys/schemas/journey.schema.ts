@@ -22,7 +22,7 @@ export const JourneySchema = CreateSchema({
       lat: Number
     }, 
     travelMode: String,
-    tolls: Boolean
+    avoid: [String]
   }
 });
 
