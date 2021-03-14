@@ -46,7 +46,7 @@ export interface Journey {
     id: string, 
     userId: string,
     meetingId: string,
-    eta: string,
+    travelTime: number,
     lastUpdated: string,
     locations: Coordinate[],
     path: Coordinate[],
@@ -55,11 +55,14 @@ export interface Journey {
 
 export interface JourneySetting {
     startLocation: Coordinate,
-    transitMode?: TransitMode[],
+    travelMode?: TravelMode,
     avoid?: TravelRestriction[]
 }
 
-export enum TransitMode {
+export enum TravelMode {
+    driving = "driving",
+    walking = "walking",
+    bicycling = "bicycling",
     bus = "bus",
     subway = "subway",
     train = "train",

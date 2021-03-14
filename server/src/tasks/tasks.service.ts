@@ -9,11 +9,10 @@ export class TasksService {
     private readonly logger = new Logger(TasksService.name);
 
     addCronJob(name: string, time: Date, fun: () => void) {
+        this.logger.debug(`Creating future task for ${name} to run at ${time.toISOString()}`);
         const job = new CronJob(time, fun);
         this.schedulerRegistry.addCronJob(name, job);
         job.start();
-
-        this.logger.debug(`Created future task for ${name} to run at ${time.toISOString}`);
     }
 
     deleteCronJob(name: string) {

@@ -37,9 +37,7 @@ export class JourneysService {
         //need to modify the future task 
 
         //need to use google maps API to set new time to leave for journey
-        await this.calculateETA(journeyId);
-
-        return currJourney;
+        return await this.calculateETA(journeyId);
     }
 
     async create(userId: string, meetingId: string) : Promise<Journey> {
@@ -59,7 +57,7 @@ export class JourneysService {
     }
 
     //updates this journeys ETA and time to leave using google maps API
-    async calculateETA(journeyId: string) {
+    async calculateETA(journeyId: string) : Promise<Journey> {
         const journey = await this.journeyModel.findById(journeyId);
         if (journey == null){
             throw new NotFoundException('Journey not found');
@@ -74,10 +72,8 @@ export class JourneysService {
         }
 
         const etaSeconds = directionsResponse.routes[0].legs[0].duration.value;
-        const eta = new Date();
-        eta.setSeconds(eta.getSeconds() + etaSeconds);
-        journey.eta = eta.toISOString();
-        await journey.save();
+        journey.travelTime = etaSeconds;
+        return await journey.save();
     }
 
 }

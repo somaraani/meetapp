@@ -1,5 +1,5 @@
 
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { Journey, Meeting, MeetingDetail, MeetingParticipant } from '@types'
 import { CreateMeetingDTO } from './dto/CreateMeetingDto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -31,8 +31,12 @@ export class MeetingsService {
             throw new UnauthorizedException("User is not owner of this meeting.");
         }
 
+        if(currMeeting.status != "pending") {
+            throw new BadRequestException("This meeting is not pending anymore, so state cannot be updated.");
+        }
+
         currMeeting.details = data;
-        currMeeting.save();
+        await currMeeting.save();
 
         //update task time in case of changed ETA
         this.updateTasks(meetingId);
@@ -53,7 +57,6 @@ export class MeetingsService {
                 location: data.location
             }
         });
-
         await meeting.save();
         this.createTasks(meeting.id);
         return this.addUser(userId, meeting.id);
@@ -107,7 +110,10 @@ export class MeetingsService {
         }
 
         var dayBefore: Date = new Date(new Date(meeting.eta).getTime() - (24 * 60 * 60 * 1000)); 
+        var twoDaysBefore: Date = new Date(new Date(meeting.eta).getTime() - (48 * 60 * 60 * 1000)); 
+
         this.taskService.updateCronTime(this.meetingJob(meetingId), dayBefore);
+        this.taskService.updateCronTime(this.reminderJob(meetingId), twoDaysBefore);
     }
 
     //creates/updates future tasks for this meeting
@@ -119,6 +125,21 @@ export class MeetingsService {
         }
 
         var dayBefore: Date = new Date(new Date(meeting.eta).getTime() - (24 * 60 * 60 * 1000)); 
+        var twoDaysBefore: Date = new Date(new Date(meeting.eta).getTime() - (48 * 60 * 60 * 1000)); 
+
+        //this will run 48hours before start of meeting
+        this.taskService.addCronJob(this.reminderJob(meetingId), twoDaysBefore, async() => {
+             //get updated meeting object (in future)
+             const meet = await this.meetingModel.findById(meeting?.id);
+
+             if(!meet) {
+                 return;
+             }
+
+            // send notif to everyone reminding them to finalize meeting information 
+            //this.notificationService.pushNotification();
+
+        });
 
         //this will always run 24H before start of meeting
         this.taskService.addCronJob(this.meetingJob(meetingId), dayBefore, async () => {
@@ -130,11 +151,18 @@ export class MeetingsService {
                 return;
             }
 
+            //at this point, the meeting cannot be changed and state becomes "finalized"
+
+            if(meet.status == "pending") {
+                meet.status = "finalized";
+                await meet.save();
+            }
+
             //recalculate ALL etas
             await this.updateETAs(meet.id);
 
             //send notification for all user's in meeting reminding them its in 24 hour
-            //this.notificationService.addNotification() -> should send to everyone in meeting (how?)
+            //this.notificationService.pushNotification();
 
             //create future events for reminding each user 1 hour before THEY have to leave
             meet.participants.forEach(async participant => {
@@ -144,13 +172,19 @@ export class MeetingsService {
                     return;
                 }
                
-                var hourBefore : Date = new Date(); // this should be 1 hour before they have to leave
+                var hourBefore : Date = new Date((new Date(meet.details.time).getTime() - journey.travelTime * 1000 - (1 * 60 * 60 * 1000)));
                 
                 this.taskService.addCronJob(this.journeyJob(journey.id), hourBefore, async () => {
                     //this runs 1 hour before each user has to leave (individually)
 
                     //calculate time they have to leave 1 last time
-                    await this.journeyService.calculateETA(journey.id);
+                    const jour = await this.journeyService.calculateETA(journey.id);
+
+                    const meetingTime  = new Date(meet.details.time).getTime();
+                    const leavingTime  = new Date(meetingTime - jour.travelTime * 1000).getTime();
+
+                    //how long till they have to leave
+                    const time = Math.ceil((leavingTime - new Date().getTime()) / (1000 * 60));
 
                     // send notif
                     // this should only take userId, title, message
@@ -158,12 +192,37 @@ export class MeetingsService {
                         id: "",
                         userId: participant.userId,
                         title: "You must leave soon!",
-                        message: `You must leave in 1 hour to make it to ${meet.details.name}`, //this should tell them when exacty they should leave (if different than 1 hour)
+                        message: `You must leave in ${time} minutes to make it to ${meet.details.name}`, 
                         read: false
                     });
-                })
 
-                //TODO find which the earliest time to leave is, and make the meeting ACTIVE at that time
+                    //this runs when they have to leave 
+                    this.taskService.addCronJob(this.leaveJob(journey.id), new Date(leavingTime) , async () => { 
+
+                        //anything that needs to happen when meeting becomes active can happen here
+
+                        //when the first person has to leave, meeting becomes active
+                        var meeting = await this.meetingModel.findById(meetingId);
+
+                        if(!meeting) {
+                            return;
+                        }
+
+                        if(meeting.status != "active") {
+                            meeting.status = "active";
+                            await meeting.save();
+                        }
+                        
+                        //send notification telling them to leave
+                        this.notificationService.addNotification({
+                            id: "",
+                            userId: participant.userId,
+                            title: "Leave Now!",
+                            message: `You must leave now to make it to ${meet.details.name} on time.`, 
+                            read: false
+                        });
+                    });
+                })
 
             });
 
@@ -177,7 +236,10 @@ export class MeetingsService {
         meeting?.participants.forEach(async participant => {
             await this.journeyService.calculateETA(participant.journeyId);
         });
-        
+    } 
+
+    private reminderJob(meetingId: string) {
+        return "M_" + meetingId + "_48H";
     }
 
     private meetingJob(meetingId: string) {
@@ -186,6 +248,10 @@ export class MeetingsService {
 
     private journeyJob(journeyId: string) {
         return "J_" + journeyId + "_1H";
+    }
+
+    private leaveJob(journeyId: string) {
+        return "J_" + journeyId + "_L";
     }
 
 }

@@ -5,8 +5,9 @@ import { CreateSchema } from 'src/database/util';
 export const JourneySchema = CreateSchema({
   userId: String,
   meetingId: String, 
-  eta: String, 
+  travelMode: String, 
   lastUpdated: String,
+  travelTime: Number,
   locations: [{
     lng: Number,
     lat: Number
@@ -20,7 +21,7 @@ export const JourneySchema = CreateSchema({
       lng: Number,
       lat: Number
     }, 
-    transitType: String,
+    travelMode: String,
     tolls: Boolean
   }
 });
