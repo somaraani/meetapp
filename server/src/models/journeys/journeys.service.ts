@@ -30,6 +30,15 @@ export class JourneysService {
             throw new UnauthorizedException("User is not owner of this journey.");
         }
 
+        const meeting = await this.meetingModel.findById(currJourney.meetingId);
+        if(!meeting) {
+            throw new BadRequestException("Meeting this journey belongs to does not exist anymore.");
+        }
+
+        if(meeting.status != "pending") {
+            throw new BadRequestException("This meeting is not pending anymore, cannot change journey settings.");
+        }
+
         currJourney.settings = settings;
         await currJourney.save();
 

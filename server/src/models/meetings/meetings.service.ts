@@ -66,6 +66,9 @@ export class MeetingsService {
         this.meetingModel.deleteOne({_id: id}, undefined, (err) => {
             if(err) {
                 throw err;
+            } else {
+                this.taskService.deleteCronJob(this.meetingJob(id));
+                this.taskService.deleteCronJob(this.reminderJob(id));
             }
         });
     }
