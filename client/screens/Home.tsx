@@ -1,39 +1,16 @@
 import { useIsFocused } from "@react-navigation/core";
 import { Meeting } from "@types";
 import React, { useContext, useEffect, useState } from "react";
-import { FlatList, StyleSheet, Text, View, Image } from "react-native";
-import MeetingCard from "../components/MeetingCard";
+import { StyleSheet, Text, View, Image } from "react-native";
 import { ApiContext } from "../src/ApiProvider";
 import { AuthNavProps } from "../src/AuthParamList";
-
-const numColumns = 2;
-
-const formatData = (data: Meeting[], numColumns: any) => {
-  const numberOfFullRows = Math.floor(data.length / numColumns);
-
-  let numberOfElementsLastRow = data.length - numberOfFullRows * numColumns;
-  while (
-    numberOfElementsLastRow !== numColumns &&
-    numberOfElementsLastRow !== 0
-  ) {
-    data.push({ key: `blank-${numberOfElementsLastRow}`, empty: true });
-    numberOfElementsLastRow++;
-  }
-
-  return data;
-};
+import { Avatar, ListItem } from "react-native-elements";
+import moment from "moment";
 
 const Home = ({ navigation }: AuthNavProps<"Home">) => {
   const { getMeetings } = useContext(ApiContext);
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const isFocused = useIsFocused();
-
-  const renderItem = ({ item }: { item: any }) => {
-    if (item.empty === true) {
-      return <View style={styles.item} />;
-    }
-    return <MeetingCard item={item} />;
-  };
 
   useEffect(() => {
     async function fetchMeetings() {
@@ -64,12 +41,28 @@ const Home = ({ navigation }: AuthNavProps<"Home">) => {
   } else {
     return (
       <View style={styles.container}>
-        <FlatList
-          data={formatData(meetings, numColumns)}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id}
-          numColumns={numColumns}
-        />
+        {meetings.map((m, i) => (
+          <ListItem
+            key={i}
+            bottomDivider
+            onPress={() => navigation.navigate("MeetingTabs", m)}
+          >
+            <Avatar
+              size="medium"
+              rounded
+              title={m.details.name.substring(0, 2)}
+              titleStyle={{ color: "white" }}
+              containerStyle={{ backgroundColor: "#2196F3" }}
+            />
+            <ListItem.Content>
+              <ListItem.Title>{m.details.name}</ListItem.Title>
+              <ListItem.Subtitle>
+                {moment(m.details.time).format("MMMM Do YYYY, h:mm a")}
+              </ListItem.Subtitle>
+            </ListItem.Content>
+            <ListItem.Chevron color="black" />
+          </ListItem>
+        ))}
       </View>
     );
   }
@@ -79,7 +72,7 @@ export default Home;
 
 const styles = StyleSheet.create({
   container: {
-    padding: 15,
+    padding: 10,
     flex: 1,
   },
   item: {

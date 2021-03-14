@@ -27,6 +27,7 @@ import MeetingSettings from "../screens/MeetingSettings";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { MaterialIcons } from "@expo/vector-icons";
 import CreateMeeting from "../screens/CreateMeeting";
+import LocationPicker from "../screens/LocationPicker";
 
 const Stack = createStackNavigator<AuthParamList>();
 const Drawer = createDrawerNavigator<AuthParamList>();
@@ -110,6 +111,11 @@ const Meetings = ({ navigation }) => {
         component={CreateMeeting}
         options={{ title: "Create Meeting" }}
       />
+      <Stack.Screen
+        name="LocationPicker"
+        component={LocationPicker}
+        options={{ title: "Search Location" }}
+      />
     </Stack.Navigator>
   );
 };
@@ -172,17 +178,16 @@ export const Routes = () => {
           flex: 1,
           justifyContent: "center",
           alignItems: "center",
-          backgroundColor: "black",
+          backgroundColor: "#f6f6f6",
         }}
       >
-        <ActivityIndicator size="large" color="white" />
+        <ActivityIndicator size="large" color="black" />
       </View>
     );
   }
 
   return (
     <>
-      <StatusBar />
       <NavigationContainer>
         {user ? (
           <Drawer.Navigator
@@ -203,13 +208,7 @@ export const Routes = () => {
               name="Register"
               component={Register}
               options={{
-                headerTitle: "",
-                headerTintColor: "white",
-                headerStyle: {
-                  backgroundColor: "black",
-                },
-                headerBackTitleVisible: true,
-                headerBackTitle: "Login",
+                headerShown: false,
               }}
             />
           </Stack.Navigator>

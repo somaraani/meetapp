@@ -1,5 +1,6 @@
 import React, { FC, useContext, useState } from "react";
-import { StyleSheet, Text, TextInput, View, ToastAndroid } from "react-native";
+import { StyleSheet, Text, View, ToastAndroid, Image } from "react-native";
+import { TextInput, Button } from "react-native-paper";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { AuthNavProps, AuthParamList } from "../src/AuthParamList";
 import { authenticate, createUser } from "../api/ApiWrapper";
@@ -39,7 +40,7 @@ const Register = ({ navigation }: AuthNavProps<"Register">) => {
 
         let token = await login(email, password);
 
-        console.log(token);
+        ToastAndroid.show("Successfully Registered!", ToastAndroid.SHORT);
       } else if (
         name === "" ||
         email === "" ||
@@ -62,50 +63,61 @@ const Register = ({ navigation }: AuthNavProps<"Register">) => {
   return (
     <View style={styles.container}>
       <View>
-        <Text style={{ color: "#fff", marginBottom: 15, fontWeight: "bold" }}>
+        <Image
+          source={require("../assets/join.png")}
+          style={{ marginBottom: 30 }}
+        />
+        <Text style={{ color: "#000", marginBottom: 15, fontWeight: "bold" }}>
           Create your account
         </Text>
         <TextInput
           style={styles.input}
-          placeholder="full name"
-          placeholderTextColor="rgba(255, 250, 255,.45)"
+          placeholder="Full name"
           onChangeText={(value) => setName(value)}
+          theme={{ colors: { primary: "#2196F3" } }}
+          mode="outlined"
         />
         <TextInput
           style={styles.input}
-          placeholder="email"
-          placeholderTextColor="rgba(255, 250, 255,.45)"
+          placeholder="Email"
           onChangeText={(value) => setEmail(value)}
+          theme={{ colors: { primary: "#2196F3" } }}
+          mode="outlined"
         />
         <TextInput
           style={styles.input}
-          placeholder="password"
-          placeholderTextColor="rgba(255, 250, 255,.45)"
+          placeholder="Password"
           secureTextEntry={true}
           onChangeText={(value) => setPassword(value)}
+          theme={{ colors: { primary: "#2196F3" } }}
+          mode="outlined"
         />
         <TextInput
           style={styles.input}
-          placeholder="confirm password"
-          placeholderTextColor="rgba(255, 250, 255,.45)"
+          placeholder="Confirm password"
           secureTextEntry={true}
           onChangeText={(value) => setConfirmPass(value)}
+          theme={{ colors: { primary: "#2196F3" } }}
+          mode="outlined"
         />
-        <TouchableOpacity style={styles.button} onPress={submitHandler}>
-          <Text style={{ color: "black", fontWeight: "bold", fontSize: 18 }}>
-            Sign Up
-          </Text>
-        </TouchableOpacity>
-        <Text style={{ color: "#fff" }}>
-          Already have an account?{" "}
-          <Text
-            style={{ color: "#2196F3", fontWeight: "bold" }}
-            onPress={() => navigation.navigate("Login")}
-          >
-            Sign In
-          </Text>
-        </Text>
+        <Button
+          onPress={submitHandler}
+          mode="contained"
+          theme={{ colors: { primary: "#2196F3" } }}
+          style={{ marginBottom: 30 }}
+        >
+          Sign Up
+        </Button>
       </View>
+      <Text style={{ color: "#000" }}>
+        Already have an account?{" "}
+        <Text
+          style={{ color: "#2196F3", fontWeight: "bold" }}
+          onPress={() => navigation.navigate("Login")}
+        >
+          Sign In
+        </Text>
+      </Text>
     </View>
   );
 };
@@ -117,24 +129,12 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#000",
+    backgroundColor: "#f6f6f6",
   },
   input: {
-    backgroundColor: "rgba(255,255,255,0.1)",
-    borderRadius: 4,
-    paddingHorizontal: 11,
-    paddingVertical: 4,
-    width: 200,
-    color: "white",
+    width: 250,
     marginBottom: 15,
     fontSize: 16,
-  },
-  button: {
-    width: 200,
-    backgroundColor: "white",
-    paddingVertical: 10,
-    alignItems: "center",
-    borderRadius: 8,
-    marginBottom: 70,
+    height: 40,
   },
 });
