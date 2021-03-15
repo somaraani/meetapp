@@ -114,7 +114,7 @@ const Meetings = ({ navigation }) => {
       <Stack.Screen
         name="LocationPicker"
         component={LocationPicker}
-        options={{ title: "Search Location" }}
+        options={{ title: "Select Location" }}
       />
     </Stack.Navigator>
   );
