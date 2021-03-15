@@ -6,27 +6,26 @@ import { AuthNavProps } from "../src/AuthParamList";
 import config from "../config";
 import { MeetingContext } from "../src/MeetingContext";
 
-const MeetingPage = ({ navigation }: AuthNavProps<"Home">) => {
-  const { latitude, longitude } = useContext(MeetingContext);
-  let { members } = useContext(MeetingContext);
+const MeetingPage = ({ route, navigation }: AuthNavProps<"Home">) => {
+  const item = useContext(MeetingContext);
+  const { lat, lng } = item.details.location;
   const { height, width } = Dimensions.get("window");
-  const LATITUDE_DELTA = 0.28;
+  const LATITUDE_DELTA = 10;
   const LONGITUDE_DELTA = LATITUDE_DELTA * (width / height);
 
   return (
     <View>
-      <Text>Hello</Text>
-      {/* <MapView
+      <MapView
         style={styles.map}
         initialRegion={{
-          latitude: latitude,
-          longitude: longitude,
+          latitude: lat,
+          longitude: lng,
           latitudeDelta: LATITUDE_DELTA,
           longitudeDelta: LONGITUDE_DELTA,
         }}
       >
-        <Marker coordinate={{ latitude: latitude, longitude: longitude }} />
-        {members &&
+        <Marker coordinate={{ latitude: lat, longitude: lng }} />
+        {/* {members &&
           members.map((member, index) => (
             <Marker
               key={index}
@@ -66,8 +65,8 @@ const MeetingPage = ({ navigation }: AuthNavProps<"Home">) => {
               }}
               mode={member.mode}
             />
-          ))}
-      </MapView> */}
+          ))} */}
+      </MapView>
     </View>
   );
 };

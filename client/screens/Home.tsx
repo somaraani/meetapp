@@ -1,73 +1,22 @@
 import { useIsFocused } from "@react-navigation/core";
 import { Meeting } from "@types";
 import React, { useContext, useEffect, useState } from "react";
-import { FlatList, StyleSheet, View } from "react-native";
-import MeetingCard from "../components/MeetingCard";
+import { StyleSheet, Text, View, Image } from "react-native";
 import { ApiContext } from "../src/ApiProvider";
 import { AuthNavProps } from "../src/AuthParamList";
-
-const numColumns = 2;
-
-const MeetingsData = [
-  {
-    id: "1",
-    title: "Meeting 1",
-    latitude: 43.653225,
-    longitude: -79.383186,
-    members: [
-      {
-        latitude: 43.799554407720585,
-        longitude: -79.35446070585937,
-        mode: "BICYCLING",
-        distance: null,
-        eta: null,
-      },
-      {
-        latitude: 43.719188449399326,
-        longitude: -79.58128653338825,
-        mode: "WALKING",
-        distance: null,
-        eta: null,
-      },
-    ],
-  },
-  { id: "2", title: "Meeting 2", latitude: 28.599171, longitude: -81.201653 },
-  { id: "3", title: "Meeting 3", latitude: 40.712776, longitude: -74.005974 },
-  { id: "4", title: "Meeting 4", latitude: 48.858372, longitude: 2.294481 },
-  { id: "5", title: "Meeting 5", latitude: 43.1065603, longitude: -79.0639039 },
-];
-
-const formatData = (data: Meeting[], numColumns: any) => {
-  const numberOfFullRows = Math.floor(data.length / numColumns);
-
-  let numberOfElementsLastRow = data.length - numberOfFullRows * numColumns;
-  while (
-    numberOfElementsLastRow !== numColumns &&
-    numberOfElementsLastRow !== 0
-  ) {
-    data.push({ key: `blank-${numberOfElementsLastRow}`, empty: true });
-    numberOfElementsLastRow++;
-  }
-
-  return data;
-};
+import { Avatar, ListItem } from "react-native-elements";
+import moment from "moment";
 
 const Home = ({ navigation }: AuthNavProps<"Home">) => {
   const { getMeetings } = useContext(ApiContext);
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const isFocused = useIsFocused();
 
-  const renderItem = ({ item }: { item: any }) => {
-    if (item.empty === true) {
-      return <View style={styles.item} />;
-    }
-    return <MeetingCard item={item} />;
-  };
-
   useEffect(() => {
     async function fetchMeetings() {
       try {
-        setMeetings(await getMeetings());
+        let meetingList = await getMeetings();
+        setMeetings(meetingList.reverse());
         // console.log(meetings);
       } catch (error) {
         console.log(error);
@@ -77,23 +26,53 @@ const Home = ({ navigation }: AuthNavProps<"Home">) => {
     fetchMeetings();
   }, [isFocused]);
 
-  return (
-    <View style={styles.container}>
-      <FlatList
-        data={formatData(meetings, numColumns)}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id}
-        numColumns={numColumns}
-      />
-    </View>
-  );
+  if (meetings.length === 0) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Image
+          source={require("../assets/empty.png")}
+          style={{ marginBottom: 30 }}
+        />
+        <Text style={{ maxWidth: "80%", textAlign: "center", fontSize: 18 }}>
+          No Meetings to show. Get started by creating a new meeting!
+        </Text>
+      </View>
+    );
+  } else {
+    return (
+      <View style={styles.container}>
+        {meetings.map((m, i) => (
+          <ListItem
+            key={i}
+            bottomDivider
+            onPress={() => navigation.navigate("MeetingTabs", m)}
+          >
+            <Avatar
+              size="medium"
+              rounded
+              title={m.details.name.substring(0, 2)}
+              titleStyle={{ color: "white" }}
+              containerStyle={{ backgroundColor: "#2196F3" }}
+            />
+            <ListItem.Content>
+              <ListItem.Title>{m.details.name}</ListItem.Title>
+              <ListItem.Subtitle>
+                {moment(m.details.time).format("MMMM Do YYYY, h:mm a")}
+              </ListItem.Subtitle>
+            </ListItem.Content>
+            <ListItem.Chevron color="black" />
+          </ListItem>
+        ))}
+      </View>
+    );
+  }
 };
 
 export default Home;
 
 const styles = StyleSheet.create({
   container: {
-    padding: 15,
+    padding: 10,
     flex: 1,
   },
   item: {

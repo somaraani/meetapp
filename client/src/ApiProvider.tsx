@@ -2,7 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { FC, useState } from "react";
 import jwt_decode from "jwt-decode";
 import { ApiWrapper } from "../api/ApiWrapper";
-import { Coordinate, Meeting, PublicUserData } from "@types";
+import { Coordinate, Meeting, PublicUserData, User as UserType } from "@types";
 
 type User = null | any;
 
@@ -23,6 +23,7 @@ export const ApiContext = React.createContext<{
     location: Coordinate
   ) => void;
   getMeetings: () => Promise<Meeting[]>;
+  getUser: () => Promise<UserType>;
   updateExpoPushToken: (token:string) => Promise<void>
 } | null>(null);
 
@@ -49,7 +50,7 @@ const ApiProvider: FC<ApiProviderProps> = ({ children }) => {
     return token;
   };
 
-  const register = async (email:string, password:string, details:PublicUserData) : Promise<User> => {
+  const register = async (email:string, password:string, details:{ displayName: string; displayPicture: string }) : Promise<User> => {
     let data = await api.createUser(email, password, details);
 
     return data;
@@ -82,6 +83,12 @@ const ApiProvider: FC<ApiProviderProps> = ({ children }) => {
     await api.updateExpoPushToken(expoPushToken);
   }
 
+  const getUser = async () => {
+    let data = await api.getUser();
+
+    return data;
+  };
+
   return (
     <ApiContext.Provider
       value={{
@@ -92,7 +99,8 @@ const ApiProvider: FC<ApiProviderProps> = ({ children }) => {
         logout,
         createMeeting,
         getMeetings,
-        updateExpoPushToken
+        updateExpoPushToken,
+        getUser,
       }}
     >
       {children}
