@@ -5,7 +5,6 @@ import { CreateSchema } from 'src/database/util';
 export const JourneySchema = CreateSchema({
   userId: String,
   meetingId: String, 
-  travelMode: String, 
   lastUpdated: String,
   travelTime: Number,
   locations: [{

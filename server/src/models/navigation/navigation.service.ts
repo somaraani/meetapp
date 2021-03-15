@@ -20,18 +20,13 @@ export class NavigationService {
         var transitMode;
         var travelMode;
 
-        switch (setting.travelMode) {
-            case "walking": 
-            case "driving": 
-            case "bicycling":
-                travelMode = [TravelMode[setting.travelMode]];
-                transitMode = [];
-                break;
-        
-            default:
-                travelMode = [TravelMode.transit]
-                transitMode = [TransitMode[setting.travelMode]]
-                break;
+        if(setting.travelMode == "transit") {
+            travelMode = [TravelMode.transit]
+            //we can make this dynamic if we add the option to the UI
+            transitMode = [TransitMode.bus, TransitMode.rail, TransitMode.train, TransitMode.tram, TransitMode.subway];
+        } else {
+            travelMode = [TravelMode[setting.travelMode]];
+            transitMode = [];
         }
 
         const response = await this.client.directions({

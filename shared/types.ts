@@ -63,11 +63,7 @@ export enum TravelMode {
     driving = "driving",
     walking = "walking",
     bicycling = "bicycling",
-    bus = "bus",
-    subway = "subway",
-    train = "train",
-    tram = "tram",
-    rail = "rail"
+    transit = "transit"
 }
 
 export enum TravelRestriction {
