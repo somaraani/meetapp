@@ -161,6 +161,23 @@ export class ApiWrapper {
     let data = res.data;
     return data;
   }
+
+  async updateExpoPushToken(token: string): Promise<void> {
+    let payload = { token: token };
+    console.log('sending:')
+    console.log(payload)
+    console.log(this.token)
+    try{
+      await axios.put(`${API_URL}users/expo-push-token`, payload, {
+        headers: { Authorization: `Bearer ${this.token}` },
+      });
+    }
+    catch(e){
+      console.log(e)
+    }
+    
+  }
+
 }
 
 /* Create User Test - Passed

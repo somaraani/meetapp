@@ -22,7 +22,8 @@ export interface MeetingParticipant {
 export interface User {
     id: string,
     email: string,
-    publicData: PublicUserData
+    expoPushToken?: string,
+    publicData: PublicUserData,
     privateData: PrivateUserData
 }
 
@@ -78,11 +79,13 @@ export interface Coordinate {
 }
 
 export interface Notification {
-    id: string,
+    id?: string,
     userId: string,
+    type: string,
+    data? : any,
     title: string,
-    message: string,
-    read: boolean
+    body: string,
+    read?: boolean
 }
 
 export interface DirectionResponse {

@@ -117,4 +117,13 @@ export class UsersService {
         //should get from databse 
         return await this.userModel.findOne({email: email});
     }
+
+    async updateExpoPushToken(userId: string, token: string): Promise<void> {
+        const user = await this.userModel.findById(userId);
+        if (user === null){
+            throw new NotFoundException("User not found");
+        }
+        user.expoPushToken = token;
+        await user.save();
+    }
 }
