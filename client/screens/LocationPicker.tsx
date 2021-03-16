@@ -127,6 +127,7 @@ const LocationPicker = ({ navigation }) => {
               "Invalid Location. Try again!",
               ToastAndroid.SHORT
             );
+            searchRef.current.setAddressText("");
           }
         }}
       >
