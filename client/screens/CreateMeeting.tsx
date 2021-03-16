@@ -109,6 +109,7 @@ const CreateMeeting = ({ navigation, route }) => {
         />
       </Pressable>
       <DateTimePickerModal
+        minimumDate={new Date()}
         isVisible={isDatePickerVisible}
         mode="datetime"
         onConfirm={handleConfirm}
