@@ -7,9 +7,8 @@ import {
   PublicUserData,
   User,
 } from "@types";
-import config from "../config";
 const axios = require("axios");
-const API_URL = config.API_URL;
+const API_URL = "http://10.0.2.2:3000/";
 
 export class ApiWrapper {
   public token: string;
