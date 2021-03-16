@@ -117,9 +117,9 @@ const Meetings = ({ navigation }) => {
             <Button
               mode="contained"
               onPress={() => navigation.goBack()}
-              theme={{ colors: { primary: "#2196F3" } }}
+              theme={{ colors: { primary: "#F66161" } }}
             >
-              CANCEL
+              <Text style={{ color: "white" }}>CANCEL</Text>
             </Button>
           ),
           headerRightContainerStyle: {
