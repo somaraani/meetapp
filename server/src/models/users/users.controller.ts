@@ -36,6 +36,11 @@ export class UsersController {
         return user?.publicData;
     }
 
+    @Put('expo-push-token')
+    async updateExpoPushToken(@Auth() auth, @Body() request : {token:string})  {
+        await this.usersService.updateExpoPushToken(auth.userId, request.token);
+    }
+
     @Put(':id')
     update(@Param('id') id: string, @Auth() auth, @Body(UpdateUserPipe) data: User) {
         this.logger.debug(`Request to update user with id: ${id}`);

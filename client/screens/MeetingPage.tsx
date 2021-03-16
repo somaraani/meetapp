@@ -10,7 +10,7 @@ const MeetingPage = ({ route, navigation }: AuthNavProps<"Home">) => {
   const item = useContext(MeetingContext);
   const { lat, lng } = item.details.location;
   const { height, width } = Dimensions.get("window");
-  const LATITUDE_DELTA = 0.28;
+  const LATITUDE_DELTA = 10;
   const LONGITUDE_DELTA = LATITUDE_DELTA * (width / height);
 
   return (
