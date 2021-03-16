@@ -46,7 +46,7 @@ const LocationPicker = ({ navigation }) => {
         marginRight: 20,
       },
     });
-  }, [disabled]);
+  }, [disabled, place]);
 
   useEffect(() => {
     if (place) {
