@@ -40,7 +40,6 @@ export class NotificationsService {
     }
 
     async pushNotification(notification: Notification): Promise<void> {
-        //TODO: push using exp token
         const user = await this.userModel.findById(notification.userId);
         if (user === null) {
             throw new ConflictException('User not found');
