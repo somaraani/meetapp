@@ -13,15 +13,19 @@ import { InvitationsModule } from './models/invitations/invitations.module';
 import { NotificationsModule } from './models/notifications/notifications.module';
 import { SocketModule } from './socket/socket.module';
 import { JourneysModule } from './models/journeys/journeys.module';
+import { TasksModule } from './tasks/tasks.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
+    ScheduleModule.forRoot(),
     UsersModule, 
     MeetingsModule, 
     InvitationsModule, 
     JourneysModule,
-    AuthModule, 
+    AuthModule,
+    TasksModule,
     NotificationsModule, 
     SocketModule, 
     MongooseModule.forRoot(<string>process.env.DB_CONNECTION_URI)],

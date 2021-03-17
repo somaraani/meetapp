@@ -10,6 +10,7 @@ import { NotificationSchema } from './schemas/notification.schema';
 @Module({
   imports: [SocketModule, MongooseModule.forFeature([{name: 'notification', schema: NotificationSchema}]), MongooseModule.forFeature([{name: 'user', schema: UserSchema}])],
   controllers: [NotificationsController],
-  providers: [NotificationsService]
+  providers: [NotificationsService],
+  exports: [NotificationsService]
 })
 export class NotificationsModule {}

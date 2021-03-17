@@ -1,11 +1,13 @@
 
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { Meeting, MeetingDetail, MeetingParticipant } from '@types'
+import { BadRequestException, Injectable, Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { Journey, Meeting, MeetingDetail, MeetingParticipant } from '@types'
 import { CreateMeetingDTO } from './dto/CreateMeetingDto';
 import { InjectModel } from '@nestjs/mongoose';
 import { MeetingDocument } from './schemas/meeting.schema';
 import { Model } from 'mongoose';
 import { JourneysService } from '../journeys/journeys.service';
+import { TasksService } from 'src/tasks/tasks.service';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class MeetingsService {
@@ -13,8 +15,12 @@ export class MeetingsService {
     constructor(
         @InjectModel("meeting")
         private meetingModel: Model<MeetingDocument>, 
-        private journeyService: JourneysService
+        private journeyService: JourneysService,
+        private taskService: TasksService,
+        private notificationService: NotificationsService
     ) { }
+
+    private readonly logger = new Logger(MeetingsService.name);
 
     async update(meetingId: string, userId: string, data: MeetingDetail) : Promise<Meeting | null> {
         const currMeeting = await this.meetingModel.findById(meetingId);
@@ -27,8 +33,18 @@ export class MeetingsService {
             throw new UnauthorizedException("User is not owner of this meeting.");
         }
 
+        if(currMeeting.status != "pending") {
+            throw new BadRequestException("This meeting is not pending anymore, so state cannot be updated.");
+        }
+
         currMeeting.details = data;
-        currMeeting.save();
+        currMeeting.eta = data.time;
+
+        await currMeeting.save();
+
+        //update task time in case of changed ETA
+        this.updateJobs(meetingId);
+
         return currMeeting;
     }
 
@@ -47,15 +63,26 @@ export class MeetingsService {
         });
 
         await meeting.save();
+        const meet = await this.addUser(userId, meeting.id);
+        
+        this.updateJobs(meeting.id);
+        return meet;
+    }
 
-        //add owner to participants 
-        return this.addUser(userId, meeting.id);
+    private updateJobs(meetingId: string) {
+        //creates reminder job (48H)
+        this.reminderJob(meetingId);
+        //creates meeting job - calculates ETAs (24H)
+        this.meetingJob(meetingId);
     }
 
     async delete(id: string) {
         this.meetingModel.deleteOne({_id: id}, undefined, (err) => {
             if(err) {
                 throw err;
+            } else {
+                this.taskService.deleteCronJob(this.meetingJobName(id));
+                this.taskService.deleteCronJob(this.reminderJobName(id));
             }
         });
     }
@@ -86,6 +113,87 @@ export class MeetingsService {
 
         await meeting.save();
         return meeting;
+    }
+
+    private reminderJobName(meetingId: string) {
+        return "M_" + meetingId + "_48H";
+    }
+
+    //create job that runs 48 hours before meeting
+    private async reminderJob(meetingId: string) {
+        const meeting : Meeting | null = await this.meetingModel.findById(meetingId);
+
+        if(!meeting) {
+            return;
+        }
+
+        var twoDaysBefore: Date = new Date(new Date(meeting.eta).getTime() - (48 * 60 * 60 * 1000)); 
+
+        this.taskService.addCronJob(this.reminderJobName(meetingId), twoDaysBefore, async() => {
+            //get updated meeting object (in future)
+            const meet = await this.meetingModel.findById(meeting?.id);
+
+            if(!meet) {
+                return;
+            }
+
+            this.logger.debug(`Reminding owner of meeting ${meetingId} to finalize info.`);
+
+            // remind meeting owner to finalize info
+            this.notificationService.addNotification({
+                userId: meeting.ownerId,
+                title: `You have 24H to finalize meeting!`,
+                body: `Your meeting ${meeting.details.name} will become finalized in 24 hours. Make sure to make any changes to location or time now!`, 
+            });
+       });
+    }
+
+    private meetingJobName(meetingId: string) {
+        return "M_" + meetingId + "_24H";
+    }
+
+    //creates job that runs 24H before start of meeting
+    private async meetingJob(meetingId: string) {
+        const meeting = await this.meetingModel.findById(meetingId);
+
+        if(!meeting) {
+            return;
+        }
+
+        var dayBefore: Date = new Date(new Date(meeting.eta).getTime() - (24 * 60 * 60 * 1000)); 
+
+        this.taskService.addCronJob(this.meetingJobName(meetingId), dayBefore, async () => {
+            //get updated meeting object (in future)
+            const meet = await this.meetingModel.findById(meeting?.id);
+
+            if(!meet) {
+                return;
+            }
+
+            //at this point, the meeting cannot be changed and state becomes "finalized"
+
+            if(meet.status == "pending") {
+                meet.status = "finalized";
+                await meet.save();
+            }
+
+            this.logger.debug(`Reminding all user's for meeting ${meetingId} to leave in 24H`);
+
+            meet.participants.forEach(async participant => {
+                
+                // remind participants meeting is in 24H
+                this.notificationService.addNotification({
+                    userId: participant.userId,
+                    title: `Meeting ${meet.details.name} starts in 24H!`,
+                    body: `Don't forget you have a meeting tomorrow!`, 
+                });
+
+                //create future events for reminding each user 1 hour before THEY have to leave
+                this.journeyService.journeyJob(participant.journeyId);
+            });
+
+        });
+
     }
 
 }

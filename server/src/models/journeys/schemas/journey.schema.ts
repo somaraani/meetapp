@@ -5,8 +5,8 @@ import { CreateSchema } from 'src/database/util';
 export const JourneySchema = CreateSchema({
   userId: String,
   meetingId: String, 
-  eta: String, 
   lastUpdated: String,
+  travelTime: Number,
   locations: [{
     lng: Number,
     lat: Number
@@ -20,16 +20,8 @@ export const JourneySchema = CreateSchema({
       lng: Number,
       lat: Number
     }, 
-    transitType: String,
-    tolls: Boolean
-  }
-});
-
-JourneySchema.set('toJSON', {
-  virtuals: true,
-  transform: (doc, ret) => {
-    delete ret._id;
-    return ret;
+    travelMode: String,
+    avoid: [String]
   }
 });
 
