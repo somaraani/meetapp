@@ -46,9 +46,12 @@ async function registerForPushNotificationsAsync() {
   return token;
 }
 
-const NotificationProvider : any = ({ children } : any) => {
+const NotificationContext = React.createContext<any>(null);
+export const useNotificationContext = () => React.useContext(NotificationContext);
 
-  const {user, updateExpoPushToken} = useContext(ApiContext);
+const NotificationProvider : any = ({ children } : any) => {
+  const {user, updateExpoPushToken} = useContext<any>(ApiContext);
+  const [notificationLink, setNotificationLink] = useState<any>();
   const notificationListener = useRef<any>();
   const responseListener = useRef<any>();
 
@@ -78,12 +81,12 @@ const NotificationProvider : any = ({ children } : any) => {
 
     // This listener is fired whenever a notification is received while the app is foregrounded
     notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
-      console.log(notification);
+      //console.log(notification);
     });
 
     // This listener is fired whenever a user taps on or interacts with a notification (works when app is foregrounded, backgrounded, or killed)
     responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
-      console.log(response);
+      setNotificationLink(response.notification.request.content.data.link);
     });
 
     return () => {
@@ -92,7 +95,9 @@ const NotificationProvider : any = ({ children } : any) => {
   }, [user]);
 
   return (
-      children
+    <NotificationContext.Provider value={{notificationLink}}>
+      {children}
+    </NotificationContext.Provider>
   );
 };
 

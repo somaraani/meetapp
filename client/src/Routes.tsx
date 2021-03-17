@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { createStackNavigator } from "@react-navigation/stack";
@@ -28,6 +28,8 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { MaterialIcons } from "@expo/vector-icons";
 import CreateMeeting from "../screens/CreateMeeting";
 import LocationPicker from "../screens/LocationPicker";
+import {useNotificationContext} from "./NotificationProvider";
+import { Button } from "react-native-paper";
 
 const Stack = createStackNavigator<AuthParamList>();
 const Drawer = createDrawerNavigator<AuthParamList>();
@@ -109,12 +111,27 @@ const Meetings = ({ navigation }) => {
       <Stack.Screen
         name="CreateMeeting"
         component={CreateMeeting}
-        options={{ title: "Create Meeting" }}
+        options={{
+          title: "Create Meeting",
+          headerLeft: null,
+          headerRight: () => (
+            <Button
+              mode="contained"
+              onPress={() => navigation.goBack()}
+              theme={{ colors: { primary: "#F66161" } }}
+            >
+              <Text style={{ color: "white" }}>CANCEL</Text>
+            </Button>
+          ),
+          headerRightContainerStyle: {
+            marginRight: 20,
+          },
+        }}
       />
       <Stack.Screen
         name="LocationPicker"
         component={LocationPicker}
-        options={{ title: "Search Location" }}
+        options={{ title: "Select Location" }}
       />
     </Stack.Navigator>
   );
@@ -154,9 +171,10 @@ const styles = StyleSheet.create({
 });
 
 export const Routes = () => {
+  const { notificationLink } = useNotificationContext();
   const { user, returnUser } = useContext(ApiContext);
   const [loading, setLoading] = useState(true);
-
+  const navigationRef = useRef<any>();
   useEffect(() => {
     AsyncStorage.getItem("user")
       .then((token) => {
@@ -170,6 +188,12 @@ export const Routes = () => {
         setLoading(false);
       });
   }, []);
+
+  useEffect(() => {
+    if (notificationLink){
+      navigationRef.current.navigate(notificationLink)
+    }
+  }, [notificationLink])
 
   if (loading) {
     return (
@@ -188,7 +212,7 @@ export const Routes = () => {
 
   return (
     <>
-      <NavigationContainer>
+      <NavigationContainer ref={navigationRef}>
         {user ? (
           <Drawer.Navigator
             initialRouteName="Meetings"
