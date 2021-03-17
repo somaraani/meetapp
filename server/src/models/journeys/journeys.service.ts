@@ -95,11 +95,9 @@ export class JourneysService {
             this.logger.debug(`Couldn't calculate ETA for journey ${journeyId}, will not create event.`);
             
             this.notificationService.addNotification({
-                id: "",
                 userId: journey.userId,
                 title: `Add Starting location to ${meeting.details.name}`,
-                message: `You haven't added a start location to the meeting yet. This is required to give you reminders to leave.`, 
-                read: false
+                body: `You haven't added a start location to the meeting yet. This is required to give you reminders to leave.`, 
             });
 
             this.logger.debug(`Sending notification to user ${journey.userId} to update journey settings`)
@@ -136,10 +134,9 @@ export class JourneysService {
             // send notif
             // this should only take userId, title, message
             this.notificationService.addNotification({
-                id: "",
                 userId: jour.userId,
                 title: "You must leave soon!",
-                message: `You must leave in ${time} minutes to make it to ${meet.details.name}`, 
+                body: `You must leave in ${time} minutes to make it to ${meet.details.name}`, 
                 read: false
             });
 
@@ -164,11 +161,9 @@ export class JourneysService {
                 
                 //send notification telling them to leave
                 this.notificationService.addNotification({
-                    id: "",
                     userId: jour.userId,
                     title: "Leave Now!",
-                    message: `You must leave now to make it to ${meet.details.name} on time.`, 
-                    read: false
+                    body: `You must leave now to make it to ${meet.details.name} on time.`, 
                 });
             });
         });

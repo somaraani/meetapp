@@ -121,7 +121,7 @@ export class MeetingsService {
 
     //create job that runs 48 hours before meeting
     private async reminderJob(meetingId: string) {
-        const meeting = await this.meetingModel.findById(meetingId);
+        const meeting : Meeting | null = await this.meetingModel.findById(meetingId);
 
         if(!meeting) {
             return;
@@ -138,8 +138,13 @@ export class MeetingsService {
             }
 
             this.logger.debug(`Reminding owner of meeting ${meetingId} to finalize info.`);
-           // remind meeting owner to finalize info
-           //this.notificationService.pushNotification();
+
+            // remind meeting owner to finalize info
+            this.notificationService.addNotification({
+                userId: meeting.ownerId,
+                title: `You have 24H to finalize meeting!`,
+                body: `Your meeting ${meeting.details.name} will become finalized in 24 hours. Make sure to make any changes to location or time now!`, 
+            });
        });
     }
 
@@ -173,11 +178,17 @@ export class MeetingsService {
             }
 
             this.logger.debug(`Reminding all user's for meeting ${meetingId} to leave in 24H`);
-            //send notification for all user's in meeting reminding them its in 24 hour
-            //this.notificationService.pushNotification();
 
-            //create future events for reminding each user 1 hour before THEY have to leave
             meet.participants.forEach(async participant => {
+                
+                // remind participants meeting is in 24H
+                this.notificationService.addNotification({
+                    userId: participant.userId,
+                    title: `Meeting ${meet.details.name} starts in 24H!`,
+                    body: `Don't forget you have a meeting tomorrow!`, 
+                });
+
+                //create future events for reminding each user 1 hour before THEY have to leave
                 this.journeyService.journeyJob(participant.journeyId);
             });
 
