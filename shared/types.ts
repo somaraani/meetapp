@@ -81,7 +81,7 @@ export interface Coordinate {
 export interface Notification {
     id?: string,
     userId: string,
-    type: string,
+    link?: string,
     data? : any,
     title: string,
     body: string,
