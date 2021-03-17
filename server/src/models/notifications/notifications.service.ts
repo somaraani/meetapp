@@ -53,6 +53,9 @@ export class NotificationsService {
                 to: user.expoPushToken,
                 title: notification.title,
                 body: notification.body,
+                data: {
+                    link: notification.link
+                }
             };
             this.sendPushNotification(request)
         }
