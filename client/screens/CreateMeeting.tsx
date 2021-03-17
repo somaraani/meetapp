@@ -14,12 +14,11 @@ import DateTimePickerModal from "react-native-modal-datetime-picker";
 import moment from "moment";
 import config from "../config";
 
-const CreateMeeting = ({ navigation }) => {
+const CreateMeeting = ({ navigation, route }) => {
   const { createMeeting } = useContext(ApiContext);
   const [name, setName] = useState("");
+  const [location, setLocation] = useState("");
   const [description, setDescription] = useState("");
-  const [lat, setLat] = useState("");
-  const [lng, setLng] = useState("");
   const [date, setDate] = useState(moment().add(1, "d"));
   const [disabled, setDisabled] = useState(true);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
@@ -40,8 +39,8 @@ const CreateMeeting = ({ navigation }) => {
   const onCreate = async () => {
     try {
       await createMeeting(name, description, date.toISOString(), {
-        lat: parseFloat(lat),
-        lng: parseFloat(lng),
+        lat: location.coordinates.lat,
+        lng: location.coordinates.lng,
       });
 
       ToastAndroid.show("Meeting created successfully!", ToastAndroid.SHORT);
@@ -56,12 +55,18 @@ const CreateMeeting = ({ navigation }) => {
   };
 
   useEffect(() => {
-    if (name && lat && lng && date) {
+    if (name && location && date) {
       setDisabled(false);
     } else {
       setDisabled(true);
     }
-  }, [name, lat, lng]);
+  }, [name, date, location]);
+
+  useEffect(() => {
+    if (route.params) {
+      setLocation(route.params);
+    }
+  }, [route]);
 
   return (
     <View style={{ flex: 1, padding: 25 }}>
@@ -73,7 +78,21 @@ const CreateMeeting = ({ navigation }) => {
         theme={{ colors: { primary: "#2196F3" } }}
         style={styles.input}
       />
-
+      <Pressable
+        onPress={() => {
+          navigation.navigate("LocationPicker");
+          Keyboard.dismiss();
+        }}
+      >
+        <TextInput
+          label="Meeting Location"
+          mode="outlined"
+          style={styles.input}
+          editable={false}
+          value={location.address}
+          onChangeText={(text) => setLocation(text)}
+        />
+      </Pressable>
       <Pressable
         onPress={() => {
           showDatePicker();
@@ -90,32 +109,12 @@ const CreateMeeting = ({ navigation }) => {
         />
       </Pressable>
       <DateTimePickerModal
+        minimumDate={new Date()}
         isVisible={isDatePickerVisible}
         mode="datetime"
         onConfirm={handleConfirm}
         onCancel={hideDatePicker}
       />
-      <View style={{ flexDirection: "row" }}>
-        <TextInput
-          label="Latitude"
-          value={lat}
-          onChangeText={(text) => setLat(text)}
-          mode="outlined"
-          theme={{ colors: { primary: "#2196F3" } }}
-          style={[styles.input, { flex: 1, marginRight: 20 }]}
-          keyboardType="numeric"
-        />
-        <TextInput
-          label="Longitude"
-          value={lng}
-          onChangeText={(text) => setLng(text)}
-          mode="outlined"
-          theme={{ colors: { primary: "#2196F3" } }}
-          style={[styles.input, { flex: 1 }]}
-          keyboardType="numeric"
-        />
-      </View>
-
       <TextInput
         label="Meeting Description (optional)"
         value={description}

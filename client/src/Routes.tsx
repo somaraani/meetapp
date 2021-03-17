@@ -29,6 +29,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import CreateMeeting from "../screens/CreateMeeting";
 import LocationPicker from "../screens/LocationPicker";
 import {useNotificationContext} from "./NotificationProvider";
+import { Button } from "react-native-paper";
 
 const Stack = createStackNavigator<AuthParamList>();
 const Drawer = createDrawerNavigator<AuthParamList>();
@@ -110,12 +111,27 @@ const Meetings = ({ navigation }) => {
       <Stack.Screen
         name="CreateMeeting"
         component={CreateMeeting}
-        options={{ title: "Create Meeting" }}
+        options={{
+          title: "Create Meeting",
+          headerLeft: null,
+          headerRight: () => (
+            <Button
+              mode="contained"
+              onPress={() => navigation.goBack()}
+              theme={{ colors: { primary: "#F66161" } }}
+            >
+              <Text style={{ color: "white" }}>CANCEL</Text>
+            </Button>
+          ),
+          headerRightContainerStyle: {
+            marginRight: 20,
+          },
+        }}
       />
       <Stack.Screen
         name="LocationPicker"
         component={LocationPicker}
-        options={{ title: "Search Location" }}
+        options={{ title: "Select Location" }}
       />
     </Stack.Navigator>
   );
