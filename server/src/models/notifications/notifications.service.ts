@@ -1,6 +1,6 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Notification } from '@types';
+import { Notification, User } from '@types';
 import { NOTIFICATION } from '@events';
 import { Model } from 'mongoose';
 import { SocketService } from 'src/socket/socket.service';
@@ -27,7 +27,6 @@ export class NotificationsService {
         return await this.notificationModel.findById(id);
     }
 
-
     async addNotification(notification: Notification): Promise<Notification> {
         let user = await this.userModel.findById(notification.userId);
         if (!user) {
@@ -36,14 +35,11 @@ export class NotificationsService {
         notification.read = false;
         const notificationModel = new this.notificationModel(<Notification>notification);
         await notificationModel.save();
+        await this.pushNotification(user, notification);
         return notificationModel;
     }
 
-    async pushNotification(notification: Notification): Promise<void> {
-        const user = await this.userModel.findById(notification.userId);
-        if (user === null) {
-            throw new ConflictException('User not found');
-        }
+    private async pushNotification(user: User, notification: Notification): Promise<void> {
         if (this.socketService.isConnected(notification.userId)) {
             this.socketService.emitToUser(notification.userId, NOTIFICATION, notification);
         }
