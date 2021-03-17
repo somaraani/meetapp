@@ -86,7 +86,6 @@ const NotificationProvider : any = ({ children } : any) => {
 
     // This listener is fired whenever a user taps on or interacts with a notification (works when app is foregrounded, backgrounded, or killed)
     responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
-      console.log(response.notification.request.trigger.type);
       setNotificationLink(response.notification.request.content.data.link);
     });
 
