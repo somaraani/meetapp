@@ -123,7 +123,7 @@ export class UsersService {
         if (user === null){
             throw new NotFoundException("User not found");
         }
-        user.expoPushToken = token;
+        user.expoPushToken = token || undefined;
         await user.save();
     }
 }

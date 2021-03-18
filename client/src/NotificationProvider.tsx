@@ -67,7 +67,6 @@ const NotificationProvider : any = ({ children } : any) => {
   useEffect(() => {
     if (!user){
       removeSubscriptions();
-      updateExpoPushToken('');
       return;
     }
     registerForPushNotificationsAsync().then(token => {
