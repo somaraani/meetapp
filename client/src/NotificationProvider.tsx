@@ -64,19 +64,15 @@ const NotificationProvider : any = ({ children } : any) => {
     }
   }
 
-  const registerToken = async (token:string | undefined) => {
-    updateExpoPushToken(token);
-  }
-
   useEffect(() => {
     if (!user){
       removeSubscriptions();
-      registerToken('');
+      updateExpoPushToken('');
       return;
     }
     registerForPushNotificationsAsync().then(token => {
       if (token){
-        registerToken(token);
+        updateExpoPushToken(token);
       }
     });
 
