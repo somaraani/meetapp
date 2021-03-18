@@ -71,6 +71,7 @@ const NotificationProvider : any = ({ children } : any) => {
   useEffect(() => {
     if (!user){
       removeSubscriptions();
+      registerToken('');
       return;
     }
     registerForPushNotificationsAsync().then(token => {
