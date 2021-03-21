@@ -1,6 +1,9 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   Coordinate,
+  Invitation,
+  Journey,
+  JourneySetting,
   Meeting,
   MeetingDetail,
   Notification,
@@ -174,6 +177,47 @@ export class ApiWrapper {
     await axios.put(`${API_URL}users/expo-push-token`, payload, {
       headers: { Authorization: `Bearer ${this.token}` },
     });
+  }
+
+  async updateInvitation(invitationId: string, accepted: boolean): Promise<Invitation> {
+    let payload = { accepted: accepted };
+    const res = await axios.put(`${API_URL}invitations/${invitationId}`, payload, {
+      headers: { Authorization: `Bearer ${this.token}` },
+    });
+    return res.data;
+  }
+
+  async getInvitations(query : {userId: string, status: string, meetingId: string}): Promise<Invitation[]> {
+    let res = await axios.get(`${API_URL}invitations`, {
+      headers: { Authorization: `Bearer ${this.token}` },
+      params: query,
+    });
+    let data = res.data;
+    return data;
+  }
+
+  async createInvitation(userId: string, meetingId: string): Promise<Invitation> {
+    let payload = { userId, meetingId };
+    let res = await axios.post(`${API_URL}invitations`, payload, {
+      headers: { Authorization: `Bearer ${this.token}` },
+    });
+    let data = res.data;
+    return data;
+  }
+
+  async getJourney(journeyId: string): Promise<Journey> {
+    const res = await axios.get(`${API_URL}journeys/${journeyId}`, {
+      headers: { Authorization: `Bearer ${this.token}` },
+    });
+    return res.data;
+  }
+
+  async updateJourneySetting(jouneyId: string, jouneySettings: JourneySetting): Promise<Journey> {
+    let payload = jouneySettings;
+    const res = await axios.put(`${API_URL}journeys/${jouneyId}/settings`, payload, {
+      headers: { Authorization: `Bearer ${this.token}` },
+    });
+    return res.data;
   }
 }
 
