@@ -6,6 +6,7 @@ import { InvitationDocument } from './schemas/invitation.schema';
 import { Model } from 'mongoose';
 import { UsersService } from '../users/users.service';
 import { MeetingsService } from '../meetings/meetings.service';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class InvitationsService {
@@ -14,7 +15,7 @@ export class InvitationsService {
         @InjectModel("invitation")
         private invitiationModel: Model<InvitationDocument>,
         private userService: UsersService,
-        private meetingService: MeetingsService
+        private meetingService: MeetingsService,
     ) { }
 
     async update(inviteId: string, userId: string, accepted: boolean) : Promise<Invitation | null> {
@@ -69,9 +70,10 @@ export class InvitationsService {
            meetingId: meetingId
         });
 
-        invite.save();
+        await invite.save();
 
         //TODO send a notificaiton here?
+        // this.notificationService.sendInvitationNotification(invite);
 
         return invite;
     }

@@ -94,7 +94,7 @@ export interface DirectionResponse {
 }
 
 export enum SocketEvents{
-    NOTIFICATION = 'NOTIFICATION',
+    INVITATION = 'INVITATION',
     LOCATION = 'LOCATION',
 }
 

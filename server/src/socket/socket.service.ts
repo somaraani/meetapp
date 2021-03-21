@@ -28,7 +28,9 @@ export class SocketService{
     }
 
     public emitToUser(userId:string, event:string, message: any) {
-        this.connections[userId].emit(event, message);
+        if (this.isConnected(userId)){
+            this.connections[userId].emit(event, message);
+        }
     }
 
     public emitToRoom(roomId:string, event:string, message: any) {
