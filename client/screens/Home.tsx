@@ -8,14 +8,15 @@ import { Avatar, ListItem } from "react-native-elements";
 import moment from "moment";
 
 const Home = ({ navigation }: AuthNavProps<"Home">) => {
-  const { getMeetings } = useContext(ApiContext);
+  const { apiClient } = useContext(ApiContext);
+
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const isFocused = useIsFocused();
 
   useEffect(() => {
     async function fetchMeetings() {
       try {
-        let meetingList = await getMeetings();
+        let meetingList = await apiClient.getMeetings();
         setMeetings(meetingList.reverse());
         // console.log(meetings);
       } catch (error) {

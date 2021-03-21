@@ -1,6 +1,6 @@
 
 import { BadRequestException, Injectable, Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { Journey, Meeting, MeetingDetail, MeetingParticipant, PublicUserResponse } from '@types'
+import { Journey, Meeting, MeetingDetail, MeetingParticipant, PublicUserResponse, SocketEvents } from '@types'
 import { CreateMeetingDTO } from './dto/CreateMeetingDto';
 import { InjectModel } from '@nestjs/mongoose';
 import { MeetingDocument } from './schemas/meeting.schema';
@@ -8,6 +8,7 @@ import { Model } from 'mongoose';
 import { JourneysService } from '../journeys/journeys.service';
 import { TasksService } from 'src/tasks/tasks.service';
 import { NotificationsService } from '../notifications/notifications.service';
+import { SocketService } from 'src/socket/socket.service';
 
 @Injectable()
 export class MeetingsService {
@@ -17,7 +18,8 @@ export class MeetingsService {
         private meetingModel: Model<MeetingDocument>, 
         private journeyService: JourneysService,
         private taskService: TasksService,
-        private notificationService: NotificationsService
+        private notificationService: NotificationsService,
+        private socketService: SocketService,
     ) { }
 
     private readonly logger = new Logger(MeetingsService.name);
@@ -112,6 +114,7 @@ export class MeetingsService {
         });
 
         await meeting.save();
+        this.socketService.emitToRoom(meeting.id, SocketEvents.MEMBERUPDATE);
         return meeting;
     }
 
@@ -191,9 +194,6 @@ export class MeetingsService {
                 //create future events for reminding each user 1 hour before THEY have to leave
                 this.journeyService.journeyJob(participant.journeyId);
             });
-
         });
-
-    }
-
+   }
 }

@@ -36,6 +36,17 @@ const Drawer = createDrawerNavigator<AuthParamList>();
 const Tabs = createBottomTabNavigator<AuthParamList>();
 
 const MeetingTabs = ({ navigation, route }) => {
+  let { id } = route.params;
+  const { socketClient } = useContext(ApiContext);
+  
+  useEffect(() => {
+    //register for realtime meeting events
+    socketClient.join(id);
+    return () => {
+      socketClient.leave(id);
+    }
+  }, []);
+
   return (
     <MeetingContext.Provider value={route.params}>
       <Tabs.Navigator initialRouteName="MeetingMap">

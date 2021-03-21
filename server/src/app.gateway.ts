@@ -11,7 +11,7 @@ export class AppGateway implements OnGatewayInit {
     private socketService: SocketService
   ) { }
 
-  afterInit(server: Server){
+  afterInit(server: Server) {
     this.socketService.setServer(server);
   }
 
@@ -34,11 +34,20 @@ export class AppGateway implements OnGatewayInit {
   }
 
   @SubscribeMessage(SocketEvents.LOCATION)
-  handleMessage(client: Socket, payload: string): void {
+  updateLocation(client: Socket, payload: string): void {
     console.log("sent message")
-
-    this.socketService.emitToRoom('meetingId', 'location', "User location updated");
+    //todo
+    this.socketService.emitToRoom('meetingId', SocketEvents.LOCATION, "User location updated");
     //can send to service here
-   }
-   
+  }
+
+  @SubscribeMessage(SocketEvents.JOIN)
+  joinRoom(client: Socket, data: { room: string }): void {
+    client.join(data.room);
+  }
+
+  @SubscribeMessage(SocketEvents.LEAVE)
+  leaveRoom(client: Socket, data: { room: string }): void {
+    client.leave(data.room);
+  }
 }

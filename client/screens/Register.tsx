@@ -3,7 +3,6 @@ import { StyleSheet, Text, View, ToastAndroid, Image } from "react-native";
 import { TextInput, Button } from "react-native-paper";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { AuthNavProps, AuthParamList } from "../src/AuthParamList";
-import { authenticate, createUser } from "../api/ApiWrapper";
 import { ApiContext } from "../src/ApiProvider";
 
 const Register = ({ navigation }: AuthNavProps<"Register">) => {
@@ -11,7 +10,7 @@ const Register = ({ navigation }: AuthNavProps<"Register">) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPass, setConfirmPass] = useState("");
-  const { register, login } = useContext(ApiContext);
+  const { apiClient, login } = useContext(ApiContext);
 
   const submitHandler = async () => {
     // createUser(email, password, {
@@ -32,7 +31,7 @@ const Register = ({ navigation }: AuthNavProps<"Register">) => {
         confirmPass !== "" &&
         password === confirmPass
       ) {
-        await register(email, password, {
+        await apiClient.createUser(email, password, {
           displayName: name,
           displayPicture:
             "https://images.unsplash.com/photo-1535498051285-5613026fae05?ixid=MXwxMjA3fDB8MHxzZWFyY2h8Mnx8ZGlzcGxheXxlbnwwfHwwfA%3D%3D&ixlib=rb-1.2.1&w=1000&q=80",

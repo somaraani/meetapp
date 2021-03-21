@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { WebSocketServer } from '@nestjs/websockets';
+import { SocketEvents } from '@types';
 import { Server, Socket } from 'socket.io';
 
 @Injectable()
@@ -27,14 +28,20 @@ export class SocketService{
         delete this.socketUserMap[socket.id];
     }
 
-    public emitToUser(userId:string, event:string, message: any) {
+    public emitToUser(userId:string, event:SocketEvents, message: any) {
         if (this.isConnected(userId)){
             this.connections[userId].emit(event, message);
         }
     }
 
-    public emitToRoom(roomId:string, event:string, message: any) {
-        this.server.to(roomId).emit(event, message);
+    public emitToRoom(roomId:string, event:SocketEvents, message?:any) {
+        try{
+            this.server.to(roomId).emit(event, message);
+        }
+        catch (e){
+            console.log('could not emit to room:' + roomId);
+            console.log(e);
+        }
     }
 
     public joinRoom(userId:string, roomId: string) {

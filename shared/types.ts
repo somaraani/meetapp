@@ -96,6 +96,9 @@ export interface DirectionResponse {
 export enum SocketEvents{
     INVITATION = 'INVITATION',
     LOCATION = 'LOCATION',
+    MEMBERUPDATE = 'MEMBERUPDATE',
+    JOIN = 'JOIN',
+    LEAVE = 'LEAVE',
 }
 
 export interface PublicUserResponse {

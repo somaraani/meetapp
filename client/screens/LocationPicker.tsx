@@ -122,6 +122,7 @@ const LocationPicker = ({ navigation }) => {
             });
             searchRef.current.setAddressText(address);
           } catch (error) {
+            console.log(error)
             setPlace(null);
             ToastAndroid.show(
               "Invalid Location. Try again!",

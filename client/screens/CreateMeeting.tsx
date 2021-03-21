@@ -15,7 +15,7 @@ import moment from "moment";
 import config from "../config";
 
 const CreateMeeting = ({ navigation, route }) => {
-  const { createMeeting } = useContext(ApiContext);
+  const { apiClient } = useContext(ApiContext);
   const [name, setName] = useState("");
   const [location, setLocation] = useState("");
   const [description, setDescription] = useState("");
@@ -38,7 +38,7 @@ const CreateMeeting = ({ navigation, route }) => {
 
   const onCreate = async () => {
     try {
-      await createMeeting(name, description, date.toISOString(), {
+      await apiClient.createMeeting(name, description, date.toISOString(), {
         lat: location.coordinates.lat,
         lng: location.coordinates.lng,
       });

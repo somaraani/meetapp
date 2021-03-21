@@ -40,7 +40,7 @@ export class InvitationsService {
             invite.status = "declined";
         }
 
-        invite.save();
+        await invite.save();
 
         return invite;
     }

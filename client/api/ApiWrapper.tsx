@@ -24,7 +24,12 @@ export class ApiWrapper {
     this.id = "";
   }
 
-  setToken(token: string): void {
+  public reset():void{
+    this.token = "";
+    this.id = "";
+  }
+
+  public setToken(token: string): void {
     this.token = token;
     this.id = jwtDecode<any>(token).id;
   }
@@ -101,7 +106,8 @@ export class ApiWrapper {
   }
 
   async getUsersFromMeeting(meetingId: string): Promise<PublicUserResponse[]> {
-    let res = await axios.get(`${API_URL}meeting/${meetingId}/users`, {
+    console.log('GET ' + meetingId)
+    let res = await axios.get(`${API_URL}meetings/${meetingId}/users`, {
       headers: { Authorization: `Bearer ${this.token}` }
     });
     let data = res.data;
