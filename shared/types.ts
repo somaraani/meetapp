@@ -97,3 +97,8 @@ export enum SocketEvents{
     NOTIFICATION = 'NOTIFICATION',
     LOCATION = 'LOCATION',
 }
+
+export interface PublicUserResponse {
+    id: string,
+    publicData: PublicUserData
+}

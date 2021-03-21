@@ -1,5 +1,5 @@
-import { Body, ConflictException, Controller, Get, Logger, NotFoundException, Param, Post, Put, Query, Req, UnauthorizedException, UsePipes } from '@nestjs/common';
-import { User } from '@types';
+import { BadRequestException, Body, ConflictException, Controller, Get, Logger, NotFoundException, Param, Post, Put, Query, Req, UnauthorizedException, UsePipes } from '@nestjs/common';
+import { PublicUserResponse, User } from '@types';
 import { authenticate, use } from 'passport';
 import { Public } from 'src/common/decorators/metadata/public';
 import { Auth } from 'src/common/decorators/requests/auth.decorator';
@@ -37,8 +37,17 @@ export class UsersController {
     }
 
     @Put('expo-push-token')
-    async updateExpoPushToken(@Auth() auth, @Body() request : {token:string})  {
+    async findUsersByIds(@Auth() auth, @Body() request : {token:string})  {
         await this.usersService.updateExpoPushToken(auth.userId, request.token);
+    }
+
+    @Get('by-ids')
+    async updateExpoPushToken(@Query('ids') ids : string) : Promise<PublicUserResponse[]>  {
+        if (!ids){
+            return [];
+        }
+        const list = ids.split(',');
+        return this.usersService.findByIds(list);
     }
 
     @Put(':id')

@@ -5,6 +5,7 @@ import {
   MeetingDetail,
   Notification,
   PublicUserData,
+  PublicUserResponse,
   User,
 } from "@types";
 import jwtDecode from "jwt-decode";
@@ -87,10 +88,19 @@ export class ApiWrapper {
     return data;
   }
 
-  async getUsers(query: string): Promise<User[]> {
+  async getUsers(query: string): Promise<PublicUserResponse[]> {
     let res = await axios.get(`${API_URL}users/`, {
       headers: { Authorization: `Bearer ${this.token}` },
       params: { query: query },
+    });
+    let data = res.data;
+    return data;
+  }
+
+  async getUsersByIds(ids: string[]): Promise<PublicUserResponse[]> {
+    let res = await axios.get(`${API_URL}users/by-ids/`, {
+      headers: { Authorization: `Bearer ${this.token}` },
+      params: { ids: ids.join(',') },
     });
     let data = res.data;
     return data;
