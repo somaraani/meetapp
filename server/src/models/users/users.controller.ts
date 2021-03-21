@@ -41,15 +41,6 @@ export class UsersController {
         await this.usersService.updateExpoPushToken(auth.userId, request.token);
     }
 
-    @Get('by-ids')
-    async updateExpoPushToken(@Query('ids') ids : string) : Promise<PublicUserResponse[]>  {
-        if (!ids){
-            return [];
-        }
-        const list = ids.split(',');
-        return this.usersService.findByIds(list);
-    }
-
     @Put(':id')
     update(@Param('id') id: string, @Auth() auth, @Body(UpdateUserPipe) data: User) {
         this.logger.debug(`Request to update user with id: ${id}`);

@@ -1,13 +1,14 @@
 import { Body, Controller, Delete, Get, HttpCode, Logger, NotFoundException, Param, Post, Put, Query, UnauthorizedException } from '@nestjs/common';
 import { Meeting, MeetingDetail } from '@types';
 import { Auth } from 'src/common/decorators/requests/auth.decorator';
+import { UsersService } from '../users/users.service';
 import { CreateMeetingDTO } from './dto/CreateMeetingDto';
 import { MeetingsService } from './meetings.service'
 
 @Controller('meetings')
 export class MeetingsController {
 
-    constructor(private meetingsService: MeetingsService) {}
+    constructor(private meetingsService: MeetingsService, private userService: UsersService) {}
 
     private readonly logger = new Logger(MeetingsController.name);
 
@@ -21,6 +22,25 @@ export class MeetingsController {
     findAll(@Query('userId') userId) {
         this.logger.debug(`Requesting all meetings for userId ${userId}`);
         return this.meetingsService.findAll(userId);
+    }
+
+
+    @Get(':id/users')
+    async getUsers(@Param('id') meetingId: string, @Auth() auth) {
+        const meeting = await this.meetingsService.findById(meetingId);
+        if(meeting === null) {
+            throw new NotFoundException("Meeting with that ID was not found.");
+        }
+        const participantIds = meeting.participants.map(x => x.userId);
+
+        if (!participantIds.includes(auth.userId)){
+            throw new UnauthorizedException('You are not a member this meeting');
+        }
+
+        if (!participantIds || participantIds.length === 0){
+            return [];
+        }
+        return await this.userService.findByIds(participantIds);
     }
 
     @Get(':id')
@@ -67,5 +87,4 @@ export class MeetingsController {
 
         return meeting;
     }
-   
 }

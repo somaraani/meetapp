@@ -97,10 +97,9 @@ export class ApiWrapper {
     return data;
   }
 
-  async getUsersByIds(ids: string[]): Promise<PublicUserResponse[]> {
-    let res = await axios.get(`${API_URL}users/by-ids/`, {
-      headers: { Authorization: `Bearer ${this.token}` },
-      params: { ids: ids.join(',') },
+  async getUsersFromMeeting(meetingId: string): Promise<PublicUserResponse[]> {
+    let res = await axios.get(`${API_URL}meeting/${meetingId}/users`, {
+      headers: { Authorization: `Bearer ${this.token}` }
     });
     let data = res.data;
     return data;
