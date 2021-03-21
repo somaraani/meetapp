@@ -40,10 +40,7 @@ export class NotificationsService {
     }
 
     private async pushNotification(user: User, notification: Notification): Promise<void> {
-        if (this.socketService.isConnected(notification.userId)) {
-            this.socketService.emitToUser(notification.userId, SocketEvents.NOTIFICATION, notification);
-        }
-        else if (user.expoPushToken) {
+        if (user.expoPushToken) {
             const request = {
                 to: user.expoPushToken,
                 title: notification.title,
@@ -54,7 +51,6 @@ export class NotificationsService {
             };
             this.sendPushNotification(request)
         }
-
     }
 
     private async sendPushNotification(request: { to: string, title: string, body: string, data?: any, sound?: string }) {
