@@ -1,3 +1,4 @@
+import { SocketEvents } from '@types';
 import { OnGatewayInit, SubscribeMessage, WebSocketGateway } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { AuthService } from './authentication/auth.service';
@@ -32,7 +33,7 @@ export class AppGateway implements OnGatewayInit {
     this.socketService.removeConnection(client);
   }
 
-  @SubscribeMessage('location')
+  @SubscribeMessage(SocketEvents.LOCATION)
   handleMessage(client: Socket, payload: string): void {
     console.log("sent message")
 

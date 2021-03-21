@@ -1,7 +1,7 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Notification, User } from '@types';
-import { NOTIFICATION } from '@events';
+import { SocketEvents } from '@types';
 import { Model } from 'mongoose';
 import { SocketService } from 'src/socket/socket.service';
 import { NotificationDocument } from './schemas/notification.schema';

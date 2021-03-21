@@ -172,22 +172,8 @@ const styles = StyleSheet.create({
 
 export const Routes = () => {
   const { notificationLink } = useNotificationContext();
-  const { user, returnUser } = useContext(ApiContext);
-  const [loading, setLoading] = useState(true);
+  const { user, loading } = useContext(ApiContext);
   const navigationRef = useRef<any>();
-  useEffect(() => {
-    AsyncStorage.getItem("user")
-      .then((token) => {
-        if (token) {
-          returnUser(token);
-        }
-        setLoading(false);
-      })
-      .catch((e) => {
-        console.log(e);
-        setLoading(false);
-      });
-  }, []);
 
   useEffect(() => {
     if (notificationLink){

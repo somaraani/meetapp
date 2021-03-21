@@ -13,8 +13,7 @@
     "incremental": true,
     "strictNullChecks": true,
     "paths": {
-      "@types": ["../shared/types"],
-      "@events": ["../shared/events"]
+      "@types": ["../shared/types"]
     }
   }
 }
