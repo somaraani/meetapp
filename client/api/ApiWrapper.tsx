@@ -7,6 +7,7 @@ import {
   PublicUserData,
   User,
 } from "@types";
+import jwtDecode from "jwt-decode";
 import config from "../config";
 const axios = require("axios");
 const API_URL = config.API_URL;
@@ -15,17 +16,13 @@ export class ApiWrapper {
   public token: string;
   private id: string;
   constructor() {
-    AsyncStorage.getItem("user").then(async (token) => {
-      if (token) {
-        this.token = token;
-        this.id = (await this.getUser()).id;
-      } else {
-        this.token = "";
-        this.id = "";
-      }
-    });
     this.token = "";
     this.id = "";
+  }
+
+  setToken(token: string): void {
+    this.token = token;
+    this.id = jwtDecode<any>(token).id;
   }
 
   async signIn(email: string, password: string): Promise<string> {

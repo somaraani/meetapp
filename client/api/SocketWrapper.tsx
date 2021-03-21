@@ -18,11 +18,11 @@ export class SocketWrapper {
   public disconnect(): void {
     this.socket.disconnect();
   }
-  public on(event: SocketEvents, fn: () => void): SocketIOClient.Emitter {
+  public on(event: SocketEvents, fn: Function): SocketIOClient.Emitter {
     return this.socket.on(event, fn);
   }
 
-  public off(event: SocketEvents, fn: () => void): SocketIOClient.Emitter {
+  public off(event: SocketEvents, fn: Function): SocketIOClient.Emitter {
     return this.socket.off(event, fn);
   }
   

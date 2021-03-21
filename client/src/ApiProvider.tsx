@@ -1,5 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import React, { FC, useRef, useState } from "react";
+import React, { FC, useEffect, useRef, useState } from "react";
 import jwt_decode from "jwt-decode";
 import { ApiWrapper } from "../api/ApiWrapper";
 import { Coordinate, Meeting, PublicUserData, User as UserType } from "@types";
@@ -8,10 +8,9 @@ import { TouchableNativeFeedbackBase } from "react-native";
 
 type User = null | any;
 
-export const ApiContext = React.createContext<{
+interface AppContextInterface {
   user: User;
   login: (email: string, password: string) => Promise<string>;
-  returnUser: (token: string) => void;
   register: (
     emai: string,
     password: string,
@@ -27,16 +26,34 @@ export const ApiContext = React.createContext<{
   getMeetings: () => Promise<Meeting[]>;
   getUser: () => Promise<UserType>;
   updateExpoPushToken: (token:string) => Promise<void>,
-  socketClient:SocketWrapper | undefined
-} | null>(null);
+  socketClient:SocketWrapper,
+  loading: boolean
+}
+
+export const ApiContext = React.createContext<AppContextInterface>({} as AppContextInterface);
 
 interface ApiProviderProps {}
 
 let api = new ApiWrapper();
+let socketClient : SocketWrapper;
 
 const ApiProvider: FC<ApiProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<User>(null);
-  const socketRef = useRef<SocketWrapper>();
+  const [user, setUser] = useState<string | null>();
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    AsyncStorage.getItem('user').then(token => {
+      if (token) {
+        setUser(token);
+        api.setToken(token);
+        socketClient = new SocketWrapper(token);
+      }
+      setLoading(false);
+    });
+    
+  }, []);
+
+
   const login = async (email:string, password:string) => {
     // const { id } = jwt_decode(token);
     // getUser(id, token)
@@ -47,7 +64,7 @@ const ApiProvider: FC<ApiProviderProps> = ({ children }) => {
     //   })
     //   .catch((e) => console.log(e));
     let token = await api.signIn(email, password);
-    socketRef.current = new SocketWrapper(token);
+    socketClient = new SocketWrapper(token);
     setUser(token);
     AsyncStorage.setItem("user", token);
 
@@ -60,15 +77,11 @@ const ApiProvider: FC<ApiProviderProps> = ({ children }) => {
     return data;
   };
 
-  const returnUser = (token:string) => {
-    setUser(token);
-  };
-
   const logout = () => {
     setUser(null);
     AsyncStorage.removeItem("user");
     //send logout request
-    socketRef.current?.disconnect();
+    socketClient.disconnect();
     api = new ApiWrapper();
   };
 
@@ -100,14 +113,13 @@ const ApiProvider: FC<ApiProviderProps> = ({ children }) => {
         user,
         login,
         register,
-        returnUser,
         logout,
         createMeeting,
         getMeetings,
         updateExpoPushToken,
         getUser,
-        socketClient:socketRef.current
-        
+        socketClient,
+        loading
       }}
     >
       {children}
