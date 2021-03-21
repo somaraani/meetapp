@@ -1,7 +1,7 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Notification, User } from '@types';
-import { NOTIFICATION } from '@events';
+import { SocketEvents } from '@types';
 import { Model } from 'mongoose';
 import { SocketService } from 'src/socket/socket.service';
 import { NotificationDocument } from './schemas/notification.schema';
@@ -41,7 +41,7 @@ export class NotificationsService {
 
     private async pushNotification(user: User, notification: Notification): Promise<void> {
         if (this.socketService.isConnected(notification.userId)) {
-            this.socketService.emitToUser(notification.userId, NOTIFICATION, notification);
+            this.socketService.emitToUser(notification.userId, SocketEvents.NOTIFICATION, notification);
         }
         else if (user.expoPushToken) {
             const request = {

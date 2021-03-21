@@ -1,8 +1,10 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import React, { FC, useState } from "react";
+import React, { FC, useRef, useState } from "react";
 import jwt_decode from "jwt-decode";
 import { ApiWrapper } from "../api/ApiWrapper";
 import { Coordinate, Meeting, PublicUserData, User as UserType } from "@types";
+import { SocketWrapper } from "../api/SocketWrapper";
+import { TouchableNativeFeedbackBase } from "react-native";
 
 type User = null | any;
 
@@ -24,7 +26,8 @@ export const ApiContext = React.createContext<{
   ) => void;
   getMeetings: () => Promise<Meeting[]>;
   getUser: () => Promise<UserType>;
-  updateExpoPushToken: (token:string) => Promise<void>
+  updateExpoPushToken: (token:string) => Promise<void>,
+  socketClient:SocketWrapper | undefined
 } | null>(null);
 
 interface ApiProviderProps {}
@@ -33,7 +36,7 @@ let api = new ApiWrapper();
 
 const ApiProvider: FC<ApiProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User>(null);
-
+  const socketRef = useRef<SocketWrapper>();
   const login = async (email:string, password:string) => {
     // const { id } = jwt_decode(token);
     // getUser(id, token)
@@ -44,6 +47,7 @@ const ApiProvider: FC<ApiProviderProps> = ({ children }) => {
     //   })
     //   .catch((e) => console.log(e));
     let token = await api.signIn(email, password);
+    socketRef.current = new SocketWrapper(token);
     setUser(token);
     AsyncStorage.setItem("user", token);
 
@@ -64,6 +68,7 @@ const ApiProvider: FC<ApiProviderProps> = ({ children }) => {
     setUser(null);
     AsyncStorage.removeItem("user");
     //send logout request
+    socketRef.current?.disconnect();
     api = new ApiWrapper();
   };
 
@@ -101,6 +106,8 @@ const ApiProvider: FC<ApiProviderProps> = ({ children }) => {
         getMeetings,
         updateExpoPushToken,
         getUser,
+        socketClient:socketRef.current
+        
       }}
     >
       {children}

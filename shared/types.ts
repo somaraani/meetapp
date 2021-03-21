@@ -92,3 +92,8 @@ export interface DirectionResponse {
     eta: string,
     distance: number
 }
+
+export enum SocketEvents{
+    NOTIFICATION = 'NOTIFICATION',
+    LOCATION = 'LOCATION',
+}
