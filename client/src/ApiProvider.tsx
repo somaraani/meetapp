@@ -25,6 +25,7 @@ let socketClient : SocketWrapper;
 
 const ApiProvider: FC<ApiProviderProps> = ({ children }) => {
   const [user, setUser] = useState<string | null>();
+  const [socketClientLoaded, setSocketClientLoaded] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
   const apiClientRef = useRef(new ApiWrapper());
   const apiClient = apiClientRef.current;
@@ -34,6 +35,7 @@ const ApiProvider: FC<ApiProviderProps> = ({ children }) => {
         setUser(token);
         apiClient.setToken(token);
         socketClient = new SocketWrapper(token);
+        setSocketClientLoaded(true);
       }
       setLoading(false);
     });
@@ -68,7 +70,7 @@ const ApiProvider: FC<ApiProviderProps> = ({ children }) => {
     apiClient.reset();
   };
 
-  if (loading || !socketClient) return null;
+  if (loading || !socketClientLoaded) return null;
   return (
     <ApiContext.Provider
       value={{
