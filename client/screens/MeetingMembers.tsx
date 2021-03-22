@@ -3,6 +3,7 @@ import { PublicUserResponse, SocketEvents } from "@types";
 import React, { useContext, useEffect, useState } from "react";
 import { unstable_renderSubtreeIntoContainer } from "react-dom";
 import { Text, View } from "react-native";
+import { Avatar, ListItem } from "react-native-elements";
 import { Button } from "react-native-paper";
 import { ApiContext } from "../src/ApiProvider";
 import { MeetingContext } from "../src/MeetingContext";
@@ -33,18 +34,26 @@ const MeetingMembers = () => {
 
   return (
     <View>
-      <Text>Meeting Members</Text>
-      
-      {/* Boiler Plate */}
-      <Button onPress={async () => {
-        
-      }}>
-        Invite User Test
-      </Button>
-
       {
-        users && users.map(x => (
-          <Text key={x.id}>{x.publicData.displayName}</Text>
+        users && users.map((m,i) => (
+          <ListItem
+            key={i}
+            bottomDivider
+          >
+            <Avatar
+              size="medium"
+              rounded
+              titleStyle={{ color: "white" }}
+              containerStyle={{ backgroundColor: "#2196F3" }}
+              source={require("../assets/profile.jpg")}
+            />
+            <ListItem.Content>
+              <ListItem.Title>{m.publicData.displayName}</ListItem.Title>
+              <ListItem.Subtitle>
+                User
+              </ListItem.Subtitle>
+            </ListItem.Content>
+          </ListItem>
         ))
       }
     </View>
