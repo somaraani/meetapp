@@ -87,12 +87,6 @@ export interface Notification {
     read?: boolean
 }
 
-export interface DirectionResponse {
-    path: Coordinate[],
-    eta: string,
-    distance: number
-}
-
 export enum SocketEvents{
     INVITATION = 'INVITATION',
     LOCATION = 'LOCATION',
@@ -104,4 +98,10 @@ export enum SocketEvents{
 export interface PublicUserResponse {
     id: string,
     publicData: PublicUserData
+}
+
+export interface MeetingDirectionResponse {
+    eta: number,
+    polyline: string,
+    distance: number
 }

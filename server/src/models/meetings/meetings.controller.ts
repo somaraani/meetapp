@@ -1,5 +1,6 @@
 import { Body, Controller, Delete, Get, HttpCode, Logger, NotFoundException, Param, Post, Put, Query, UnauthorizedException } from '@nestjs/common';
-import { Meeting, MeetingDetail } from '@types';
+import { Coordinate, Meeting, MeetingDetail, MeetingDirectionResponse } from '@types';
+import { isLatitude } from 'class-validator';
 import { Auth } from 'src/common/decorators/requests/auth.decorator';
 import { UsersService } from '../users/users.service';
 import { CreateMeetingDTO } from './dto/CreateMeetingDto';
@@ -41,6 +42,12 @@ export class MeetingsController {
             return [];
         }
         return await this.userService.findByIds(participantIds);
+    }
+
+    @Get(':id/directions')
+    async getDirections(@Auth() auth, @Param('id') meetingId: string, @Query('lat') lat: string, @Query('lng') lng: string) : Promise<MeetingDirectionResponse> {
+        const start:Coordinate = { lat: Number(lat), lng:Number(lng) };
+        return await this.meetingsService.getDirections(auth.userId, meetingId, start)
     }
 
     @Get(':id')

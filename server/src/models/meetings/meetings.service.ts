@@ -1,6 +1,6 @@
 
 import { BadRequestException, Injectable, Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { Journey, Meeting, MeetingDetail, MeetingParticipant, PublicUserResponse, SocketEvents } from '@types'
+import { Coordinate, Journey, Meeting, MeetingDetail, MeetingDirectionResponse, MeetingParticipant, PublicUserResponse, SocketEvents, User } from '@types'
 import { CreateMeetingDTO } from './dto/CreateMeetingDto';
 import { InjectModel } from '@nestjs/mongoose';
 import { MeetingDocument } from './schemas/meeting.schema';
@@ -9,6 +9,8 @@ import { JourneysService } from '../journeys/journeys.service';
 import { TasksService } from 'src/tasks/tasks.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { SocketService } from 'src/socket/socket.service';
+import { NavigationService } from '../navigation/navigation.service';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class MeetingsService {
@@ -20,6 +22,8 @@ export class MeetingsService {
         private taskService: TasksService,
         private notificationService: NotificationsService,
         private socketService: SocketService,
+        private navigationService: NavigationService,
+        private userService: UsersService,
     ) { }
 
     private readonly logger = new Logger(MeetingsService.name);
@@ -116,6 +120,23 @@ export class MeetingsService {
         await meeting.save();
         this.socketService.emitToRoom(meeting.id, SocketEvents.MEMBERUPDATE);
         return meeting;
+    }
+
+    async getDirections(userId: string, meetingId: string, start: Coordinate) : Promise<MeetingDirectionResponse>{
+        const meeting = await this.findById(meetingId);
+        if (meeting === null){
+            throw new NotFoundException('Meeting not found');
+        }
+        const participant = meeting.participants.find(x => x.userId == userId);
+        if (!participant){
+            throw new BadRequestException('User is not in this meeting');
+        }
+        const journey = await this.journeyService.findById(participant.journeyId) as Journey;
+        const directions = await this.navigationService.getDirections(journey.settings, start, meeting.details.location);
+        if (directions == null){
+            throw new BadRequestException('Could not calculate route');
+        }
+        return directions;
     }
 
     private reminderJobName(meetingId: string) {

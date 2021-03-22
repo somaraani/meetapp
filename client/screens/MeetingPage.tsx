@@ -1,17 +1,46 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Dimensions, StyleSheet, Text, View } from "react-native";
-import MapView, { Callout, Marker } from "react-native-maps";
+import MapView, { Callout, LatLng, Marker, Polygon, Polyline } from "react-native-maps";
 import MapViewDirections from "react-native-maps-directions";
 import { AuthNavProps } from "../src/AuthParamList";
 import config from "../config";
 import { MeetingContext } from "../src/MeetingContext";
+import { ApiContext } from "../src/ApiProvider";
+import { Coordinate, MeetingDirectionResponse } from "@types";
+import polyline from "polyline";
+
+interface DirectionDetailInterface extends MeetingDirectionResponse{
+  path: LatLng[]
+} 
 
 const MeetingPage = ({ route, navigation }: AuthNavProps<"Home">) => {
-  const item = useContext(MeetingContext);
-  const { lat, lng } = item.details.location;
+  const {apiClient} = useContext(ApiContext);
+  const meeting = useContext<any>(MeetingContext);
+  const { lat, lng } = meeting.details.location;
   const { height, width } = Dimensions.get("window");
   const LATITUDE_DELTA = 10;
   const LONGITUDE_DELTA = LATITUDE_DELTA * (width / height);
+  
+  const [directionResponse, setDirectionResponse] = useState<DirectionDetailInterface>();
+  const [start, setStart] = useState<Coordinate>();
+
+ 
+  useEffect(() => {
+    //TODO get current coords here
+    const start = {lat: 43.255569, lng: -79.072433};
+    setStart(start);
+    loadDirections(start);
+  }, []);
+
+  const loadDirections = async (s: Coordinate) => {
+    console.log('id');
+    console.log(meeting.id);
+    const response = await apiClient.getMeetingDirections(meeting.id, s);
+    setDirectionResponse({
+      ...response,
+      path: polyline.decode(response.polyline).map(x => ({ latitude: x[0], longitude: x[1] })),
+    });
+  }
 
   return (
     <View>
@@ -25,6 +54,14 @@ const MeetingPage = ({ route, navigation }: AuthNavProps<"Home">) => {
         }}
       >
         <Marker coordinate={{ latitude: lat, longitude: lng }} />
+        {
+          start &&
+          <Marker coordinate={{ latitude: start.lat, longitude: start.lng }} />
+        }
+        {
+          directionResponse &&
+          <Polyline coordinates={directionResponse.path} />
+        }
         {/* {members &&
           members.map((member, index) => (
             <Marker

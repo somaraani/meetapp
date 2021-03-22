@@ -3,6 +3,7 @@ import {
   Coordinate,
   Invitation,
   Journey,
+  MeetingDirectionResponse,
   JourneySetting,
   Meeting,
   MeetingDetail,
@@ -106,7 +107,6 @@ export class ApiWrapper {
   }
 
   async getUsersFromMeeting(meetingId: string): Promise<PublicUserResponse[]> {
-    console.log('GET ' + meetingId)
     let res = await axios.get(`${API_URL}meetings/${meetingId}/users`, {
       headers: { Authorization: `Bearer ${this.token}` }
     });
@@ -224,6 +224,20 @@ export class ApiWrapper {
       headers: { Authorization: `Bearer ${this.token}` },
     });
     return res.data;
+  }
+
+  async getMeetingDirections(meetingId: string, start: Coordinate): Promise<MeetingDirectionResponse> {
+    try{
+      const res = await axios.get(`${API_URL}meetings/${meetingId}/directions`, {
+        headers: { Authorization: `Bearer ${this.token}` },
+        params: {lat: start.lat, lng: start.lng},
+      });
+      return res.data;
+    }
+    catch (e){
+      console.log(e);
+      throw e;
+    }
   }
 }
 

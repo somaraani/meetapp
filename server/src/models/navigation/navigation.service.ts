@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { Client, Status, TransitMode, TravelMode } from "@googlemaps/google-maps-services-js";
-import { Coordinate, JourneySetting  } from '@types';
+import { Coordinate, JourneySetting, MeetingDirectionResponse  } from '@types';
 import { DirectionsResponseData } from '@googlemaps/google-maps-services-js/dist/directions';
 
 @Injectable()
@@ -11,8 +11,8 @@ export class NavigationService {
         this.client = new Client()
     }
 
-    async getDirections(setting: JourneySetting, end: Coordinate) : Promise<DirectionsResponseData | null> {
-
+    async getDirections(setting: JourneySetting, start: Coordinate, end: Coordinate) : Promise<MeetingDirectionResponse | null> {
+        setting.travelMode = setting.travelMode || TravelMode.driving;
         if(setting.travelMode == null) {
             throw new BadRequestException("Travel mode cannot be null.");
         }
@@ -31,7 +31,7 @@ export class NavigationService {
 
         const response = await this.client.directions({
             params: {
-                origin: setting.startLocation,
+                origin: start,
                 destination: end,
                 avoid: setting.avoid,
                 mode: travelMode,
@@ -42,6 +42,11 @@ export class NavigationService {
         if (response.data.status !== Status.OK){
             return null;
         }
-        return response.data;
+        const route = response.data.routes[0];
+        return {
+            eta: route.legs[0].duration.value,
+            distance: route.legs[0].distance.value,
+            polyline:route.overview_polyline.points,
+        }
     }
 }

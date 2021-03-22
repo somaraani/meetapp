@@ -9,10 +9,11 @@ import { TasksModule } from 'src/tasks/tasks.module';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { UsersModule } from '../users/users.module';
 import { SocketModule } from 'src/socket/socket.module';
+import { NavigationModule } from '../navigation/navigation.module';
 
 
 @Module({
-  imports: [MongooseModule.forFeature([{name: 'meeting', schema: MeetingSchema}]), JourneysModule, TasksModule, NotificationsModule, UsersModule, SocketModule],
+  imports: [MongooseModule.forFeature([{name: 'meeting', schema: MeetingSchema}]), JourneysModule, TasksModule, NotificationsModule, UsersModule, SocketModule, NavigationModule, UsersModule],
   controllers: [MeetingsController],
   providers: [MeetingsService],
   exports: [MeetingsService]

@@ -188,14 +188,13 @@ export class JourneysService {
             }
         }
 
-        const directionsResponse = await this.navigationService.getDirections(journey.settings, meeting?.details.location)
+        const directionsResponse = await this.navigationService.getDirections(journey.settings,journey.settings.startLocation, meeting?.details.location)
         if (!directionsResponse) {
-            throw new BadRequestException("Could not caluclate directions"); 
+            throw new BadRequestException("Could not calculate directions"); 
         }
 
-        const etaSeconds = directionsResponse.routes[0].legs[0].duration.value;
+        const etaSeconds = directionsResponse.eta;
         journey.travelTime = etaSeconds;
         return await journey.save();
     }
-
 }
