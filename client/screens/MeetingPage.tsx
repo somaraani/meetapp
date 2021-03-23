@@ -1,10 +1,11 @@
 import React, { useContext, useEffect } from "react";
-import { Dimensions, StyleSheet, Text, View } from "react-native";
+import { BackHandler, Dimensions, StyleSheet, Text, View } from "react-native";
 import MapView, { Callout, Marker } from "react-native-maps";
 import MapViewDirections from "react-native-maps-directions";
 import { AuthNavProps } from "../src/AuthParamList";
 import config from "../config";
 import { MeetingContext } from "../src/MeetingContext";
+import { useFocusEffect } from "@react-navigation/core";
 
 const MeetingPage = ({ route, navigation }: AuthNavProps<"Home">) => {
   const item = useContext(MeetingContext);
@@ -12,6 +13,19 @@ const MeetingPage = ({ route, navigation }: AuthNavProps<"Home">) => {
   const { height, width } = Dimensions.get("window");
   const LATITUDE_DELTA = 10;
   const LONGITUDE_DELTA = LATITUDE_DELTA * (width / height);
+
+  const backAction = () => {
+    navigation.navigate("Home");
+    return true;
+  }
+
+  useFocusEffect(
+    React.useCallback(() => {
+    BackHandler.addEventListener("hardwareBackPress", backAction);
+    return () => {
+      BackHandler.addEventListener("hardwareBackPress", backAction);
+    }
+    }, []));
 
   return (
     <View>
