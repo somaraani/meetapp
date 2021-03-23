@@ -1,4 +1,4 @@
-import { Body, ConflictException, Controller, Get, Logger, NotFoundException, Param, Post, Put, Query, Req, UnauthorizedException, UsePipes } from '@nestjs/common';
+import { BadRequestException, Body, ConflictException, Controller, Get, Logger, NotFoundException, Param, Post, Put, Query, Req, UnauthorizedException, UsePipes } from '@nestjs/common';
 import { User } from '@types';
 import { authenticate, use } from 'passport';
 import { Public } from 'src/common/decorators/metadata/public';
@@ -56,6 +56,9 @@ export class UsersController {
     @Public()
     create(@Body() data: CreateUserDto) {
         this.logger.debug(`Request to create user with email ${data.email}`);
+        if(data.details.username.length > 16 || data.details.username.length < 3) {
+            throw new BadRequestException("Username must be between 3 and 16 characters.");
+        }
         return this.usersService.create(data);
     }
 

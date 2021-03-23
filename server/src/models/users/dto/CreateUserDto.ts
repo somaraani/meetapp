@@ -1,5 +1,5 @@
 import { PublicUserData } from "@types";
-import { IsEmail, IsNotEmpty, MinLength } from 'class-validator';
+import { IsEmail, IsNotEmpty, MaxLength, maxLength, MinLength } from 'class-validator';
 
 export class CreateUserDto {
 

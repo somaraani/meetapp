@@ -19,31 +19,6 @@ export class UsersService {
         @InjectModel("user")
         private userModel: Model<UserDocument>
     ) { }
-    //mock users
-    private readonly users: User[] = [
-        {
-            id: "1",
-            email: "first@testing.com",
-            publicData: {
-                displayName: "a",
-                displayPicture: "a",
-            },
-            privateData: {
-                password: "testing1"
-            }
-        },
-        {
-            id: "2",
-            email: "second@testing.com",
-            publicData: {
-                displayName: "a",
-                displayPicture: "a",
-            },
-            privateData: {
-                password: "testing2"
-            }
-        },
-    ];
 
     async update(id: string, data: User) : Promise<User> {
         //error if someone else is already using email being changed
@@ -75,6 +50,12 @@ export class UsersService {
             throw new ConflictException("Another user is associated with that email.");
         }
 
+        //error if someone else is using username
+        const conflicts = await (await this.userModel.find({'publicData.username': { "$regex": data.details.username, "$options": "i" }})).length;
+        if(conflicts) {
+            throw new ConflictException("Another user is associated with that username.");
+        }
+
         //this should push to a database
         //TODO look into UUID generation and where it should happen
         const saltOrRounds = 10;
@@ -96,9 +77,11 @@ export class UsersService {
         //should get from DB (and still use query if necessary)
         var users: UserDocument[];
         if (query) {
-            users = await this.userModel.find({'publicData.displayName': { "$regex": query, "$options": "i" }});
+            users = await this.userModel.find(
+                {$or: [{'publicData.displayName': { "$regex": query, "$options": "i"}},
+                        {'publicData.username': { "$regex": query, "$options": "i" }}]}).limit(25);
         } else {
-            users =  await this.userModel.find();
+            users =  await this.userModel.find().limit(25);
         }
 
         //convert User to PublicUser

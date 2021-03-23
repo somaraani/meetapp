@@ -13,4 +13,6 @@ export class CreateMeetingDTO {
 
     @IsNotEmpty()
     location: Coordinate
+
+    tolerance: number;
 }
