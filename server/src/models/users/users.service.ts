@@ -19,31 +19,6 @@ export class UsersService {
         @InjectModel("user")
         private userModel: Model<UserDocument>
     ) { }
-    //mock users
-    private readonly users: User[] = [
-        {
-            id: "1",
-            email: "first@testing.com",
-            publicData: {
-                displayName: "a",
-                displayPicture: "a",
-            },
-            privateData: {
-                password: "testing1"
-            }
-        },
-        {
-            id: "2",
-            email: "second@testing.com",
-            publicData: {
-                displayName: "a",
-                displayPicture: "a",
-            },
-            privateData: {
-                password: "testing2"
-            }
-        },
-    ];
 
     async update(id: string, data: User) : Promise<User> {
         //error if someone else is already using email being changed
