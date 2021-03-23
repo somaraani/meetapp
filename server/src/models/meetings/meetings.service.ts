@@ -60,7 +60,8 @@ export class MeetingsService {
                 name: data.name,
                 description: data.description,
                 time: data.time,
-                location: data.location
+                location: data.location,
+                tolerance: data.tolerance
             }
         });
 

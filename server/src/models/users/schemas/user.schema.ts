@@ -6,6 +6,7 @@ export const UserSchema = CreateSchema({
   email: String,
   expoPushToken: String,
   publicData: {
+    username: String,
     displayName: String,
     displayPicture: String,
   },
