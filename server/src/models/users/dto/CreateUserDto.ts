@@ -11,10 +11,5 @@ export class CreateUserDto {
     password: string
 
     @IsNotEmpty()
-    @MinLength(3)
-    @MaxLength(16)
-    username: string;
-
-    @IsNotEmpty()
     details: PublicUserData
 }
