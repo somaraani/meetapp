@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
-import { NavigationContainer } from "@react-navigation/native";
+import { NavigationContainer, useFocusEffect } from "@react-navigation/native";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -30,29 +30,68 @@ import CreateMeeting from "../screens/CreateMeeting";
 import LocationPicker from "../screens/LocationPicker";
 import {useNotificationContext} from "./NotificationProvider";
 import { Button } from "react-native-paper";
+import InviteMembers from "../screens/InviteMembers";
 
 const Stack = createStackNavigator<AuthParamList>();
+const MeetingsStack = createStackNavigator<AuthParamList>();
+const MembersStack = createStackNavigator<AuthParamList>();
+const MapStack = createStackNavigator<AuthParamList>();
+const MeetingSettingsStack = createStackNavigator<AuthParamList>();
 const Drawer = createDrawerNavigator<AuthParamList>();
 const Tabs = createBottomTabNavigator<AuthParamList>();
+
+const MapContainer = ({navigation}) => {
+  const name = useContext(MeetingContext);
+  console.log(name);
+
+  return (
+    <MembersStack.Navigator initialRouteName="MeetingMembers">
+      <MembersStack.Screen name="MeetingMap" component={MeetingPage} options={{headerLeft: () => null, headerTitleAlign: 'center', title: name.details.name || "Meeting"}} />
+    </MembersStack.Navigator>
+  );
+}
+
+const MeetingSettingsContainer = () => {
+  return (
+    <MembersStack.Navigator initialRouteName="MeetingsSettings">
+      <MembersStack.Screen name="MeetingSettings" component={MeetingSettings} options={{headerLeft: () => null, headerTitleAlign: 'center', title: 'Settings'}} />
+    </MembersStack.Navigator>
+  );
+}
+
+const MeetingMembersPages = ({navigation}) => {
+    return (
+    <MembersStack.Navigator initialRouteName="MeetingMembers">
+      <MembersStack.Screen name="MeetingMembers" component={MeetingMembers} options={{headerLeft: () => null, headerTitleAlign: 'center', title: 'Members'}} />
+      <MembersStack.Screen name="InviteMembers" component={InviteMembers} options={{ title:"Invite Member",headerTitleAlign: 'center'}} />
+    </MembersStack.Navigator>
+  );
+}
 
 const MeetingTabs = ({ navigation, route }) => {
   let { id } = route.params;
   const { socketClient } = useContext(ApiContext);
-  
-  useEffect(() => {
-    //register for realtime meeting events
+  const backAction = () => {
+    navigation.navigate("Home");
+    return true;
+  }
+
+  useFocusEffect(
+    React.useCallback(() => {
+      //register for realtime meeting events
     socketClient.join(id);
     return () => {
       socketClient.leave(id);
     }
-  }, []);
+    }, [])
+  );
 
   return (
     <MeetingContext.Provider value={route.params}>
-      <Tabs.Navigator initialRouteName="MeetingMap">
+      <Tabs.Navigator initialRouteName="MapContainer">
         <Tabs.Screen
-          name="MeetingMap"
-          component={MeetingPage}
+          name="MapContainer"
+          component={MapContainer}
           options={{
             tabBarLabel: "Map",
             tabBarIcon: ({ color, size }) => (
@@ -61,8 +100,8 @@ const MeetingTabs = ({ navigation, route }) => {
           }}
         />
         <Tabs.Screen
-          name="MeetingMembers"
-          component={MeetingMembers}
+          name="MeetingMembersPages"
+          component={MeetingMembersPages}
           options={{
             tabBarLabel: "Members",
             tabBarIcon: ({ color, size }) => (
@@ -71,8 +110,8 @@ const MeetingTabs = ({ navigation, route }) => {
           }}
         />
         <Tabs.Screen
-          name="MeetingSettings"
-          component={MeetingSettings}
+          name="MeetingSettingsContainer"
+          component={MeetingSettingsContainer}
           options={{
             tabBarLabel: "Settings",
             tabBarIcon: ({ color, size }) => (
@@ -87,8 +126,8 @@ const MeetingTabs = ({ navigation, route }) => {
 
 const Meetings = ({ navigation }) => {
   return (
-    <Stack.Navigator initialRouteName="Home">
-      <Stack.Screen
+    <MeetingsStack.Navigator initialRouteName="Home">
+      <MeetingsStack.Screen
         name="Home"
         component={Home}
         options={{
@@ -114,17 +153,17 @@ const Meetings = ({ navigation }) => {
           },
         }}
       />
-      <Stack.Screen
+      <MeetingsStack.Screen
         name="MeetingTabs"
         component={MeetingTabs}
-        options={({ route }) => ({ title: route.params.details.name })}
+        options={{headerShown: false}}
       />
-      <Stack.Screen
+      <MeetingsStack.Screen
         name="CreateMeeting"
         component={CreateMeeting}
         options={{
           title: "Create Meeting",
-          headerLeft: null,
+          headerLeft: () => null,
           headerRight: () => (
             <Button
               mode="contained"
@@ -139,12 +178,12 @@ const Meetings = ({ navigation }) => {
           },
         }}
       />
-      <Stack.Screen
+      <MeetingsStack.Screen
         name="LocationPicker"
         component={LocationPicker}
         options={{ title: "Select Location" }}
       />
-    </Stack.Navigator>
+    </MeetingsStack.Navigator>
   );
 };
 
