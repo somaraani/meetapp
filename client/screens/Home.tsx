@@ -1,6 +1,6 @@
-import { useIsFocused } from "@react-navigation/core";
-import { Meeting } from "@types";
-import React, { useContext, useEffect, useState } from "react";
+import { useFocusEffect } from "@react-navigation/core";
+import { Meeting, SocketEvents } from "@types";
+import React, { useContext, useState } from "react";
 import { StyleSheet, Text, View, Image } from "react-native";
 import { ApiContext } from "../src/ApiProvider";
 import { AuthNavProps } from "../src/AuthParamList";
@@ -8,24 +8,34 @@ import { Avatar, ListItem } from "react-native-elements";
 import moment from "moment";
 
 const Home = ({ navigation }: AuthNavProps<"Home">) => {
-  const { apiClient } = useContext(ApiContext);
+  const { apiClient, socketClient } = useContext(ApiContext);
 
   const [meetings, setMeetings] = useState<Meeting[]>([]);
-  const isFocused = useIsFocused();
 
-  useEffect(() => {
-    async function fetchMeetings() {
-      try {
-        let meetingList = await apiClient.getMeetings();
-        setMeetings(meetingList.reverse());
-        // console.log(meetings);
-      } catch (error) {
-        console.log(error);
+  useFocusEffect(
+    React.useCallback(() => {
+      async function fetchMeetings() {
+        try {
+          let meetingList = await apiClient.getMeetings();
+          setMeetings(meetingList.reverse());
+          // console.log(meetings);
+        } catch (error) {
+          console.log(error);
+        }
       }
-    }
+  
+      fetchMeetings();
+      socketClient.on(SocketEvents.INVITATION, () => {
+        //triggers when another user joins room
+        console.log("Got invite")
+      })
 
-    fetchMeetings();
-  }, [isFocused]);
+      return () => {
+        //remove listner on unmount
+        socketClient.off(SocketEvents.INVITATION);
+      }
+    }, [])
+  );
 
   if (meetings.length === 0) {
     return (
