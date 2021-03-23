@@ -50,7 +50,7 @@ const NotificationContext = React.createContext<any>(null);
 export const useNotificationContext = () => React.useContext(NotificationContext);
 
 const NotificationProvider : any = ({ children } : any) => {
-  const {user, updateExpoPushToken} = useContext<any>(ApiContext);
+  const {user,apiClient} = useContext(ApiContext);
   const [notificationLink, setNotificationLink] = useState<any>();
   const notificationListener = useRef<any>();
   const responseListener = useRef<any>();
@@ -71,7 +71,7 @@ const NotificationProvider : any = ({ children } : any) => {
     }
     registerForPushNotificationsAsync().then(token => {
       if (token){
-        updateExpoPushToken(token);
+        apiClient.updateExpoPushToken(token);
       }
     });
 

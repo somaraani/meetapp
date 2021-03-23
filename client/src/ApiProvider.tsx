@@ -32,9 +32,10 @@ const ApiProvider: FC<ApiProviderProps> = ({ children }) => {
         setUser(token);
         apiClient.setToken(token);
         socketClient = new SocketWrapper(token);
-        setSocketClientLoaded(true);
       }
       setLoading(false);
+    }).finally(() => {
+      setSocketClientLoaded(true);
     });
     
   }, []);
@@ -51,6 +52,8 @@ const ApiProvider: FC<ApiProviderProps> = ({ children }) => {
     //   .catch((e) => console.log(e));
     let token = await apiClient.signIn(email, password);
     socketClient = new SocketWrapper(token);
+    setSocketClientLoaded(true);
+
     setUser(token);
     AsyncStorage.setItem("user", token);
 
@@ -67,7 +70,14 @@ const ApiProvider: FC<ApiProviderProps> = ({ children }) => {
     apiClient.reset();
   };
 
-  if (loading || !socketClientLoaded) return null;
+  if (loading || !socketClientLoaded) {
+    console.log('not rendering');
+    console.log(socketClientLoaded);
+    console.log(loading);
+    return null;
+  }
+  console.log('rendering')
+
   return (
     <ApiContext.Provider
       value={{
