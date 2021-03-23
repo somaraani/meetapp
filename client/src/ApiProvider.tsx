@@ -1,10 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { FC, useEffect, useRef, useState } from "react";
-import jwt_decode from "jwt-decode";
 import { ApiWrapper } from "../api/ApiWrapper";
-import { Coordinate, Meeting, PublicUserData, User as UserType } from "@types";
 import { SocketWrapper } from "../api/SocketWrapper";
-import { TouchableNativeFeedbackBase } from "react-native";
 
 type User = null | any;
 
