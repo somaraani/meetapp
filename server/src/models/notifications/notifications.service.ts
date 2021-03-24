@@ -44,7 +44,7 @@ export class NotificationsService {
             title: 'Invitation',
             body: 'You have received an invitation',
             userId: invite.userId,
-            link: 'Invitations',
+            link: 'Invites',
             data:{
                 id:invite.id
             }
