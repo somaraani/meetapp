@@ -188,7 +188,7 @@ export class ApiWrapper {
 
   async updateInvitation(invitationId: string, accepted: boolean): Promise<Invitation> {
     let payload = { accepted: accepted };
-    const res = await axios.put(`${API_URL}invitations/${invitationId}`, payload, {
+    const res = await axios.patch(`${API_URL}invitations/${invitationId}`, payload, {
       headers: { Authorization: `Bearer ${this.token}` },
     });
     return res.data;
