@@ -1,5 +1,5 @@
 
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { MeetingSchema } from './schemas/meeting.schema';
 import { MeetingsController } from './meetings.controller';
@@ -9,10 +9,11 @@ import { TasksModule } from 'src/tasks/tasks.module';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { UsersModule } from '../users/users.module';
 import { SocketModule } from 'src/socket/socket.module';
+import { InvitationsModule } from '../invitations/invitations.module';
 
 
 @Module({
-  imports: [MongooseModule.forFeature([{name: 'meeting', schema: MeetingSchema}]), JourneysModule, TasksModule, NotificationsModule, UsersModule, SocketModule],
+  imports: [MongooseModule.forFeature([{name: 'meeting', schema: MeetingSchema}]), JourneysModule, TasksModule, NotificationsModule, UsersModule, SocketModule, forwardRef(() => InvitationsModule)],
   controllers: [MeetingsController],
   providers: [MeetingsService],
   exports: [MeetingsService]

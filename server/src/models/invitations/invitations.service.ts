@@ -1,5 +1,5 @@
 
-import {  BadRequestException, ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import {  BadRequestException, ConflictException, forwardRef, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Invitation } from '@types'
 import { InjectModel } from '@nestjs/mongoose';
 import { InvitationDocument } from './schemas/invitation.schema';
@@ -15,6 +15,7 @@ export class InvitationsService {
         @InjectModel("invitation")
         private invitiationModel: Model<InvitationDocument>,
         private userService: UsersService,
+        @Inject(forwardRef(() => MeetingsService))
         private meetingService: MeetingsService,
         private notificationService: NotificationsService,
     ) { }

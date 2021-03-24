@@ -1,5 +1,5 @@
 
-import { BadRequestException, Injectable, Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, forwardRef, Inject, Injectable, Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { Journey, Meeting, MeetingDetail, MeetingParticipant, PublicUserResponse, SocketEvents } from '@types'
 import { CreateMeetingDTO } from './dto/CreateMeetingDto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -9,6 +9,7 @@ import { JourneysService } from '../journeys/journeys.service';
 import { TasksService } from 'src/tasks/tasks.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { SocketService } from 'src/socket/socket.service';
+import { InvitationsService } from '../invitations/invitations.service';
 
 @Injectable()
 export class MeetingsService {
@@ -20,6 +21,8 @@ export class MeetingsService {
         private taskService: TasksService,
         private notificationService: NotificationsService,
         private socketService: SocketService,
+        @Inject(forwardRef(() => InvitationsService))
+        private invitationService: InvitationsService
     ) { }
 
     private readonly logger = new Logger(MeetingsService.name);
@@ -93,6 +96,20 @@ export class MeetingsService {
     async findAll(userId: string): Promise<Meeting[]> {
         var meetings: MeetingDocument[] = await this.meetingModel.find({ 'participants.userId': userId });
         return meetings;
+    }
+
+    async getMeeting(meetingId: string, userId: string): Promise<Meeting | null> {
+        const meeting : Meeting | null = await this.findById(meetingId);
+
+        if(!meeting) {
+            return null;
+        }
+        
+        if((await this.invitationService.findAll(userId, meetingId)).length == 0) {
+            throw new UnauthorizedException("You are not allowed to view this meeting.")
+        }
+        
+        return meeting;
     }
 
     async findById(id: string): Promise<Meeting | null> {
