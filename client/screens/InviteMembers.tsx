@@ -35,7 +35,7 @@ const InviteMembers = () => {
 
     return (
         <View style={{flex: 1, padding: 10}}>
-            <TextInput style={{marginBottom: 10}} placeholder="Search by name or username" mode="outlined" theme={{colors: {primary: "#2196F3"}}} value={search} onChangeText={(text) => setSearch(text)} />
+            <TextInput style={{marginBottom: 10, height: 40}} placeholder="Search by name or username" mode="outlined" theme={{colors: {primary: "#2196F3"}}} value={search} onChangeText={(text) => setSearch(text)} />
             {results.map((m,i) => (
                 <ListItem
                 key={i}
