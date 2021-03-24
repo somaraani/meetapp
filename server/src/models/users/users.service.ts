@@ -92,13 +92,15 @@ export class UsersService {
     }
 
     async findById(id: string): Promise<User | null> {
-        //should get from databse
         return await this.userModel.findById(id);
     }
 
     async findByEmail(email: string): Promise<User | null> {
-        //should get from databse 
         return await this.userModel.findOne({email: email});
+    }
+
+    async findByUsername(username: string): Promise<User | null> {
+        return await this.userModel.findOne({'publicData.username': username});
     }
 
     async updateExpoPushToken(userId: string, token: string): Promise<void> {
