@@ -18,7 +18,7 @@ export const ApiContext = React.createContext<AppContextInterface>({} as AppCont
 
 interface ApiProviderProps {}
 
-let socketClient : SocketWrapper;
+let socketClient = new SocketWrapper();
 
 const ApiProvider: FC<ApiProviderProps> = ({ children }) => {
   const [user, setUser] = useState<string | null>();
@@ -31,7 +31,7 @@ const ApiProvider: FC<ApiProviderProps> = ({ children }) => {
       if (token) {
         setUser(token);
         apiClient.setToken(token);
-        socketClient = new SocketWrapper(token);
+        socketClient.connect(token);
       }
       setLoading(false);
     }).finally(() => {
@@ -39,7 +39,6 @@ const ApiProvider: FC<ApiProviderProps> = ({ children }) => {
     });
     
   }, []);
-
 
   const login = async (email:string, password:string) : Promise<string> => {
     // const { id } = jwt_decode(token);
@@ -51,7 +50,7 @@ const ApiProvider: FC<ApiProviderProps> = ({ children }) => {
     //   })
     //   .catch((e) => console.log(e));
     let token = await apiClient.signIn(email, password);
-    socketClient = new SocketWrapper(token);
+    socketClient.connect(token);
     setSocketClientLoaded(true);
 
     setUser(token);
@@ -60,9 +59,15 @@ const ApiProvider: FC<ApiProviderProps> = ({ children }) => {
     return token;
   };
 
-
   const logout = async () => {
-    await apiClient.updateExpoPushToken('');
+    try{
+      console.log('logut')
+      await apiClient.updateExpoPushToken('');
+      console.log('logut')
+    }
+    catch(e){
+      console.log(e)
+    }
     setUser(null);
     AsyncStorage.removeItem("user");
     //send logout request
@@ -71,12 +76,8 @@ const ApiProvider: FC<ApiProviderProps> = ({ children }) => {
   };
 
   if (loading || !socketClientLoaded) {
-    console.log('not rendering');
-    console.log(socketClientLoaded);
-    console.log(loading);
     return null;
   }
-  console.log('rendering')
 
   return (
     <ApiContext.Provider

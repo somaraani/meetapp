@@ -8,38 +8,40 @@ import jwtDecode from "jwt-decode";
 const API_URL = config.API_URL;
 
 export class SocketWrapper {
-  private socket: SocketIOClient.Socket;
-  private id: string;
-  constructor(token: string) {
+  private socket: SocketIOClient.Socket | null = null;
+  private id: string = '';
+
+  public connect(token: string): void {
     this.socket = io(API_URL, {
-        transports: ['websocket'],
-        upgrade: false,
-        query: {token: token}
-      });
+      transports: ['websocket'],
+      upgrade: false,
+      query: {token: token}
+    });
     const decodedToken = jwtDecode<any>(token);
     this.id = decodedToken.id;
   }
+
   public disconnect(): void {
-    this.socket.disconnect();
+    this.socket?.disconnect();
+    this.socket = null;
   }
   public on(event: SocketEvents, fn: Function): SocketIOClient.Emitter {
-    return this.socket.on(event, fn);
+    return this.socket?.on(event, fn) as SocketIOClient.Emitter;
   }
 
   public off(event: SocketEvents, fn?: Function): SocketIOClient.Emitter {
-    return this.socket.off(event, fn);
+    return this.socket?.off(event, fn) as SocketIOClient.Emitter;
   }
   
   public join(room: string): SocketIOClient.Emitter {
-    return this.socket.emit(SocketEvents.JOIN, {room});
+    return this.socket?.emit(SocketEvents.JOIN, {room}) as SocketIOClient.Emitter;
   }
   
   public leave(room: string): SocketIOClient.Emitter {
-    return this.socket.emit(SocketEvents.LEAVE, {room});
+    return this.socket?.emit(SocketEvents.LEAVE, {room}) as SocketIOClient.Emitter;
   }
 
   public updateLocation(data: any): SocketIOClient.Emitter {
-    //TODO
-    return this.socket.emit(SocketEvents.LOCATION, data);
+    return this.socket?.emit(SocketEvents.LOCATION, data) as SocketIOClient.Emitter;
   }
 }
