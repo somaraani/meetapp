@@ -19,7 +19,7 @@ const LocationPicker = ({ navigation }) => {
   const lat = 40.866667;
   const lng = 34.566667;
   const { height, width } = Dimensions.get("window");
-  const LATITUDE_DELTA = 10;
+  const LATITUDE_DELTA = 0.01;
   const LONGITUDE_DELTA = LATITUDE_DELTA * (width / height);
   const [mark, setMark] = useState<{
     latitude: number;
@@ -122,7 +122,7 @@ const LocationPicker = ({ navigation }) => {
             });
             searchRef.current.setAddressText(address);
           } catch (error) {
-            console.log(error)
+            console.log(error);
             setPlace(null);
             ToastAndroid.show(
               "Invalid Location. Try again!",
