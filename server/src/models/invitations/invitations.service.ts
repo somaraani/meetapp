@@ -16,6 +16,7 @@ export class InvitationsService {
         private invitiationModel: Model<InvitationDocument>,
         private userService: UsersService,
         private meetingService: MeetingsService,
+        private notificationService: NotificationsService,
     ) { }
 
     async update(inviteId: string, userId: string, accepted: boolean) : Promise<Invitation | null> {
@@ -72,9 +73,7 @@ export class InvitationsService {
 
         await invite.save();
 
-        //TODO send a notificaiton here?
-        // this.notificationService.sendInvitationNotification(invite);
-
+        this.notificationService.sendInvitationNotification(invite);
         return invite;
     }
 
