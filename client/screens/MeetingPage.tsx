@@ -17,15 +17,16 @@ const MeetingPage = ({ route, navigation }: AuthNavProps<"Home">) => {
   const backAction = () => {
     navigation.navigate("Home");
     return true;
-  }
+  };
 
   useFocusEffect(
     React.useCallback(() => {
-    BackHandler.addEventListener("hardwareBackPress", backAction);
-    return () => {
       BackHandler.addEventListener("hardwareBackPress", backAction);
-    }
-    }, []));
+      return () => {
+        BackHandler.addEventListener("hardwareBackPress", backAction);
+      };
+    }, [])
+  );
 
   return (
     <View>
