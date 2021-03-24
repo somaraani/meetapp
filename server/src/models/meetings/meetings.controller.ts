@@ -46,14 +46,10 @@ export class MeetingsController {
     @Get(':id')
     async findOne(@Auth() auth, @Param('id') id: string)  {
         this.logger.debug(`User ${auth.userId} is requesting meeting ${id}`);
-        const meeting: Meeting | null = await this.meetingsService.findById(id);
+        const meeting: Meeting | null = await this.meetingsService.getMeeting(id, auth.userId);
         
         if(!meeting) {
             throw new NotFoundException("Meeting with that ID was not found.");
-        }
-
-        if(meeting.participants.find(item => item.userId === auth.userId) == undefined) {
-            throw new UnauthorizedException("You do not have permission to view this meeting.");
         }
 
         return meeting;

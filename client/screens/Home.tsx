@@ -1,7 +1,7 @@
 import { useFocusEffect } from "@react-navigation/core";
 import { Meeting, SocketEvents } from "@types";
 import React, { useContext, useState } from "react";
-import { StyleSheet, Text, View, Image } from "react-native";
+import { StyleSheet, Text, View, Image, ScrollView } from "react-native";
 import { ApiContext } from "../src/ApiProvider";
 import { AuthNavProps } from "../src/AuthParamList";
 import { Avatar, ListItem } from "react-native-elements";
@@ -23,17 +23,17 @@ const Home = ({ navigation }: AuthNavProps<"Home">) => {
           console.log(error);
         }
       }
-  
+
       fetchMeetings();
       socketClient.on(SocketEvents.INVITATION, () => {
         //triggers when another user joins room
-        console.log("Got invite")
-      })
+        console.log("Got invite");
+      });
 
       return () => {
         //remove listner on unmount
         socketClient.off(SocketEvents.INVITATION);
-      }
+      };
     }, [])
   );
 
@@ -52,28 +52,30 @@ const Home = ({ navigation }: AuthNavProps<"Home">) => {
   } else {
     return (
       <View style={styles.container}>
-        {meetings.map((m, i) => (
-          <ListItem
-            key={i}
-            bottomDivider
-            onPress={() => navigation.navigate("MeetingTabs", m)}
-          >
-            <Avatar
-              size="medium"
-              rounded
-              title={m.details.name.substring(0, 2)}
-              titleStyle={{ color: "white" }}
-              containerStyle={{ backgroundColor: "#2196F3" }}
-            />
-            <ListItem.Content>
-              <ListItem.Title>{m.details.name}</ListItem.Title>
-              <ListItem.Subtitle>
-                {moment(m.details.time).format("MMMM Do YYYY, h:mm a")}
-              </ListItem.Subtitle>
-            </ListItem.Content>
-            <ListItem.Chevron color="black" />
-          </ListItem>
-        ))}
+        <ScrollView>
+          {meetings.map((m, i) => (
+            <ListItem
+              key={i}
+              bottomDivider
+              onPress={() => navigation.navigate("MeetingTabs", m)}
+            >
+              <Avatar
+                size="medium"
+                rounded
+                title={m.details.name.substring(0, 2)}
+                titleStyle={{ color: "white" }}
+                containerStyle={{ backgroundColor: "#2196F3" }}
+              />
+              <ListItem.Content>
+                <ListItem.Title>{m.details.name}</ListItem.Title>
+                <ListItem.Subtitle>
+                  {moment(m.details.time).format("MMMM Do YYYY, h:mm a")}
+                </ListItem.Subtitle>
+              </ListItem.Content>
+              <ListItem.Chevron color="black" />
+            </ListItem>
+          ))}
+        </ScrollView>
       </View>
     );
   }
