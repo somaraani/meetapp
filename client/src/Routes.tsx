@@ -32,6 +32,7 @@ import { useNotificationContext } from "./NotificationProvider";
 import { Button } from "react-native-paper";
 import InviteMembers from "../screens/InviteMembers";
 import Invites from "../screens/Invites";
+import { SocketEvents } from "@types";
 
 const Stack = createStackNavigator<AuthParamList>();
 const MeetingsStack = createStackNavigator<AuthParamList>();
@@ -265,12 +266,22 @@ export const Routes = () => {
   const { notificationLink } = useNotificationContext();
   const { user, loading } = useContext(ApiContext);
   const navigationRef = useRef<any>();
+  const { socketClient } = useContext(ApiContext);
 
   useEffect(() => {
     if (notificationLink) {
       navigationRef.current.navigate(notificationLink);
     }
   }, [notificationLink]);
+
+  useEffect(() => {
+    socketClient.on(SocketEvents.INVITATION, () => {
+      console.log("New invite");
+    });
+    return () => {
+      socketClient.off(SocketEvents.INVITATION);
+    };
+  }, []);
 
   if (loading) {
     return (
