@@ -24,7 +24,7 @@ export class InvitationsController {
         return this.invitationsService.findAll(userId, meetingId, status);
     }
 
-    @Patch(':id')
+    @Put(':id')
     update(@Auth() auth, @Param('id') inviteId: string, @Body() data: PatchInviteDTO) : Promise<Invitation | null> {
         this.logger.debug(`Request to reply: ${data.accepted} to invite ${inviteId}`);
         return this.invitationsService.update(inviteId, auth.userId, data.accepted);
