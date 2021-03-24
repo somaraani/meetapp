@@ -54,6 +54,20 @@ const DrawerContent = (props) => {
             />
             <DrawerItem
               icon={({ color, size }) => (
+                <Icon name="mailbox" color={color} size={size} />
+              )}
+              label="Invites"
+              onPress={() =>
+                props.navigation.dispatch({
+                  ...CommonActions.reset({
+                    index: 0,
+                    routes: [{ name: "Invites" }],
+                  }),
+                })
+              }
+            />
+            <DrawerItem
+              icon={({ color, size }) => (
                 <Icon name="cog" color={color} size={size} />
               )}
               label="Settings"
