@@ -1,6 +1,6 @@
 
 import { BadRequestException, ForbiddenException, Injectable, Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { Journey, JourneySetting, Meeting, MeetingDetail } from '@types'
+import { Coordinate, Journey, JourneySetting, JourneyStatus, Meeting, MeetingDetail, MeetingStatus } from '@types'
 import { InjectModel } from '@nestjs/mongoose';
 import { JourneyDocument } from './schemas/journey.schema';
 import { Model } from 'mongoose';
@@ -8,6 +8,7 @@ import { MeetingDocument } from '../meetings/schemas/meeting.schema';
 import { NavigationService } from '../navigation/navigation.service';
 import { TasksService } from 'src/tasks/tasks.service';
 import { NotificationsService } from '../notifications/notifications.service';
+import { computeDistanceBetween } from 'spherical-geometry-js';
 
 @Injectable()
 export class JourneysService {
@@ -22,6 +23,8 @@ export class JourneysService {
         private notificationService: NotificationsService
     ) { }
 
+    private readonly LATE_TOL = 2 * 60 * 1000; //tolerence to whats considered "late"
+    private readonly LEFT_TOL = 75; //radius considered "left" in metres
     private readonly logger = new Logger(JourneysService.name);
 
     async update(journeyId: string, userId: string, settings: JourneySetting) : Promise<Journey | null> {
@@ -93,14 +96,6 @@ export class JourneysService {
             journey = await this.calculateETA(journeyId);
         } catch(err) {
             this.logger.debug(`Couldn't calculate ETA for journey ${journeyId}, will not create event.`);
-            
-            this.notificationService.addNotification({
-                userId: journey.userId,
-                title: `Add Starting location to ${meeting.details.name}`,
-                body: `You haven't added a start location to the meeting yet. This is required to give you reminders to leave.`, 
-            });
-
-            this.logger.debug(`Sending notification to user ${journey.userId} to update journey settings`)
             return;
         }
 
@@ -142,21 +137,6 @@ export class JourneysService {
 
             //create job that fires when they have to leave
             this.tasksService.addCronJob(this.leaveJobName(journeyId), new Date(leavingTime) , async () => { 
-
-                //anything that needs to happen when meeting becomes active can happen here
-
-                //when the first person has to leave, meeting becomes active
-                const meet = await this.meetingModel.findById(meeting.id);
-
-                if(!meet) {
-                    return;
-                }
-
-                if(meet.status != "active") {
-                    meet.status = "active";
-                    await meet.save();
-                }
-
                 this.logger.debug(`Reminding user ${jour.userId} to leave now`);
                 
                 //send notification telling them to leave
@@ -195,7 +175,97 @@ export class JourneysService {
 
         const etaSeconds = directionsResponse.routes[0].legs[0].duration.value;
         journey.travelTime = etaSeconds;
-        return await journey.save();
+
+        //find out if they can make it on time
+        if(new Date(meeting.eta).getTime() - new Date(journey.travelTime).getTime() > new Date().getTime()) {
+            //if yes eta is meeting eta
+            journey.eta = meeting.eta;
+        } else {
+            //otherwise set to their actual eta if they leave now
+            journey.eta = new Date(new Date().getTime() + journey.travelTime * 1000).toISOString();
+        }
+
+        await journey.save();
+        return journey;
+    }
+
+    async updateLocation(journeyId: string, location: Coordinate) {
+        await this.calculateETA(journeyId);
+        const journey = await this.journeyModel.findById(journeyId);
+
+        if(!journey) {
+            return;
+        }
+
+        const meeting = await this.meetingModel.findById(journey.meetingId);
+
+        if(!meeting) {
+            return;
+        }
+
+        journey.locations.push(location);
+        journey.lastUpdated = new Date().toISOString();
+        journey.save();
+
+        if(journey.settings.startLocation == null) {
+            this.logger.debug(`Journey ${journeyId} does not have a start location, not calculating ETA.`);
+            return;
+        }
+
+         //Figure out if they have left based on distance between current and start location
+         var distance = computeDistanceBetween(location, journey.settings.startLocation);
+         var left = distance > this.LEFT_TOL;
+
+        const meetingTime  = new Date(meeting.eta).getTime();
+        const arrivalTime = meetingTime + journey.travelTime * 1000;
+
+        if(arrivalTime - meetingTime > this.LATE_TOL) {
+            this.logger.debug(`user ${journey.userId} will be late to meeting ${meeting.details.name}`);
+
+            var lateMins = Math.ceil((arrivalTime - meetingTime)/(1000*60));
+
+            //if meeting isnt active and tolerence allows it, move ETA
+            if(meeting.status != MeetingStatus.ACTIVE && lateMins <= meeting.details.tolerance) {
+                //if user hasnt left, status is waiting for them
+                if(!left) {
+                    meeting.eta = new Date(meeting.eta + meeting.details.tolerance * 60 * 1000).toISOString();
+                    meeting.status = MeetingStatus.WAITING;
+
+                    //cancel all future events until a new ETA is calculated (Unsure about this ??)
+                    meeting.participants.forEach((participant) => {
+                        this.tasksService.deleteCronJob(this.journeyJobName(journeyId));
+                    });
+
+                } else {
+                    //if they have left, and meeting isnt active, we make it active
+                    meeting.eta = journey.eta;
+                    meeting.status = MeetingStatus.ACTIVE;
+
+                    //recreate future events given new ETA
+                    meeting.participants.forEach((participant) => {
+                        if(participant.journeyId == journeyId) {
+                            return;
+                        }
+
+                        this.journeyJob(participant.journeyId);
+                    })
+                }
+
+                await meeting.save();
+            }
+        }
+
+        var jourDoc = await this.journeyModel.findById(journeyId);
+
+        if(!jourDoc) {
+            return;
+        }
+
+        if(left && jourDoc.status == JourneyStatus.PENDING) {
+            jourDoc.status = JourneyStatus.ACTIVE;
+            jourDoc.save();
+        }
+
     }
 
 }
