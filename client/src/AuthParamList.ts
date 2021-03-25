@@ -17,6 +17,7 @@ export type AuthParamList = {
   MeetingMembersPages: undefined;
   InviteMembers: undefined;
   Invites: undefined;
+  StartLocationPicker: undefined;
 };
 
 export type AuthNavProps<T extends keyof AuthParamList> = {
