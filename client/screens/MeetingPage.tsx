@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { BackHandler, Dimensions, StyleSheet, Text, View } from "react-native";
 import MapView, { Callout, Marker } from "react-native-maps";
 import MapViewDirections from "react-native-maps-directions";
@@ -6,13 +6,16 @@ import { AuthNavProps } from "../src/AuthParamList";
 import config from "../config";
 import { MeetingContext } from "../src/MeetingContext";
 import { useFocusEffect } from "@react-navigation/core";
+import { ApiContext } from "../src/ApiProvider";
 
 const MeetingPage = ({ route, navigation }: AuthNavProps<"Home">) => {
   const item = useContext(MeetingContext);
+  const { apiClient } = useContext(ApiContext);
   const { lat, lng } = item.details.location;
   const { height, width } = Dimensions.get("window");
   const LATITUDE_DELTA = 0.1;
   const LONGITUDE_DELTA = LATITUDE_DELTA * (width / height);
+  const [members, setMembers] = useState([]);
 
   const backAction = () => {
     navigation.navigate("Home");
@@ -21,6 +24,17 @@ const MeetingPage = ({ route, navigation }: AuthNavProps<"Home">) => {
 
   useFocusEffect(
     React.useCallback(() => {
+      async function getMemberLocations() {
+        let temp = [];
+        for (let i = 0; i < item.participants.length; i += 1) {
+          temp[i] = (
+            await apiClient.getJourney(item.participants[i].journeyId)
+          ).settings.startLocation;
+        }
+        console.log(temp);
+        setMembers(temp);
+      }
+      getMemberLocations();
       BackHandler.addEventListener("hardwareBackPress", backAction);
       return () => {
         BackHandler.addEventListener("hardwareBackPress", backAction);
@@ -40,47 +54,19 @@ const MeetingPage = ({ route, navigation }: AuthNavProps<"Home">) => {
         }}
       >
         <Marker coordinate={{ latitude: lat, longitude: lng }} />
-        {/* {members &&
-          members.map((member, index) => (
+        {members
+          .filter((member) => member)
+          .map((member, index) => (
             <Marker
               key={index}
               coordinate={{
-                latitude: member.latitude,
-                longitude: member.longitude,
+                latitude: member.lat,
+                longitude: member.lng,
               }}
               pinColor="green"
-              onPress={() => console.log(member.eta)}
-            >
-              <Callout
-                tooltip={true}
-                style={{ backgroundColor: "white", padding: 5 }}
-              >
-                <Text>Distance: {member.distance} km</Text>
-                <Text>Duration: {member.eta} mins</Text>
-                <Text>Travel Mode: {member.mode} </Text>
-              </Callout>
-            </Marker>
-          ))}
-        {members &&
-          members.map((member, index) => (
-            <MapViewDirections
-              key={index}
-              origin={{
-                latitude: member.latitude,
-                longitude: member.longitude,
-              }}
-              destination={{ latitude: latitude, longitude: longitude }}
-              apikey={config.GOOGLE_MAPS_APIKEY}
-              strokeWidth={3}
-              strokeColor="blue"
-              onError={(e) => console.log(e)}
-              onReady={(value) => {
-                member.distance = value.distance;
-                member.eta = value.duration;
-              }}
-              mode={member.mode}
+              onPress={() => console.log("Test")}
             />
-          ))} */}
+          ))}
       </MapView>
     </View>
   );
