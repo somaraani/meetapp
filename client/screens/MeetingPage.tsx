@@ -8,6 +8,7 @@ import { MeetingContext } from "../src/MeetingContext";
 import { useFocusEffect } from "@react-navigation/core";
 import { ApiContext } from "../src/ApiProvider";
 import {PolyUtil} from "node-geometry-library";
+import { Card } from "react-native-paper";
 
 const MeetingPage = ({ route, navigation }: AuthNavProps<"Home">) => {
   const item = useContext(MeetingContext);
@@ -17,7 +18,8 @@ const MeetingPage = ({ route, navigation }: AuthNavProps<"Home">) => {
   const LATITUDE_DELTA = 0.1;
   const LONGITUDE_DELTA = LATITUDE_DELTA * (width / height);
   const [members, setMembers] = useState([]);
-  const [directions, setDirections] = useState([{latitude: 0, longitude: 0}]);
+  const [directions, setDirections] = useState();
+  const [ttl, setTtl] = useState(new Date());
 
   const backAction = () => {
     navigation.navigate("Home");
@@ -33,7 +35,8 @@ const MeetingPage = ({ route, navigation }: AuthNavProps<"Home">) => {
           temp[i] = journey.settings.startLocation;
           if(journey.userId == apiClient.id) {
             if(journey.path) {
-              setDirections(PolyUtil.decode(journey.path).map(s => ({latitude: s.lat, longitude: s.lng})));          
+              setDirections(PolyUtil.decode(journey.path).map(s => ({latitude: s.lat, longitude: s.lng})));
+              setTtl(new Date(new Date(item.details.time).getTime() - journey.travelTime * 1000));    
             }
           }
         }
@@ -50,6 +53,14 @@ const MeetingPage = ({ route, navigation }: AuthNavProps<"Home">) => {
 
   return (
     <View>
+
+      {(directions) ? 
+        <Card>
+        <Card.Title title={`You must leave at ${ttl.toLocaleDateString()} at ${ttl.toLocaleTimeString()}`} subtitle={`to make it at ${new Date(item.details.time).toLocaleString()}`}/>
+        
+        </Card>
+      : null}
+
       <MapView
         style={styles.map}
         initialRegion={{
@@ -60,8 +71,12 @@ const MeetingPage = ({ route, navigation }: AuthNavProps<"Home">) => {
         }}
       >
 
-        <Polyline coordinates={directions} strokeColor="blue" strokeWidth={3}>
-        </Polyline>
+        {(directions) ? 
+          <Polyline coordinates={directions} strokeColor="blue" strokeWidth={3}>
+          </Polyline> 
+        : null}
+
+
         
         <Marker coordinate={{ latitude: lat, longitude: lng }} />
         {members
