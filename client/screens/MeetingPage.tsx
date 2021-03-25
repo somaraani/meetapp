@@ -18,7 +18,7 @@ const MeetingPage = ({ route, navigation }: AuthNavProps<"Home">) => {
   const LATITUDE_DELTA = 0.1;
   const LONGITUDE_DELTA = LATITUDE_DELTA * (width / height);
   const [members, setMembers] = useState([]);
-  const [directions, setDirections] = useState();
+  const [directions, setDirections] = useState([]);
   const [ttl, setTtl] = useState(new Date());
 
   const backAction = () => {
@@ -54,10 +54,9 @@ const MeetingPage = ({ route, navigation }: AuthNavProps<"Home">) => {
   return (
     <View>
 
-      {(directions) ? 
+      {(directions.length > 0) ? 
         <Card>
         <Card.Title title={`You must leave at ${ttl.toLocaleDateString()} at ${ttl.toLocaleTimeString()}`} subtitle={`to make it at ${new Date(item.details.time).toLocaleString()}`}/>
-        
         </Card>
       : null}
 
@@ -71,7 +70,7 @@ const MeetingPage = ({ route, navigation }: AuthNavProps<"Home">) => {
         }}
       >
 
-        {(directions) ? 
+        {(directions.length > 0) ? 
           <Polyline coordinates={directions} strokeColor="blue" strokeWidth={3}>
           </Polyline> 
         : null}
