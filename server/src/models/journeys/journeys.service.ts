@@ -1,6 +1,6 @@
 
 import { BadRequestException, ForbiddenException, Injectable, Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { Journey, JourneySetting, Meeting, MeetingDetail } from '@types'
+import { Coordinate, Journey, JourneySetting, Meeting, MeetingDetail } from '@types'
 import { InjectModel } from '@nestjs/mongoose';
 import { JourneyDocument } from './schemas/journey.schema';
 import { Model } from 'mongoose';
@@ -92,6 +92,7 @@ export class JourneysService {
         try {
             journey = await this.calculateETA(journeyId);
         } catch(err) {
+            this.logger.error(err);
             this.logger.debug(`Couldn't calculate ETA for journey ${journeyId}, will not create event.`);
             
             this.notificationService.addNotification({
@@ -193,8 +194,16 @@ export class JourneysService {
             throw new BadRequestException("Could not caluclate directions"); 
         }
 
+        const steps = directionsResponse.routes[0].legs[0].steps;
+        const points: Coordinate[] = [];
+        steps.forEach(step => {
+            points.push(step.start_location);
+            points.push(step.end_location);
+        });
+        
         const etaSeconds = directionsResponse.routes[0].legs[0].duration.value;
         journey.travelTime = etaSeconds;
+        journey.path = points;
         return await journey.save();
     }
 
