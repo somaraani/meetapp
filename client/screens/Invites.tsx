@@ -1,13 +1,20 @@
 import { useFocusEffect } from "@react-navigation/core";
 import { SocketEvents } from "@types";
-import React, { useContext, useState } from "react";
-import { BackHandler, StyleSheet, Text, View, ScrollView } from "react-native";
+import React, { useContext, useEffect, useState } from "react";
+import {
+  BackHandler,
+  StyleSheet,
+  Text,
+  View,
+  ScrollView,
+  ToastAndroid,
+} from "react-native";
 import { Button, Icon, ListItem } from "react-native-elements";
 import { ApiContext } from "../src/ApiProvider";
 
 const Invites = ({ navigation }) => {
   const { apiClient, socketClient } = useContext(ApiContext);
-  const [invites, setInvites] = useState([]);
+  const [invites, setInvites] = useState(null);
 
   async function getInvites() {
     try {
@@ -30,7 +37,7 @@ const Invites = ({ navigation }) => {
     }
   }
   const backAction = () => {
-    navigation.navigate("Home");
+    navigation.navigate("Meetings");
     return true;
   };
 
@@ -38,6 +45,7 @@ const Invites = ({ navigation }) => {
     try {
       let data = await apiClient.updateInvitation(x.id, true);
       getInvites();
+      ToastAndroid.show("Invitation Accepted!", ToastAndroid.SHORT);
     } catch (error) {
       console.log(error);
     }
@@ -47,14 +55,21 @@ const Invites = ({ navigation }) => {
     try {
       let data = await apiClient.updateInvitation(x.id, false);
       getInvites();
+      ToastAndroid.show("Invitation Declined!", ToastAndroid.SHORT);
     } catch (error) {
-      console.log(error);
+      ToastAndroid.show(error.response.data.message, ToastAndroid.SHORT);
     }
   };
 
+  useEffect(() => {
+    BackHandler.addEventListener("hardwareBackPress", backAction);
+    return () => {
+      BackHandler.addEventListener("hardwareBackPress", backAction);
+    };
+  }, []);
+
   useFocusEffect(
     React.useCallback(() => {
-      BackHandler.addEventListener("hardwareBackPress", backAction);
       getInvites();
       socketClient.on(SocketEvents.INVITATION, () => {
         console.log("New invite");
@@ -62,7 +77,6 @@ const Invites = ({ navigation }) => {
       });
       return () => {
         //remove listner on unmount
-        BackHandler.addEventListener("hardwareBackPress", backAction);
         socketClient.off(SocketEvents.INVITATION);
       };
     }, [])
@@ -74,37 +88,49 @@ const Invites = ({ navigation }) => {
     }, [])
   );
 
-  return (
-    <View>
-      <ScrollView>
-        {invites.map((x, i) => (
-          <ListItem key={i} bottomDivider>
-            <ListItem.Content>
-              <ListItem.Title>
-                Invitation to join{" "}
-                <Text style={{ fontWeight: "bold" }}>
-                  {x.meetData.details.name}
-                </Text>
-              </ListItem.Title>
-              <ListItem.Subtitle>From {x.sender.displayName}</ListItem.Subtitle>
-            </ListItem.Content>
-            <View style={{ flexDirection: "row" }}>
-              <Button
-                icon={<Icon name="check" color="white" size={18} />}
-                containerStyle={{ marginRight: 5 }}
-                onPress={() => acceptInvite(x)}
-              />
-              <Button
-                buttonStyle={{ backgroundColor: "#F66161" }}
-                icon={<Icon name="close" color="white" size={18} />}
-                onPress={() => declineInvite(x)}
-              />
-            </View>
-          </ListItem>
-        ))}
-      </ScrollView>
-    </View>
-  );
+  if (!invites) {
+    return null;
+  } else if (invites && invites.length === 0) {
+    return (
+      <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+        <Text>No Pending Invites</Text>
+      </View>
+    );
+  } else {
+    return (
+      <View>
+        <ScrollView>
+          {invites.map((x, i) => (
+            <ListItem key={i} bottomDivider>
+              <ListItem.Content>
+                <ListItem.Title>
+                  Invitation to join{" "}
+                  <Text style={{ fontWeight: "bold" }}>
+                    {x.meetData.details.name}
+                  </Text>
+                </ListItem.Title>
+                <ListItem.Subtitle>
+                  From {x.sender.displayName}
+                </ListItem.Subtitle>
+              </ListItem.Content>
+              <View style={{ flexDirection: "row" }}>
+                <Button
+                  icon={<Icon name="check" color="white" size={18} />}
+                  containerStyle={{ marginRight: 5 }}
+                  onPress={() => acceptInvite(x)}
+                />
+                <Button
+                  buttonStyle={{ backgroundColor: "#F66161" }}
+                  icon={<Icon name="close" color="white" size={18} />}
+                  onPress={() => declineInvite(x)}
+                />
+              </View>
+            </ListItem>
+          ))}
+        </ScrollView>
+      </View>
+    );
+  }
 };
 
 export default Invites;
