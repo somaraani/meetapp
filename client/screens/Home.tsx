@@ -10,7 +10,7 @@ import moment from "moment";
 const Home = ({ navigation }: AuthNavProps<"Home">) => {
   const { apiClient, socketClient } = useContext(ApiContext);
 
-  const [meetings, setMeetings] = useState<Meeting[]>([]);
+  const [meetings, setMeetings] = useState(null);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -37,7 +37,9 @@ const Home = ({ navigation }: AuthNavProps<"Home">) => {
     }, [])
   );
 
-  if (meetings.length === 0) {
+  if (!meetings) {
+    return null;
+  } else if (meetings && meetings.length === 0) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <Image
