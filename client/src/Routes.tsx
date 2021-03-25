@@ -40,7 +40,6 @@ import {
   MenuProvider,
   MenuTrigger,
 } from "react-native-popup-menu";
-import StartLocationPicker from "../screens/StartLocationPicker";
 
 const Stack = createStackNavigator<AuthParamList>();
 const MeetingsStack = createStackNavigator<AuthParamList>();
@@ -109,10 +108,6 @@ const MeetingSettingsContainer = () => {
           headerTitleAlign: "center",
           title: "Settings",
         }}
-      />
-      <MeetingSettingsStack.Screen
-        name="StartLocationPicker"
-        component={StartLocationPicker}
       />
     </MeetingSettingsStack.Navigator>
   );
