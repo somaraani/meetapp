@@ -1,22 +1,18 @@
-import { StackActions } from "@react-navigation/routers";
 import { PublicUserResponse, SocketEvents } from "@types";
 import React, { useContext, useEffect, useState } from "react";
-import { unstable_renderSubtreeIntoContainer } from "react-dom";
 import { BackHandler, Pressable, Text, View, ScrollView } from "react-native";
 import { Avatar, ListItem } from "react-native-elements";
-import { Button } from "react-native-paper";
 import { ApiContext } from "../src/ApiProvider";
 import { MeetingContext } from "../src/MeetingContext";
-import { useNotificationContext } from "../src/NotificationProvider";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { useFocusEffect, useIsFocused } from "@react-navigation/core";
-import { TouchableOpacity } from "react-native-gesture-handler";
 
 const MeetingMembers = ({ navigation }) => {
-  const meetingId = 0;
   const [users, setUsers] = useState<PublicUserResponse[]>();
-  const { id } = useContext<any>(MeetingContext);
+  const { id, ownerId } = useContext<any>(MeetingContext);
   const { apiClient, socketClient } = useContext(ApiContext);
+  const [owner, setOwner] = useState(false);
+
   const getMeetingUsers = async () => {
     let meetingUsers = await apiClient.getUsersFromMeeting(id);
     setUsers(meetingUsers);
@@ -29,7 +25,11 @@ const MeetingMembers = ({ navigation }) => {
 
   useFocusEffect(
     React.useCallback(() => {
-      console.log("Enter");
+      async function isOwner() {
+        let userId = (await apiClient.getUser()).id;
+        setOwner(ownerId === userId);
+      }
+      isOwner();
       getMeetingUsers();
       BackHandler.addEventListener("hardwareBackPress", backAction);
       socketClient.on(SocketEvents.MEMBERUPDATE, () => {
@@ -39,7 +39,6 @@ const MeetingMembers = ({ navigation }) => {
       return () => {
         //remove listner on unmount
         socketClient.off(SocketEvents.MEMBERUPDATE);
-        console.log("Leave");
         BackHandler.addEventListener("hardwareBackPress", backAction);
       };
     }, [])
@@ -59,9 +58,18 @@ const MeetingMembers = ({ navigation }) => {
                 source={require("../assets/profile.jpg")}
               />
               <ListItem.Content>
-                <ListItem.Title>{m.publicData.displayName}</ListItem.Title>
-                <ListItem.Subtitle>User</ListItem.Subtitle>
+                <ListItem.Title>{m.publicData.displayName} </ListItem.Title>
+                <ListItem.Subtitle>{m.publicData.username}</ListItem.Subtitle>
               </ListItem.Content>
+              {m.id === ownerId ? (
+                <Text
+                  style={{
+                    color: "#2196F3",
+                  }}
+                >
+                  owner
+                </Text>
+              ) : null}
             </ListItem>
           ))}
       </ScrollView>
@@ -69,14 +77,20 @@ const MeetingMembers = ({ navigation }) => {
         style={{
           position: "absolute",
           bottom: 15,
-          padding: 10,
-          borderRadius: 100,
           alignSelf: "center",
-          backgroundColor: "#2196F3",
         }}
         onPress={() => navigation.navigate("InviteMembers")}
       >
-        <Icon name="person-add-alt-1" color="white" size={35}></Icon>
+        <View
+          style={{
+            display: owner ? "flex" : "none",
+            borderRadius: 100,
+            backgroundColor: "#2196F3",
+            padding: 10,
+          }}
+        >
+          <Icon name="person-add-alt-1" color="white" size={35}></Icon>
+        </View>
       </Pressable>
     </View>
   );
