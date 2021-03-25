@@ -7,11 +7,10 @@ import config from "../config";
 import { MeetingContext } from "../src/MeetingContext";
 import { useFocusEffect } from "@react-navigation/core";
 import { ApiContext } from "../src/ApiProvider";
-import { SocketEvents } from "@types";
 
 const MeetingPage = ({ route, navigation }: AuthNavProps<"Home">) => {
   const item = useContext(MeetingContext);
-  const { apiClient, socketClient } = useContext(ApiContext);
+  const { apiClient } = useContext(ApiContext);
   const { lat, lng } = item.details.location;
   const { height, width } = Dimensions.get("window");
   const LATITUDE_DELTA = 0.1;
@@ -37,13 +36,7 @@ const MeetingPage = ({ route, navigation }: AuthNavProps<"Home">) => {
       }
       getMemberLocations();
       BackHandler.addEventListener("hardwareBackPress", backAction);
-
-      socketClient.on(SocketEvents.MEMBERUPDATE, () => {
-        //triggers when another user joins room
-        getMemberLocations();
-      });
       return () => {
-        socketClient.off(SocketEvents.MEMBERUPDATE);
         BackHandler.addEventListener("hardwareBackPress", backAction);
       };
     }, [])
