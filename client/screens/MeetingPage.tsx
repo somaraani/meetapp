@@ -7,6 +7,7 @@ import config from "../config";
 import { MeetingContext } from "../src/MeetingContext";
 import { useFocusEffect } from "@react-navigation/core";
 import { ApiContext } from "../src/ApiProvider";
+import {PolyUtil} from "node-geometry-library";
 
 const MeetingPage = ({ route, navigation }: AuthNavProps<"Home">) => {
   const item = useContext(MeetingContext);
@@ -31,7 +32,9 @@ const MeetingPage = ({ route, navigation }: AuthNavProps<"Home">) => {
           const journey = await apiClient.getJourney(item.participants[i].journeyId);
           temp[i] = journey.settings.startLocation;
           if(journey.userId == apiClient.id) {
-            setDirections(journey.path.map(s => ({latitude: s.lat, longitude: s.lng})));          
+            if(journey.path) {
+              setDirections(PolyUtil.decode(journey.path).map(s => ({latitude: s.lat, longitude: s.lng})));          
+            }
           }
         }
         setMembers(temp);
@@ -57,7 +60,7 @@ const MeetingPage = ({ route, navigation }: AuthNavProps<"Home">) => {
         }}
       >
 
-        <Polyline coordinates={directions} strokeColor="red" strokeWidth={3}>
+        <Polyline coordinates={directions} strokeColor="blue" strokeWidth={3}>
         </Polyline>
         
         <Marker coordinate={{ latitude: lat, longitude: lng }} />

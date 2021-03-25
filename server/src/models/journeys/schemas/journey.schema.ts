@@ -11,10 +11,7 @@ export const JourneySchema = CreateSchema({
     lng: Number,
     lat: Number
   }],
-  path: [{
-    lng: Number,
-    lat: Number
-  }],
+  path: String,
   settings: {
     startLocation: {
       lng: Number,

@@ -52,7 +52,7 @@ export interface Journey {
     travelTime: number,
     lastUpdated: string,
     locations: Coordinate[],
-    path: Coordinate[],
+    path: string, //encoded google maps route
     settings: JourneySetting
 }
 
@@ -87,12 +87,6 @@ export interface Notification {
     title: string,
     body: string,
     read?: boolean
-}
-
-export interface DirectionResponse {
-    path: Coordinate[],
-    eta: string,
-    distance: number
 }
 
 export enum SocketEvents{

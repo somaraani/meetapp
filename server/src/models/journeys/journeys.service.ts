@@ -194,16 +194,9 @@ export class JourneysService {
             throw new BadRequestException("Could not caluclate directions"); 
         }
 
-        const steps = directionsResponse.routes[0].legs[0].steps;
-        const points: Coordinate[] = [];
-        steps.forEach(step => {
-            points.push(step.start_location);
-            points.push(step.end_location);
-        });
-        
         const etaSeconds = directionsResponse.routes[0].legs[0].duration.value;
         journey.travelTime = etaSeconds;
-        journey.path = points;
+        journey.path = directionsResponse.routes[0].overview_polyline.points;
         return await journey.save();
     }
 
