@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { BackHandler, Dimensions, StyleSheet, Text, View } from "react-native";
-import MapView, { Callout, Marker } from "react-native-maps";
+import MapView, { Callout, Marker, Polyline } from "react-native-maps";
 import MapViewDirections from "react-native-maps-directions";
 import { AuthNavProps } from "../src/AuthParamList";
 import config from "../config";
@@ -16,6 +16,7 @@ const MeetingPage = ({ route, navigation }: AuthNavProps<"Home">) => {
   const LATITUDE_DELTA = 0.1;
   const LONGITUDE_DELTA = LATITUDE_DELTA * (width / height);
   const [members, setMembers] = useState([]);
+  const [directions, setDirections] = useState([{latitude: 0, longitude: 0}]);
 
   const backAction = () => {
     navigation.navigate("Home");
@@ -27,13 +28,15 @@ const MeetingPage = ({ route, navigation }: AuthNavProps<"Home">) => {
       async function getMemberLocations() {
         let temp = [];
         for (let i = 0; i < item.participants.length; i += 1) {
-          temp[i] = (
-            await apiClient.getJourney(item.participants[i].journeyId)
-          ).settings.startLocation;
+          const journey = await apiClient.getJourney(item.participants[i].journeyId);
+          temp[i] = journey.settings.startLocation;
+          if(journey.userId == apiClient.id) {
+            setDirections(journey.path.map(s => ({latitude: s.lat, longitude: s.lng})));          
+          }
         }
-        console.log(temp);
         setMembers(temp);
       }
+
       getMemberLocations();
       BackHandler.addEventListener("hardwareBackPress", backAction);
       return () => {
@@ -53,6 +56,10 @@ const MeetingPage = ({ route, navigation }: AuthNavProps<"Home">) => {
           longitudeDelta: LONGITUDE_DELTA,
         }}
       >
+
+        <Polyline coordinates={directions} strokeColor="red" strokeWidth={3}>
+        </Polyline>
+        
         <Marker coordinate={{ latitude: lat, longitude: lng }} />
         {members
           .filter((member) => member)
