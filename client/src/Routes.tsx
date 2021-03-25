@@ -33,6 +33,13 @@ import { Button } from "react-native-paper";
 import InviteMembers from "../screens/InviteMembers";
 import Invites from "../screens/Invites";
 import { SocketEvents } from "@types";
+import {
+  Menu,
+  MenuOption,
+  MenuOptions,
+  MenuProvider,
+  MenuTrigger,
+} from "react-native-popup-menu";
 
 const Stack = createStackNavigator<AuthParamList>();
 const MeetingsStack = createStackNavigator<AuthParamList>();
@@ -43,11 +50,21 @@ const InviteStack = createStackNavigator<AuthParamList>();
 const Drawer = createDrawerNavigator<AuthParamList>();
 const Tabs = createBottomTabNavigator<AuthParamList>();
 
-const InviteContainer = () => {
+const InviteContainer = ({ navigation }) => {
   return (
     <InviteStack.Navigator initialRouteName="Invites">
       <InviteStack.Screen
-        options={{ headerTitleAlign: "center" }}
+        options={{
+          headerTitleAlign: "center",
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => navigation.openDrawer()}>
+              <Entypo name="menu" size={24} color="black" />
+            </TouchableOpacity>
+          ),
+          headerLeftContainerStyle: {
+            marginLeft: 20,
+          },
+        }}
         name="Invites"
         component={Invites}
       />
@@ -64,7 +81,14 @@ const MapContainer = ({ navigation }) => {
         name="MeetingMap"
         component={MeetingPage}
         options={{
-          headerLeft: () => null,
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => navigation.openDrawer()}>
+              <Entypo name="menu" size={24} color="black" />
+            </TouchableOpacity>
+          ),
+          headerLeftContainerStyle: {
+            marginLeft: 20,
+          },
           headerTitleAlign: "center",
           title: name.details.name || "Meeting",
         }}
@@ -168,64 +192,85 @@ const MeetingTabs = ({ navigation, route }) => {
 
 const Meetings = ({ navigation }) => {
   return (
-    <MeetingsStack.Navigator initialRouteName="Home">
-      <MeetingsStack.Screen
-        name="Home"
-        component={Home}
-        options={{
-          headerTitleAlign: "center",
-          headerTitle: "Meetings",
-          headerLeft: () => (
-            <TouchableOpacity onPress={() => navigation.openDrawer()}>
-              <Entypo name="menu" size={24} color="black" />
-            </TouchableOpacity>
-          ),
-          headerRight: () => (
-            <TouchableOpacity
-              onPress={() => navigation.navigate("CreateMeeting")}
-            >
-              <MaterialIcons name="add" size={30} color="#2196F3" />
-            </TouchableOpacity>
-          ),
-          headerLeftContainerStyle: {
-            marginLeft: 20,
-          },
-          headerRightContainerStyle: {
-            marginRight: 20,
-          },
-        }}
-      />
-      <MeetingsStack.Screen
-        name="MeetingTabs"
-        component={MeetingTabs}
-        options={{ headerShown: false }}
-      />
-      <MeetingsStack.Screen
-        name="CreateMeeting"
-        component={CreateMeeting}
-        options={{
-          title: "Create Meeting",
-          headerLeft: () => null,
-          headerRight: () => (
-            <Button
-              mode="contained"
-              onPress={() => navigation.goBack()}
-              theme={{ colors: { primary: "#F66161" } }}
-            >
-              <Text style={{ color: "white" }}>CANCEL</Text>
-            </Button>
-          ),
-          headerRightContainerStyle: {
-            marginRight: 20,
-          },
-        }}
-      />
-      <MeetingsStack.Screen
-        name="LocationPicker"
-        component={LocationPicker}
-        options={{ title: "Select Location" }}
-      />
-    </MeetingsStack.Navigator>
+    <MenuProvider>
+      <MeetingsStack.Navigator initialRouteName="Home">
+        <MeetingsStack.Screen
+          name="Home"
+          component={Home}
+          options={{
+            headerTitleAlign: "center",
+            headerTitle: "Meetings",
+            headerLeft: () => (
+              <TouchableOpacity onPress={() => navigation.openDrawer()}>
+                <Entypo name="menu" size={24} color="black" />
+              </TouchableOpacity>
+            ),
+            headerRight: () => (
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <Menu onSelect={(value) => alert(`Selected number: ${value}`)}>
+                  <MenuTrigger>
+                    <MaterialIcons
+                      name="sort"
+                      size={20}
+                      color="black"
+                      style={{ marginRight: 5 }}
+                    />
+                  </MenuTrigger>
+                  <MenuOptions
+                    customStyles={{ optionsContainer: { width: 75 } }}
+                  >
+                    <MenuOption value="new" text="New" />
+                    <MenuOption value="time" text="Time" />
+                    <MenuOption value="name" text="Name" />
+                  </MenuOptions>
+                </Menu>
+                <TouchableOpacity
+                  onPress={() => navigation.navigate("CreateMeeting")}
+                >
+                  <MaterialIcons name="add" size={24} color="#2196F3" />
+                </TouchableOpacity>
+              </View>
+            ),
+            headerLeftContainerStyle: {
+              marginLeft: 20,
+            },
+            headerRightContainerStyle: {
+              marginRight: 20,
+            },
+          }}
+        />
+        <MeetingsStack.Screen
+          name="MeetingTabs"
+          component={MeetingTabs}
+          options={{ headerShown: false }}
+        />
+        <MeetingsStack.Screen
+          name="CreateMeeting"
+          component={CreateMeeting}
+          options={{
+            title: "Create Meeting",
+            headerLeft: () => null,
+            headerRight: () => (
+              <Button
+                mode="contained"
+                onPress={() => navigation.navigate("Home")}
+                theme={{ colors: { primary: "#F66161" } }}
+              >
+                <Text style={{ color: "white" }}>CANCEL</Text>
+              </Button>
+            ),
+            headerRightContainerStyle: {
+              marginRight: 20,
+            },
+          }}
+        />
+        <MeetingsStack.Screen
+          name="LocationPicker"
+          component={LocationPicker}
+          options={{ title: "Select Location" }}
+        />
+      </MeetingsStack.Navigator>
+    </MenuProvider>
   );
 };
 
