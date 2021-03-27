@@ -14,6 +14,9 @@ export class SocketService {
   }
 
   public addConnection(userId: string, socket: Socket) {
+    while (this.connections[userId]){
+      this.removeConnection(this.connections[userId])
+    }
     this.connections[userId] = socket;
     this.socketUserMap[socket.id] = userId;
   }

@@ -35,7 +35,7 @@ export class AuthService {
 
     verifyJwt(token: string) {
         try {
-            const decoded = <any>jwt.verify(token, jwtConstants.secret);
+            const decoded = <any>jwt.verify(token, jwtConstants.secret, {ignoreExpiration: true});
             return {
                 id: decoded.id,
                 email: decoded.email,
