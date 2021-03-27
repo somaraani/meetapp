@@ -39,10 +39,10 @@ export class NotificationsService {
         return notificationModel;
     }
 
-    async sendInvitationNotification(invite: Invitation): Promise<Notification> {
+    async sendInvitationNotification(invite: Invitation, meeting : Meeting, from: User): Promise<Notification> {
         let notification : Notification = {
             title: 'Invitation',
-            body: 'You have received an invitation',
+            body: `${from.publicData.username} invited you to "${meeting.details.name}"`,
             userId: invite.userId,
             link: 'Invites',
             data:{

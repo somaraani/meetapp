@@ -48,8 +48,8 @@ export class InvitationsService {
     }
 
     async create(userId: string, meetingId: string) : Promise<Invitation> {
-
-        if(await this.userService.findById(userId) == null) {
+        const user = await this.userService.findById(userId);
+        if(user == null) {
             throw new BadRequestException("A user with that ID does not exist.");
         }
 
@@ -74,7 +74,7 @@ export class InvitationsService {
 
         await invite.save();
 
-        this.notificationService.sendInvitationNotification(invite);
+        this.notificationService.sendInvitationNotification(invite, meeting, user);
         return invite;
     }
 
