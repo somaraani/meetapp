@@ -37,12 +37,24 @@ export class MeetingsService {
             throw new BadRequestException("This meeting is not pending anymore, so state cannot be updated.");
         }
         
-        //TODO - send notification to participants when meeting changes 
-
+        let originalEta = currMeeting.eta;
         currMeeting.details = data;
         currMeeting.eta = data.time;
 
         await currMeeting.save();
+
+        if (currMeeting.eta !== originalEta){
+            currMeeting.participants.forEach(x => {
+                this.notificationService.addNotification({
+                    userId : x.userId,
+                    title : 'Meeting Update',
+                    body : `Meeting time for "${currMeeting.details.name}" has been updated`,
+                    data: {
+                        id: meetingId
+                    }
+                })
+            });
+        }
 
         //update task time in case of changed ETA
         this.updateJobs(meetingId);
