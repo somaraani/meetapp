@@ -13,7 +13,7 @@ import { Button } from "react-native-paper";
 import config from "../config";
 import Geocoder from "react-native-geocoding";
 
-Geocoder.init(config.GOOGLE_MAPS_APIKEY);
+Geocoder.init(config.GOOGLE_MAPS_API_KEY);
 
 const LocationPicker = ({ navigation }) => {
   const lat = 40.866667;
@@ -87,7 +87,7 @@ const LocationPicker = ({ navigation }) => {
           nearbyPlacesAPI="GoogleReverseGeocoding"
           enablePoweredByContainer={false}
           query={{
-            key: config.GOOGLE_MAPS_APIKEY,
+            key: config.GOOGLE_MAPS_API_KEY,
             language: "en",
           }}
         />

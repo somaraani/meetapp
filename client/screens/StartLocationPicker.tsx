@@ -15,7 +15,7 @@ import Geocoder from "react-native-geocoding";
 import { MeetingContext } from "../src/MeetingContext";
 import { ApiContext } from "../src/ApiProvider";
 
-Geocoder.init(config.GOOGLE_MAPS_APIKEY);
+Geocoder.init(config.GOOGLE_MAPS_API_KEY);
 
 const StartLocationPicker = ({ navigation }) => {
   const [journeyId, setJourneyId] = useState(null);
@@ -114,7 +114,7 @@ const StartLocationPicker = ({ navigation }) => {
           nearbyPlacesAPI="GoogleReverseGeocoding"
           enablePoweredByContainer={false}
           query={{
-            key: config.GOOGLE_MAPS_APIKEY,
+            key: config.GOOGLE_MAPS_API_KEY,
             language: "en",
           }}
         />

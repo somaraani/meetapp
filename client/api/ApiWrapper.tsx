@@ -14,8 +14,7 @@ import {
 import jwtDecode from "jwt-decode";
 import config from "../config";
 const axios = require("axios");
-// const API_URL = config.API_URL;
-const API_URL = "http://192.168.0.27:3000/";
+const API_URL = config.API_URL;
 
 export class ApiWrapper {
   public token: string;
