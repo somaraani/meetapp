@@ -6,7 +6,9 @@ export const JourneySchema = CreateSchema({
   userId: String,
   meetingId: String, 
   lastUpdated: String,
+  status: String,
   travelTime: Number,
+  eta: String,
   locations: [{
     lng: Number,
     lat: Number

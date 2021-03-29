@@ -1,14 +1,16 @@
-import { SocketEvents } from '@types';
+import { Coordinate, SocketEvents } from '@types';
 import { OnGatewayInit, SubscribeMessage, WebSocketGateway } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { AuthService } from './authentication/auth.service';
 import { SocketService } from './socket/socket.service';
+import { MeetingsService } from './models/meetings/meetings.service';
 
 @WebSocketGateway()
 export class AppGateway implements OnGatewayInit {
   constructor(
     private authService: AuthService,
-    private socketService: SocketService
+    private socketService: SocketService,
+    private meetingService: MeetingsService
   ) { }
 
   afterInit(server: Server) {
@@ -34,9 +36,10 @@ export class AppGateway implements OnGatewayInit {
   }
 
   @SubscribeMessage(SocketEvents.LOCATION)
-  updateLocation(client: Socket, payload: string): void {
-    console.log("sent message")
-    //todo
+  handleMessage(client: Socket, roomId: string, payload: Coordinate): void { //how to get roomId, also can payload be coordinate?
+    //this should be sent to a room, and that room should be the meeting id
+    this.meetingService.updateLocation(client.id, roomId, payload);
+
     this.socketService.emitToRoom('meetingId', SocketEvents.LOCATION, "User location updated");
     //can send to service here
   }

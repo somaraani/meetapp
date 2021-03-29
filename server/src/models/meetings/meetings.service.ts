@@ -1,6 +1,6 @@
 
 import { BadRequestException, forwardRef, Inject, Injectable, Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { Journey, Meeting, MeetingDetail, MeetingParticipant, PublicUserResponse, SocketEvents } from '@types'
+import { Journey, Meeting, MeetingDetail, MeetingParticipant, Coordinate, SocketEvents } from '@types'
 import { CreateMeetingDTO } from './dto/CreateMeetingDto';
 import { InjectModel } from '@nestjs/mongoose';
 import { MeetingDocument } from './schemas/meeting.schema';
@@ -41,11 +41,25 @@ export class MeetingsService {
         if(currMeeting.status != "pending") {
             throw new BadRequestException("This meeting is not pending anymore, so state cannot be updated.");
         }
-
+        
+        let originalEta = currMeeting.eta;
         currMeeting.details = data;
         currMeeting.eta = data.time;
 
         await currMeeting.save();
+
+        if (currMeeting.eta !== originalEta){
+            currMeeting.participants.forEach(x => {
+                this.notificationService.addNotification({
+                    userId : x.userId,
+                    title : 'Meeting Update',
+                    body : `Meeting time for "${currMeeting.details.name}" has been updated`,
+                    data: {
+                        id: meetingId
+                    }
+                })
+            });
+        }
 
         //update task time in case of changed ETA
         this.updateJobs(meetingId);
@@ -191,27 +205,43 @@ export class MeetingsService {
                 return;
             }
 
-            //at this point, the meeting cannot be changed and state becomes "finalized"
-
-            if(meet.status == "pending") {
-                meet.status = "finalized";
-                await meet.save();
-            }
-
-            this.logger.debug(`Reminding all user's for meeting ${meetingId} to leave in 24H`);
+            this.logger.debug(`Reminding all user's for meeting ${meetingId} to set start location`);
 
             meet.participants.forEach(async participant => {
                 
-                // remind participants meeting is in 24H
-                this.notificationService.addNotification({
-                    userId: participant.userId,
-                    title: `Meeting ${meet.details.name} starts in 24H!`,
-                    body: `Don't forget you have a meeting tomorrow!`, 
-                });
+                const journey: Journey | null = await this.journeyService.findById(participant.journeyId);
+                if(journey == null) {
+                    return;
+                }
+
+                if(journey.settings.startLocation == null) {
+                    this.notificationService.addNotification({
+                        userId: participant.userId,
+                        title: `You haven't set a start location for ${meet.details.name}`,
+                        body: `Don't forget to set your starting location or you won't get reminders to leave.`, 
+                    });
+                }
 
                 //create future events for reminding each user 1 hour before THEY have to leave
                 this.journeyService.journeyJob(participant.journeyId);
             });
         });
-   }
+    }
+
+    async updateLocation(userId: string, meetingId: string, location: Coordinate) {
+        const meeting: Meeting | null = await this.findById(meetingId);
+        if(!meeting) {
+            this.logger.error("Couldn't find meeting, can't update location of user " + userId);
+            return;
+        }
+
+        const journeyId = meeting.participants.find(item => item.userId == userId)?.journeyId;
+        if(!journeyId) {
+            this.logger.error("Couldn't find journeyId, can't update location of user " + userId);
+            return;
+        }
+
+        this.journeyService.updateLocation(journeyId, location);
+    }
+
 }
