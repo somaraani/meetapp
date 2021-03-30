@@ -7,13 +7,13 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { CommonActions, DrawerActions } from "@react-navigation/native";
 
 const DrawerContent = (props) => {
-  const { user, logout, getUser } = useContext(ApiContext);
+  const { user,apiClient , logout } = useContext(ApiContext);
   let [name, setName] = useState("");
   const [email, setEmail] = useState("");
 
   useEffect(() => {
     async function getUserInfo() {
-      let data = await getUser();
+      let data = await apiClient.getUser();
       setName(data.publicData.displayName);
       setEmail(data.email);
     }
@@ -48,6 +48,20 @@ const DrawerContent = (props) => {
                   ...CommonActions.reset({
                     index: 0,
                     routes: [{ name: "Meetings" }],
+                  }),
+                })
+              }
+            />
+            <DrawerItem
+              icon={({ color, size }) => (
+                <Icon name="mailbox" color={color} size={size} />
+              )}
+              label="Invites"
+              onPress={() =>
+                props.navigation.dispatch({
+                  ...CommonActions.reset({
+                    index: 0,
+                    routes: [{ name: "Invites" }],
                   }),
                 })
               }

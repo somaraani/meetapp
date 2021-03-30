@@ -1,10 +1,14 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   Coordinate,
+  Invitation,
+  Journey,
+  JourneySetting,
   Meeting,
   MeetingDetail,
   Notification,
   PublicUserData,
+  PublicUserResponse,
   User,
 } from "@types";
 import jwtDecode from "jwt-decode";
@@ -14,13 +18,18 @@ const API_URL = config.API_URL;
 
 export class ApiWrapper {
   public token: string;
-  private id: string;
+  public id: string;
   constructor() {
     this.token = "";
     this.id = "";
   }
 
-  setToken(token: string): void {
+  public reset():void{
+    this.token = "";
+    this.id = "";
+  }
+
+  public setToken(token: string): void {
     this.token = token;
     this.id = jwtDecode<any>(token).id;
   }
@@ -87,10 +96,19 @@ export class ApiWrapper {
     return data;
   }
 
-  async getUsers(query: string): Promise<User[]> {
+  async getUsers(query: string): Promise<PublicUserResponse[]> {
     let res = await axios.get(`${API_URL}users/`, {
       headers: { Authorization: `Bearer ${this.token}` },
       params: { query: query },
+    });
+    let data = res.data;
+    return data;
+  }
+
+  async getUsersFromMeeting(meetingId: string): Promise<PublicUserResponse[]> {
+    console.log('GET ' + meetingId)
+    let res = await axios.get(`${API_URL}meetings/${meetingId}/users`, {
+      headers: { Authorization: `Bearer ${this.token}` }
     });
     let data = res.data;
     return data;
@@ -165,6 +183,47 @@ export class ApiWrapper {
     await axios.put(`${API_URL}users/expo-push-token`, payload, {
       headers: { Authorization: `Bearer ${this.token}` },
     });
+  }
+
+  async updateInvitation(invitationId: string, accepted: boolean): Promise<Invitation> {
+    let payload = { accepted: accepted };
+    const res = await axios.patch(`${API_URL}invitations/${invitationId}`, payload, {
+      headers: { Authorization: `Bearer ${this.token}` },
+    });
+    return res.data;
+  }
+
+  async getInvitations(query : {userId: string, status: string, meetingId: string}): Promise<Invitation[]> {
+    let res = await axios.get(`${API_URL}invitations`, {
+      headers: { Authorization: `Bearer ${this.token}` },
+      params: query,
+    });
+    let data = res.data;
+    return data;
+  }
+
+  async createInvitation(userId: string, meetingId: string): Promise<Invitation> {
+    let payload = { userId, meetingId };
+    let res = await axios.post(`${API_URL}invitations`, payload, {
+      headers: { Authorization: `Bearer ${this.token}` },
+    });
+    let data = res.data;
+    return data;
+  }
+
+  async getJourney(journeyId: string): Promise<Journey> {
+    const res = await axios.get(`${API_URL}journeys/${journeyId}`, {
+      headers: { Authorization: `Bearer ${this.token}` },
+    });
+    return res.data;
+  }
+
+  async updateJourneySetting(jouneyId: string, jouneySettings: JourneySetting): Promise<Journey> {
+    let payload = jouneySettings;
+    const res = await axios.put(`${API_URL}journeys/${jouneyId}/settings`, payload, {
+      headers: { Authorization: `Bearer ${this.token}` },
+    });
+    return res.data;
   }
 }
 

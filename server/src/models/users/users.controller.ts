@@ -37,7 +37,7 @@ export class UsersController {
     }
 
     @Put('expo-push-token')
-    async updateExpoPushToken(@Auth() auth, @Body() request : {token:string})  {
+    async findUsersByIds(@Auth() auth, @Body() request : {token:string})  {
         await this.usersService.updateExpoPushToken(auth.userId, request.token);
     }
 

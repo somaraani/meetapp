@@ -1,11 +1,12 @@
 
-import {  BadRequestException, ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import {  BadRequestException, ConflictException, forwardRef, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Invitation } from '@types'
 import { InjectModel } from '@nestjs/mongoose';
 import { InvitationDocument } from './schemas/invitation.schema';
 import { Model } from 'mongoose';
 import { UsersService } from '../users/users.service';
 import { MeetingsService } from '../meetings/meetings.service';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class InvitationsService {
@@ -14,7 +15,9 @@ export class InvitationsService {
         @InjectModel("invitation")
         private invitiationModel: Model<InvitationDocument>,
         private userService: UsersService,
-        private meetingService: MeetingsService
+        @Inject(forwardRef(() => MeetingsService))
+        private meetingService: MeetingsService,
+        private notificationService: NotificationsService,
     ) { }
 
     async update(inviteId: string, userId: string, accepted: boolean) : Promise<Invitation | null> {
@@ -39,14 +42,14 @@ export class InvitationsService {
             invite.status = "declined";
         }
 
-        invite.save();
+        await invite.save();
 
         return invite;
     }
 
     async create(userId: string, meetingId: string) : Promise<Invitation> {
-
-        if(await this.userService.findById(userId) == null) {
+        const user = await this.userService.findById(userId);
+        if(user == null) {
             throw new BadRequestException("A user with that ID does not exist.");
         }
 
@@ -69,10 +72,9 @@ export class InvitationsService {
            meetingId: meetingId
         });
 
-        invite.save();
+        await invite.save();
 
-        //TODO send a notificaiton here?
-
+        this.notificationService.sendInvitationNotification(invite, meeting, user);
         return invite;
     }
 

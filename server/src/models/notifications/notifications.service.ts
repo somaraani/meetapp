@@ -1,6 +1,6 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Notification, User } from '@types';
+import { Invitation, Meeting, Notification, User } from '@types';
 import { SocketEvents } from '@types';
 import { Model } from 'mongoose';
 import { SocketService } from 'src/socket/socket.service';
@@ -37,6 +37,21 @@ export class NotificationsService {
         await notificationModel.save();
         await this.pushNotification(user, notification);
         return notificationModel;
+    }
+
+    async sendInvitationNotification(invite: Invitation, meeting : Meeting, from: User): Promise<Notification> {
+        let notification : Notification = {
+            title: 'Invitation',
+            body: `${from.publicData.username} invited you to "${meeting.details.name}"`,
+            userId: invite.userId,
+            link: 'Invites',
+            data:{
+                id:invite.id
+            }
+        }
+        notification = await this.addNotification(notification);
+        this.socketService.emitToUser(notification.userId, SocketEvents.INVITATION, notification.data);
+        return notification;
     }
 
     private async pushNotification(user: User, notification: Notification): Promise<void> {

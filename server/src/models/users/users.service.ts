@@ -1,6 +1,6 @@
 
 import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { User } from '@types'
+import { PublicUserResponse, User } from '@types'
 import { randomBytes } from 'crypto';
 import { CreateUserDto } from './dto/CreateUserDto';
 import { v4 as uuidv4 } from 'uuid';
@@ -73,7 +73,7 @@ export class UsersService {
         return user;
     }
 
-    async findAll(query?: string): Promise<PublicUserDto[]> {
+    async findAll(query?: string): Promise<PublicUserResponse[]> {
         //should get from DB (and still use query if necessary)
         var users: UserDocument[];
         if (query) {
@@ -88,17 +88,19 @@ export class UsersService {
         return users.map(item => ({
             id: item.id,
             publicData: item.publicData
-        })) as PublicUserDto[];
+        })) as PublicUserResponse[];
     }
 
     async findById(id: string): Promise<User | null> {
-        //should get from databse
         return await this.userModel.findById(id);
     }
 
     async findByEmail(email: string): Promise<User | null> {
-        //should get from databse 
         return await this.userModel.findOne({email: email});
+    }
+
+    async findByUsername(username: string): Promise<User | null> {
+        return await this.userModel.findOne({'publicData.username': username});
     }
 
     async updateExpoPushToken(userId: string, token: string): Promise<void> {
@@ -108,5 +110,13 @@ export class UsersService {
         }
         user.expoPushToken = token || undefined;
         await user.save();
+    }
+
+    async findByIds(ids: string[]): Promise<PublicUserResponse[]> {
+        const users = await this.userModel.find({ '_id': { $in: ids } });
+        return users.map(x => ({
+            id: x.id,
+            publicData: x.publicData
+        }));
     }
 }

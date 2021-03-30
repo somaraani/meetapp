@@ -14,8 +14,9 @@ export class AuthService {
         private jwtService: JwtService
     ) { }
 
-    async validate(email, password): Promise<any> {
-        const user = await this.usersService.findByEmail(email);
+    async validate(emailOrUsername, password): Promise<any> {
+        let user = await this.usersService.findByEmail(emailOrUsername) ?? 
+        await this.usersService.findByUsername(emailOrUsername);;
 
         if (user && await bcrypt.compare(password, user.privateData.password)) {
             const result = {id: user.id, email: user.email};
@@ -34,7 +35,7 @@ export class AuthService {
 
     verifyJwt(token: string) {
         try {
-            const decoded = <any>jwt.verify(token, jwtConstants.secret);
+            const decoded = <any>jwt.verify(token, jwtConstants.secret, {ignoreExpiration: true});
             return {
                 id: decoded.id,
                 email: decoded.email,

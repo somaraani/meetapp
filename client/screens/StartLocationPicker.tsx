@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import {
   Dimensions,
   Pressable,
@@ -12,10 +12,15 @@ import MapView, { Marker } from "react-native-maps";
 import { Button } from "react-native-paper";
 import config from "../config";
 import Geocoder from "react-native-geocoding";
+import { MeetingContext } from "../src/MeetingContext";
+import { ApiContext } from "../src/ApiProvider";
 
 Geocoder.init(config.GOOGLE_MAPS_API_KEY);
 
-const LocationPicker = ({ navigation }) => {
+const StartLocationPicker = ({ navigation }) => {
+  const [journeyId, setJourneyId] = useState(null);
+  const meetingData = useContext(MeetingContext);
+  const { apiClient } = useContext(ApiContext);
   const lat = 40.866667;
   const lng = 34.566667;
   const { height, width } = Dimensions.get("window");
@@ -31,13 +36,35 @@ const LocationPicker = ({ navigation }) => {
   const [disabled, setDisabled] = useState(true);
 
   useEffect(() => {
+    async function getJourneyId() {
+      let uId = (await apiClient.getUser()).id;
+      setJourneyId(
+        meetingData.participants.find((x) => x.userId === uId).journeyId
+      );
+    }
+
+    getJourneyId();
+  }, []);
+
+  useEffect(() => {
     navigation.setOptions({
       headerRight: () => (
         <Button
           mode="contained"
           disabled={disabled}
           theme={{ colors: { primary: "#2196F3" } }}
-          onPress={() => navigation.navigate("CreateMeeting", place)}
+          onPress={async () => {
+            try {
+              await apiClient.updateJourneySetting(journeyId, {
+                startLocation: place.coordinates,
+                travelMode: "driving",
+                avoid: [],
+              });
+              navigation.navigate("MeetingSettings");
+            } catch (error) {
+              console.log(error);
+            }
+          }}
         >
           <Text style={{ color: "white", fontWeight: "bold" }}>DONE</Text>
         </Button>
@@ -138,7 +165,7 @@ const LocationPicker = ({ navigation }) => {
   );
 };
 
-export default LocationPicker;
+export default StartLocationPicker;
 
 const styles = StyleSheet.create({
   autocompleteContainer: {

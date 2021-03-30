@@ -1,2 +1,2 @@
-import { API_URL, GOOGLE_MAPS_APIKEY } from "@env";
-export default { API_URL, GOOGLE_MAPS_APIKEY };
+import { API_URL, GOOGLE_MAPS_API_KEY } from "@env";
+export default { API_URL, GOOGLE_MAPS_API_KEY };

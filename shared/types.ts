@@ -1,10 +1,17 @@
 export interface Meeting {
     id: string,
-    status: string,
+    status: MeetingStatus,
     ownerId: string,
     eta: string,
     details: MeetingDetail,
     participants: MeetingParticipant[]
+}
+
+export enum MeetingStatus {
+    ACTIVE = "active",
+    PENDING = "pending",
+    WAITING = "waiting",
+    COMPLETE = "complete"
 }
 
 export interface MeetingDetail {
@@ -47,13 +54,21 @@ export interface Invitation {
 
 export interface Journey {
     id: string, 
+    status: JourneyStatus
     userId: string,
     meetingId: string,
     travelTime: number,
+    eta: string,
     lastUpdated: string,
     locations: Coordinate[],
-    path: Coordinate[],
+    path: string, //encoded google maps route
     settings: JourneySetting
+}
+
+export enum JourneyStatus {
+    PENDING = "pending", 
+    ACTIVE = "active", 
+    COMPLETE = "complete"
 }
 
 export interface JourneySetting {
@@ -89,13 +104,15 @@ export interface Notification {
     read?: boolean
 }
 
-export interface DirectionResponse {
-    path: Coordinate[],
-    eta: string,
-    distance: number
+export enum SocketEvents{
+    INVITATION = 'INVITATION',
+    LOCATION = 'LOCATION',
+    MEMBERUPDATE = 'MEMBERUPDATE',
+    JOIN = 'JOIN',
+    LEAVE = 'LEAVE',
 }
 
-export enum SocketEvents{
-    NOTIFICATION = 'NOTIFICATION',
-    LOCATION = 'LOCATION',
+export interface PublicUserResponse {
+    id: string,
+    publicData: PublicUserData
 }

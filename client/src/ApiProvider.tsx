@@ -1,31 +1,15 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { FC, useEffect, useRef, useState } from "react";
-import jwt_decode from "jwt-decode";
 import { ApiWrapper } from "../api/ApiWrapper";
-import { Coordinate, Meeting, PublicUserData, User as UserType } from "@types";
 import { SocketWrapper } from "../api/SocketWrapper";
-import { TouchableNativeFeedbackBase } from "react-native";
 
 type User = null | any;
 
 interface AppContextInterface {
-  user: User;
-  login: (email: string, password: string) => Promise<string>;
-  register: (
-    emai: string,
-    password: string,
-    details: { displayName: string; displayPicture: string }
-  ) => Promise<User>;
-  logout: () => void;
-  createMeeting: (
-    name: string,
-    description: string,
-    time: string,
-    location: Coordinate
-  ) => void;
-  getMeetings: () => Promise<Meeting[]>;
-  getUser: () => Promise<UserType>;
-  updateExpoPushToken: (token:string) => Promise<void>,
+  user: User,
+  logout: () => void,
+  login: (username:string, password:string) => Promise<string>,
+  apiClient:ApiWrapper,
   socketClient:SocketWrapper,
   loading: boolean
 }
@@ -34,27 +18,29 @@ export const ApiContext = React.createContext<AppContextInterface>({} as AppCont
 
 interface ApiProviderProps {}
 
-let api = new ApiWrapper();
-let socketClient : SocketWrapper;
+let socketClient = new SocketWrapper();
 
 const ApiProvider: FC<ApiProviderProps> = ({ children }) => {
   const [user, setUser] = useState<string | null>();
+  const [socketClientLoaded, setSocketClientLoaded] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
-
+  const apiClientRef = useRef(new ApiWrapper());
+  const apiClient = apiClientRef.current;
   useEffect(() => {
     AsyncStorage.getItem('user').then(token => {
       if (token) {
         setUser(token);
-        api.setToken(token);
-        socketClient = new SocketWrapper(token);
+        apiClient.setToken(token);
+        socketClient.connect(token);
       }
       setLoading(false);
+    }).finally(() => {
+      setSocketClientLoaded(true);
     });
     
   }, []);
 
-
-  const login = async (email:string, password:string) => {
+  const login = async (email:string, password:string) : Promise<string> => {
     // const { id } = jwt_decode(token);
     // getUser(id, token)
     //   .then((value) => {
@@ -63,62 +49,43 @@ const ApiProvider: FC<ApiProviderProps> = ({ children }) => {
     //     AsyncStorage.setItem("user", JSON.stringify({ token, id }));
     //   })
     //   .catch((e) => console.log(e));
-    let token = await api.signIn(email, password);
-    socketClient = new SocketWrapper(token);
+    let token = await apiClient.signIn(email, password);
+    socketClient.connect(token);
+    setSocketClientLoaded(true);
+
     setUser(token);
     AsyncStorage.setItem("user", token);
 
     return token;
   };
 
-  const register = async (email:string, password:string, details:{ displayName: string; displayPicture: string }) : Promise<User> => {
-    let data = await api.createUser(email, password, details);
-
-    return data;
-  };
-
   const logout = async () => {
-    await updateExpoPushToken('');
+    try{
+      console.log('logut')
+      await apiClient.updateExpoPushToken('');
+      console.log('logut')
+    }
+    catch(e){
+      console.log(e)
+    }
     setUser(null);
     AsyncStorage.removeItem("user");
     //send logout request
     socketClient.disconnect();
-    api = new ApiWrapper();
+    apiClient.reset();
   };
 
-  const createMeeting = async (name:string, description:string, time:string, location:Coordinate) => {
-    let data = await api.createMeeting(name, description, time, location);
-
-    return data;
-  };
-
-  const getMeetings = async () => {
-    let data = await api.getMeetings();
-
-    return data;
-  };
-
-  const updateExpoPushToken = async (expoPushToken:string) : Promise<void> => {
-    await api.updateExpoPushToken(expoPushToken);
+  if (loading || !socketClientLoaded) {
+    return null;
   }
-
-  const getUser = async () => {
-    let data = await api.getUser();
-
-    return data;
-  };
 
   return (
     <ApiContext.Provider
       value={{
         user,
-        login,
-        register,
         logout,
-        createMeeting,
-        getMeetings,
-        updateExpoPushToken,
-        getUser,
+        login,
+        apiClient,
         socketClient,
         loading
       }}

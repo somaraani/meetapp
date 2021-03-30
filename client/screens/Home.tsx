@@ -1,32 +1,45 @@
-import { useIsFocused } from "@react-navigation/core";
-import { Meeting } from "@types";
-import React, { useContext, useEffect, useState } from "react";
-import { StyleSheet, Text, View, Image } from "react-native";
+import { useFocusEffect } from "@react-navigation/core";
+import { Meeting, SocketEvents } from "@types";
+import React, { useContext, useState } from "react";
+import { StyleSheet, Text, View, Image, ScrollView } from "react-native";
 import { ApiContext } from "../src/ApiProvider";
 import { AuthNavProps } from "../src/AuthParamList";
 import { Avatar, ListItem } from "react-native-elements";
 import moment from "moment";
 
 const Home = ({ navigation }: AuthNavProps<"Home">) => {
-  const { getMeetings } = useContext(ApiContext);
-  const [meetings, setMeetings] = useState<Meeting[]>([]);
-  const isFocused = useIsFocused();
+  const { apiClient, socketClient } = useContext(ApiContext);
 
-  useEffect(() => {
-    async function fetchMeetings() {
-      try {
-        let meetingList = await getMeetings();
-        setMeetings(meetingList.reverse());
-        // console.log(meetings);
-      } catch (error) {
-        console.log(error);
+  const [meetings, setMeetings] = useState(null);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      async function fetchMeetings() {
+        try {
+          let meetingList = await apiClient.getMeetings();
+          setMeetings(meetingList.reverse());
+          // console.log(meetings);
+        } catch (error) {
+          console.log(error);
+        }
       }
-    }
 
-    fetchMeetings();
-  }, [isFocused]);
+      fetchMeetings();
+      socketClient.on(SocketEvents.INVITATION, () => {
+        //triggers when another user joins room
+        console.log("Got invite");
+      });
 
-  if (meetings.length === 0) {
+      return () => {
+        //remove listner on unmount
+        socketClient.off(SocketEvents.INVITATION);
+      };
+    }, [])
+  );
+
+  if (!meetings) {
+    return null;
+  } else if (meetings && meetings.length === 0) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <Image
@@ -41,28 +54,30 @@ const Home = ({ navigation }: AuthNavProps<"Home">) => {
   } else {
     return (
       <View style={styles.container}>
-        {meetings.map((m, i) => (
-          <ListItem
-            key={i}
-            bottomDivider
-            onPress={() => navigation.navigate("MeetingTabs", m)}
-          >
-            <Avatar
-              size="medium"
-              rounded
-              title={m.details.name.substring(0, 2)}
-              titleStyle={{ color: "white" }}
-              containerStyle={{ backgroundColor: "#2196F3" }}
-            />
-            <ListItem.Content>
-              <ListItem.Title>{m.details.name}</ListItem.Title>
-              <ListItem.Subtitle>
-                {moment(m.details.time).format("MMMM Do YYYY, h:mm a")}
-              </ListItem.Subtitle>
-            </ListItem.Content>
-            <ListItem.Chevron color="black" />
-          </ListItem>
-        ))}
+        <ScrollView>
+          {meetings.map((m, i) => (
+            <ListItem
+              key={i}
+              bottomDivider
+              onPress={() => navigation.navigate("MeetingTabs", m)}
+            >
+              <Avatar
+                size="medium"
+                rounded
+                title={m.details.name.substring(0, 2)}
+                titleStyle={{ color: "white" }}
+                containerStyle={{ backgroundColor: "#2196F3" }}
+              />
+              <ListItem.Content>
+                <ListItem.Title>{m.details.name}</ListItem.Title>
+                <ListItem.Subtitle>
+                  {moment(m.details.time).format("MMMM Do YYYY, h:mm a")}
+                </ListItem.Subtitle>
+              </ListItem.Content>
+              <ListItem.Chevron color="black" />
+            </ListItem>
+          ))}
+        </ScrollView>
       </View>
     );
   }
