@@ -207,7 +207,7 @@ export class JourneysService {
 
         journey.locations.push(location);
         journey.lastUpdated = new Date().toISOString();
-        journey.save();
+        await journey.save();
 
         if(journey.settings.startLocation == null) {
             this.logger.debug(`Journey ${journeyId} does not have a start location, not calculating ETA.`);
@@ -265,7 +265,7 @@ export class JourneysService {
 
         if(left && jourDoc.status == JourneyStatus.PENDING) {
             jourDoc.status = JourneyStatus.ACTIVE;
-            jourDoc.save();
+            await jourDoc.save();
         }
     }
 }
