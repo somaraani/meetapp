@@ -25,7 +25,7 @@ interface MemberDataInterface {
 }
 
 //Update Location Interval (ms)
-const UPDATE_LOC_INTERVAL = 10 * 1000
+const UPDATE_LOC_INTERVAL = 100 * 1000
 
 const formatTimeDiff = (sec_num: number): string => {
   var hours = Math.floor(sec_num / 3600) as any;
