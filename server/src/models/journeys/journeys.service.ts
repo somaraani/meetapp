@@ -48,7 +48,7 @@ export class JourneysService {
         // }
 
         currJourney.settings = settings;
-
+        currJourney.locations = [currJourney.settings.startLocation];
         await currJourney.save();
         await this.journeyJob(currJourney.id);
 
@@ -169,7 +169,7 @@ export class JourneysService {
             }
         }
 
-        const directionsResponse = await this.navigationService.getDirections(journey.settings, meeting?.details.location)
+        const directionsResponse = await this.navigationService.getDirections(journey, meeting?.details.location)
         if (!directionsResponse) {
             throw new BadRequestException("Could not caluclate directions"); 
         }
