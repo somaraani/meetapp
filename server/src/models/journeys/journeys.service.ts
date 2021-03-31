@@ -115,7 +115,7 @@ export class JourneysService {
         this.tasksService.addCronJob(this.journeyJobName(journeyId), hourBefore, async () => {
 
             //calculate time they have to leave 1 last time
-            const jour = await this.calculateETA(journeyId, false);
+            const jour = await this.calculateETA(journeyId, true);
             const meet = await this.meetingModel.findById(meeting.id);
 
             if(jour == null || meet == null) {
