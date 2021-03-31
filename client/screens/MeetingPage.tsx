@@ -134,8 +134,6 @@ const MeetingPage = ({ route, navigation }: AuthNavProps<"Home">) => {
             }
             return{...x}
           });
-          console.log('after')
-          console.log(newList.map(x => x.eta))
           return [...newList];
         });
       });
