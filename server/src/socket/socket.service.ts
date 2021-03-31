@@ -46,6 +46,16 @@ export class SocketService {
     }
   }
 
+  public broadcastToRoom(userId: string,roomId: string, event: SocketEvents, message?: any) {
+    try {
+      const socket = this.connections[userId];
+      socket.broadcast.to(roomId).emit(event, message)
+    } catch (e) {
+      console.log('could not broad to room:' + roomId);
+      console.log(e);
+    }
+  }
+
   public joinRoom(userId: string, roomId: string) {
     const userSocket = this.connections[userId];
     userSocket.join(roomId);

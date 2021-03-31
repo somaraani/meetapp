@@ -61,9 +61,7 @@ const ApiProvider: FC<ApiProviderProps> = ({ children }) => {
 
   const logout = async () => {
     try{
-      console.log('logut')
       await apiClient.updateExpoPushToken('');
-      console.log('logut')
     }
     catch(e){
       console.log(e)

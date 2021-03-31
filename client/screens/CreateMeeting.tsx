@@ -79,7 +79,7 @@ const CreateMeeting = ({ navigation, route }) => {
         style={styles.input}
       />
       <Pressable
-        onPress={() => {
+        onTouchEnd={() => {
           navigation.navigate("LocationPicker");
           Keyboard.dismiss();
         }}

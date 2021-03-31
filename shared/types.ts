@@ -108,6 +108,8 @@ export enum SocketEvents{
     INVITATION = 'INVITATION',
     LOCATION = 'LOCATION',
     MEMBERUPDATE = 'MEMBERUPDATE',
+    MEETINGUPDATE = 'MEETINGUPDATE',
+    MEMBERJOURNEYUPDATE = 'MEMBERJOURNEYUPDATE',
     JOIN = 'JOIN',
     LEAVE = 'LEAVE',
 }
@@ -115,4 +117,16 @@ export enum SocketEvents{
 export interface PublicUserResponse {
     id: string,
     publicData: PublicUserData
+}
+
+export interface UpdateLocationRequest {
+    userId: string,
+    meetingId: string,
+    location: Coordinate,
+}
+
+export interface UpdateLocationResponse {
+    userId: string,
+    location: Coordinate,
+    eta: number,
 }

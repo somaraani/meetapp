@@ -1,6 +1,6 @@
 
-import { BadRequestException, ForbiddenException, Injectable, Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { Coordinate, Journey, JourneySetting, JourneyStatus, Meeting, MeetingDetail, MeetingStatus } from '@types'
+import { BadRequestException, ForbiddenException, HttpException, Injectable, Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { Coordinate, Journey, JourneySetting, JourneyStatus, Meeting, MeetingDetail, MeetingStatus, SocketEvents } from '@types'
 import { InjectModel } from '@nestjs/mongoose';
 import { JourneyDocument } from './schemas/journey.schema';
 import { Model } from 'mongoose';
@@ -9,6 +9,7 @@ import { NavigationService } from '../navigation/navigation.service';
 import { TasksService } from 'src/tasks/tasks.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { computeDistanceBetween } from 'spherical-geometry-js';
+import { SocketService } from 'src/socket/socket.service';
 
 @Injectable()
 export class JourneysService {
@@ -20,7 +21,8 @@ export class JourneysService {
         private meetingModel: Model<MeetingDocument>,
         private navigationService: NavigationService,
         private tasksService: TasksService,
-        private notificationService: NotificationsService
+        private notificationService: NotificationsService,
+        private socketService: SocketService
     ) { }
 
     private readonly LATE_TOL = 2 * 60 * 1000; //tolerence to whats considered "late"
@@ -51,7 +53,7 @@ export class JourneysService {
         currJourney.locations = [currJourney.settings.startLocation];
         await currJourney.save();
         await this.journeyJob(currJourney.id);
-
+        this.socketService.broadcastToRoom(userId, meeting.id, SocketEvents.MEMBERJOURNEYUPDATE);
         return this.journeyModel.findById(currJourney.id);
     }
 
@@ -59,11 +61,12 @@ export class JourneysService {
 
         const journey = new this.journeyModel(<Journey>{
            userId: userId,
+           status: JourneyStatus.PENDING,
            meetingId: meetingId,
            lastUpdated: new Date().toISOString()
         });
 
-        journey.save();
+        await journey.save();
         return journey;
     }
 
@@ -93,7 +96,7 @@ export class JourneysService {
         }
   
         try {
-            journey = await this.calculateETA(journeyId);
+            journey = await this.calculateETA(journeyId, true);
         } catch(err) {
             this.logger.error(err);
             this.logger.debug(`Couldn't calculate ETA for journey ${journeyId}, will not create event.`);
@@ -112,7 +115,7 @@ export class JourneysService {
         this.tasksService.addCronJob(this.journeyJobName(journeyId), hourBefore, async () => {
 
             //calculate time they have to leave 1 last time
-            const jour = await this.calculateETA(journeyId);
+            const jour = await this.calculateETA(journeyId, false);
             const meet = await this.meetingModel.findById(meeting.id);
 
             if(jour == null || meet == null) {
@@ -151,7 +154,7 @@ export class JourneysService {
     }
 
     //updates this journeys ETA and time to leave using google maps API
-    async calculateETA(journeyId: string) : Promise<Journey> {
+    async calculateETA(journeyId: string, updatePath: boolean) : Promise<Journey> {
         const journey = await this.journeyModel.findById(journeyId);
         if (journey == null){
             throw new NotFoundException('Journey not found');
@@ -176,7 +179,9 @@ export class JourneysService {
 
         const etaSeconds = directionsResponse.routes[0].legs[0].duration.value;
         journey.travelTime = etaSeconds;
-        journey.path = directionsResponse.routes[0].overview_polyline.points;
+        if (updatePath){
+            journey.path = directionsResponse.routes[0].overview_polyline.points;
+        }
 
         //find out if they can make it on time
         if(new Date(meeting.eta).getTime() - new Date(journey.travelTime).getTime() > new Date().getTime()) {
@@ -191,18 +196,17 @@ export class JourneysService {
         return journey;
     }
 
-    async updateLocation(journeyId: string, location: Coordinate) {
-        await this.calculateETA(journeyId);
+    async updateLocation(journeyId: string, location: Coordinate) : Promise<Journey> {
+        await this.calculateETA(journeyId, false);
         const journey = await this.journeyModel.findById(journeyId);
 
         if(!journey) {
-            return;
+            throw new NotFoundException('Journey not found');
         }
 
         const meeting = await this.meetingModel.findById(journey.meetingId);
-
         if(!meeting) {
-            return;
+            throw new NotFoundException('Meeting not found');
         }
 
         journey.locations.push(location);
@@ -210,8 +214,7 @@ export class JourneysService {
         await journey.save();
 
         if(journey.settings.startLocation == null) {
-            this.logger.debug(`Journey ${journeyId} does not have a start location, not calculating ETA.`);
-            return;
+            throw new BadRequestException(`Journey ${journeyId} does not have a start location, not calculating ETA.`);
         }
 
          //Figure out if they have left based on distance between current and start location
@@ -257,15 +260,11 @@ export class JourneysService {
             }
         }
 
-        var jourDoc = await this.journeyModel.findById(journeyId);
-
-        if(!jourDoc) {
-            return;
-        }
-
+        var jourDoc = await this.journeyModel.findById(journeyId) as JourneyDocument;
         if(left && jourDoc.status == JourneyStatus.PENDING) {
             jourDoc.status = JourneyStatus.ACTIVE;
             await jourDoc.save();
         }
+        return jourDoc;
     }
 }

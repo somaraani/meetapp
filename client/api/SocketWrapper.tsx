@@ -1,6 +1,6 @@
 import io from "socket.io-client";
 import {
-  SocketEvents
+  SocketEvents, UpdateLocationRequest
 } from '@types';
 import config from "../config";
 import jwtDecode from "jwt-decode";
@@ -26,22 +26,26 @@ export class SocketWrapper {
     this.socket = null;
   }
   public on(event: SocketEvents, fn: Function): SocketIOClient.Emitter {
+    console.log('on ' + event);
     return this.socket?.on(event, fn) as SocketIOClient.Emitter;
   }
 
   public off(event: SocketEvents, fn?: Function): SocketIOClient.Emitter {
+    console.log('off ' + event);
     return this.socket?.off(event, fn) as SocketIOClient.Emitter;
   }
   
   public join(room: string): SocketIOClient.Emitter {
+    console.log('join ' + room)
     return this.socket?.emit(SocketEvents.JOIN, {room}) as SocketIOClient.Emitter;
   }
   
   public leave(room: string): SocketIOClient.Emitter {
+    console.log('leave ' + room)
     return this.socket?.emit(SocketEvents.LEAVE, {room}) as SocketIOClient.Emitter;
   }
 
-  public updateLocation(data: any): SocketIOClient.Emitter {
+  public updateLocation(data: UpdateLocationRequest): SocketIOClient.Emitter {
     return this.socket?.emit(SocketEvents.LOCATION, data) as SocketIOClient.Emitter;
   }
 }
