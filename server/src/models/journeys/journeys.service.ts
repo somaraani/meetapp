@@ -236,6 +236,8 @@ export class JourneysService {
                     meeting.eta = new Date(meeting.eta + meeting.details.tolerance * 60 * 1000).toISOString();
                     meeting.status = MeetingStatus.WAITING;
 
+                    //TODO send late notice here
+
                     //cancel all future events until a new ETA is calculated (Unsure about this ??)
                     meeting.participants.forEach((participant) => {
                         this.tasksService.deleteCronJob(this.journeyJobName(journeyId));
@@ -264,6 +266,25 @@ export class JourneysService {
         if(left && jourDoc.status == JourneyStatus.PENDING) {
             jourDoc.status = JourneyStatus.ACTIVE;
             await jourDoc.save();
+        }
+        else if (jourDoc.status == JourneyStatus.ACTIVE){
+            var distance = computeDistanceBetween(location, meeting.details.location);
+            if (distance < this.LEFT_TOL){
+                jourDoc.status = JourneyStatus.COMPLETE;
+                await jourDoc.save();
+            }
+            let meetingComplete = true;
+            meeting.participants.forEach( async (participant) => {
+                if (!meetingComplete) return;
+                const journey = await this.findById(journeyId);
+                if (journey?.status !== JourneyStatus.COMPLETE){
+                    meetingComplete = false;
+                }
+            })
+            if (meetingComplete){
+                meeting.status = MeetingStatus.COMPLETE;
+                await meeting.save();
+            }
         }
         return jourDoc;
     }
