@@ -106,15 +106,15 @@ const MeetingPage = ({ route, navigation }: AuthNavProps<"Home">) => {
             journeyStatus: journey.status,
             user: members.find(x => x.id === participant.userId) as PublicUserResponse,
             directions: directions,
-            currentLocation: journey.locations.length > 1 ? journey.locations[journey.locations.length - 1] : undefined
+            currentLocation: journey.locations.length > 1 ? journey.locations[journey.locations.length - 1] : undefined,
           }
           tempMembers.push(member);
           if (journey.userId == apiClient.id) {
+            setCurrentUser(member);
+            const journeyStarted = journey.status === JourneyStatus.ACTIVE;
+            setJourneyStarted(journeyStarted);
             if (journey.path) {
-              setCurrentUser(member);
               setTtl(new Date(new Date(meeting.details.time).getTime() - journey.travelTime * 1000));
-              const journeyStarted = journey.status === JourneyStatus.ACTIVE;
-              setJourneyStarted(journeyStarted);
             }
           }
         }
@@ -228,7 +228,7 @@ const MeetingPage = ({ route, navigation }: AuthNavProps<"Home">) => {
             <Polyline
               key={member.user.id}
               coordinates={member.directions}
-              strokeColor={member.user === currentUser?.user ? '#3f50b5' : '#ff7961'}
+              strokeColor={member.user.id === currentUser.user.id ? '#3f50b5' : '#ff7961'}
               strokeWidth={selectedMember?.user === member.user ? 6 : 4}
               tappable
               onPress={() => {
