@@ -10,7 +10,7 @@ const styles = {
         flex: 1,
         backgroundColor: "#f8f9fa",
         alignItems: "center",
-        justifyContent: "center"
+        justifyContent: "center",
     },
     panel: {
         flex: 1,
@@ -39,8 +39,8 @@ const BottomSheet = ({ panelRef, height, children, twoLevels, onClose }) => {
     const snappingPoints = twoLevels ? [height, height * 2] : [height];
 
     return (
-        <View style={styles.container}>
-            <SlidingUpPanel
+                <SlidingUpPanel
+                showBackdrop={false}
                 onBottomReached={() => {
                     onClose && onClose();
                 }}
@@ -49,9 +49,11 @@ const BottomSheet = ({ panelRef, height, children, twoLevels, onClose }) => {
                 animatedValue={_draggedValue.current}
                 snappingPoints={snappingPoints}
                 height={totalHeight}
+                friction={0.5}
             >
                 <View style={styles.panel}>
-                    <Button style={styles.closeButton} onPress={() => {
+                    <Button style={styles.closeButton} onTouchEnd={() => {
+                        console.log('close panel')
                         panelRef.current.hide();
                     }}
                     >
@@ -62,7 +64,6 @@ const BottomSheet = ({ panelRef, height, children, twoLevels, onClose }) => {
                     </View>
                 </View>
             </SlidingUpPanel>
-        </View>
     );
 }
 

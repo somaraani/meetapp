@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
-import { BackHandler, Dimensions, StyleSheet, Text, View } from "react-native";
+import { Alert, BackHandler, Dimensions, PixelRatio, Platform, StyleSheet, Text, View } from "react-native";
 import MapView, { Callout, Camera, EdgePadding, LatLng, Marker, Polyline, Region } from "react-native-maps";
 import MapViewDirections from "react-native-maps-directions";
 import { AuthNavProps } from "../src/AuthParamList";
@@ -9,7 +9,7 @@ import { useFocusEffect } from "@react-navigation/core";
 import ApiProvider, { ApiContext } from "../src/ApiProvider";
 import { PolyUtil } from "node-geometry-library";
 import { ActivityIndicator, Card } from "react-native-paper";
-import { Coordinate, JourneyStatus, Meeting, MeetingStatus, PublicUserResponse, SocketEvents, UpdateLocationResponse, User } from "@types";
+import { Coordinate, Journey, JourneyStatus, Meeting, MeetingStatus, PublicUserResponse, SocketEvents, UpdateLocationResponse, User } from "@types";
 import SlidingUpPanel from 'rn-sliding-up-panel';
 import BottomSheet from "../components/BottomSheet";
 import { Avatar } from "react-native-elements/dist/avatar/Avatar";
@@ -19,13 +19,14 @@ import { Button } from "react-native-paper";
 interface MemberDataInterface {
   startLocation: Coordinate,
   eta: number,
+  journeyStatus: string,
   directions: LatLng[],
   user: PublicUserResponse,
   currentLocation?: Coordinate
 }
 
 //Update Location Interval (ms)
-const UPDATE_LOC_INTERVAL = 100 * 1000
+const UPDATE_LOC_INTERVAL = 5 * 1000
 
 const formatTimeDiff = (sec_num: number): string => {
   var hours = Math.floor(sec_num / 3600) as any;
@@ -63,23 +64,26 @@ const MeetingPage = ({ route, navigation }: AuthNavProps<"Home">) => {
 
   const initUpdateLocation = () => {
     updateLocationInterval.current && clearInterval(updateLocationInterval.current);
-    let point = 20;
+    let point = 0;
     const updateLocation = () => {
+      point += Math.round(currentUser.directions.length / 4);
+      point = Math.min(point, currentUser.directions.length - 1);
       const currentCord: Coordinate = {
         lat: currentUser.directions[point].latitude,
         lng: currentUser.directions[point].longitude,
       }
       //auto move up 20 directions
-      point += 20;
-      if (currentUser.directions.length <= point) {
-        updateLocationInterval.current && clearInterval(updateLocationInterval.current);
-        return;
-      }
       socketClient.updateLocation({
         location: currentCord,
         meetingId: meeting.id,
         userId: currentUser.user.id
-      })
+      });
+
+      if (currentUser.directions.length - 1 === point) {
+        updateLocationInterval.current && clearInterval(updateLocationInterval.current);
+        Alert.alert('You have arived')
+        return;
+      }
     }
     updateLocation();
     updateLocationInterval.current = setInterval(() => {
@@ -99,6 +103,7 @@ const MeetingPage = ({ route, navigation }: AuthNavProps<"Home">) => {
           const member: MemberDataInterface = {
             startLocation: journey.settings.startLocation,
             eta: journey.travelTime,
+            journeyStatus: journey.status,
             user: members.find(x => x.id === participant.userId) as PublicUserResponse,
             directions: directions,
             currentLocation: journey.locations.length > 1 ? journey.locations[journey.locations.length - 1] : undefined
@@ -108,7 +113,6 @@ const MeetingPage = ({ route, navigation }: AuthNavProps<"Home">) => {
             if (journey.path) {
               setCurrentUser(member);
               setTtl(new Date(new Date(meeting.details.time).getTime() - journey.travelTime * 1000));
-              setSelectedMember(member);
               const journeyStarted = journey.status === JourneyStatus.ACTIVE;
               setJourneyStarted(journeyStarted);
             }
@@ -130,7 +134,7 @@ const MeetingPage = ({ route, navigation }: AuthNavProps<"Home">) => {
         setMembers((old: MemberDataInterface[]) => {
           const newList = old.map(x => {
               if (x.user.id === response.userId){
-              return {...x, eta: response.eta, currentLocation: response.location}
+              return {...x, eta: response.eta, currentLocation: response.location, journeyStatus: response.journeyStatus}
             }
             return{...x}
           });
@@ -147,14 +151,21 @@ const MeetingPage = ({ route, navigation }: AuthNavProps<"Home">) => {
     }, [])
   );
 
-  // useEffect(() => {
-  //   if (selectedMember){
-  //       setSelectedMember((old:MemberDataInterface | null) => {
-  //         const current = members.find(x => x.user.id === old?.user.id) as MemberDataInterface;
-  //         return current;
-  //     })
-  //   }
-  // },[members])
+  useEffect(() => {
+    //update references
+    if (selectedMember){
+        setSelectedMember((old:MemberDataInterface | null) => {
+          const current = members.find(x => x.user.id === old?.user.id) as MemberDataInterface;
+          return current;
+      })
+    }
+    if (currentUser){
+      setCurrentUser((old:MemberDataInterface | null) => {
+        const current = members.find(x => x.user.id === old?.user.id) as MemberDataInterface;
+        return current;
+    })
+  }
+  },[members])
 
   useEffect(() => {
     if (selectedMember) {
@@ -165,20 +176,28 @@ const MeetingPage = ({ route, navigation }: AuthNavProps<"Home">) => {
 
   useEffect(() => {
     if (journeyStarted) {
+      if (currentUser.journeyStatus === JourneyStatus.COMPLETE){
+        alert('You have arrived');
+        return;
+      } 
       initUpdateLocation();
     }
   }, [journeyStarted]);
 
+  if (!currentUser) return <ActivityIndicator />
   return (
     <View>
-
       <Card>
         {
-          currentUser.eta &&
+          currentUser.eta &&  currentUser.journeyStatus !== JourneyStatus.COMPLETE  && 
             <Card.Title title={`You must leave at ${ttl.toLocaleDateString()} at ${ttl.toLocaleTimeString()}`} subtitle={`to make it at ${new Date(meeting.details.time).toLocaleString()}`} />
         }
         {
-          currentUser.eta && !journeyStarted &&
+          currentUser.eta &&  currentUser.journeyStatus === JourneyStatus.COMPLETE  && 
+            <Card.Title title={`Journey complete`} />
+        }
+        {
+          currentUser.eta && !journeyStarted && currentUser.journeyStatus !== JourneyStatus.COMPLETE &&
           <Button color='blue' onPress={() => {
             setJourneyStarted(true);
           }}>
@@ -192,7 +211,7 @@ const MeetingPage = ({ route, navigation }: AuthNavProps<"Home">) => {
           top: 0,
           left: 0,
           right: 0,
-          bottom: 400,
+          bottom: 400
         }}
         ref={map}
         style={styles.map}
@@ -251,7 +270,7 @@ const MeetingPage = ({ route, navigation }: AuthNavProps<"Home">) => {
           />
         ))}
       </MapView>
-      <BottomSheet twoLevels={false} height={height * 0.45} panelRef={panel} onClose={() => setSelectedMember(null)}>
+      <BottomSheet twoLevels={false} height={Math.max(height * 0.45, 200)} panelRef={panel} onClose={() => setSelectedMember(null)}>
         <View
           style={{
             alignItems: 'center'
