@@ -15,6 +15,7 @@ import jwtDecode from "jwt-decode";
 import config from "../config";
 const axios = require("axios");
 const API_URL = config.API_URL;
+console.log(config.API_URL);
 
 export class ApiWrapper {
   public token: string;
@@ -72,7 +73,7 @@ export class ApiWrapper {
   }
 
   async updateUser(user: User): Promise<User> {
-    let payload = { user: user };
+    let payload = user;
     let res = await axios.put(`${API_URL}users/${this.id}/`, payload, {
       headers: { Authorization: `Bearer ${this.token}` },
     });
