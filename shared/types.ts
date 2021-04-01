@@ -58,6 +58,7 @@ export interface Journey {
     userId: string,
     meetingId: string,
     travelTime: number,
+    originalTravelTime: number,
     eta: string,
     lastUpdated: string,
     locations: Coordinate[],

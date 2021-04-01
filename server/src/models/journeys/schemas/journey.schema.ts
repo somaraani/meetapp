@@ -8,6 +8,7 @@ export const JourneySchema = CreateSchema({
   lastUpdated: String,
   status: String,
   travelTime: Number,
+  originalTravelTime: Number,
   eta: String,
   locations: [{
     lng: Number,

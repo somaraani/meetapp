@@ -249,6 +249,8 @@ export class MeetingsService {
         journeys.forEach(async x => {
             x.locations = [];
             x.status = JourneyStatus.PENDING;
+            x.travelTime = x.originalTravelTime;
+            // x.path = ''
             await x.save();            
         })
     }

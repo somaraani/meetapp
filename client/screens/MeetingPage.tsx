@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
-import { Alert, BackHandler, Dimensions, PixelRatio, Platform, StyleSheet, Text, View } from "react-native";
+import { Alert, BackHandler, Dimensions, PixelRatio, Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import MapView, { Callout, Camera, EdgePadding, LatLng, Marker, Polyline, Region } from "react-native-maps";
 import MapViewDirections from "react-native-maps-directions";
 import { AuthNavProps } from "../src/AuthParamList";
@@ -8,7 +8,7 @@ import { MeetingContext } from "../src/MeetingContext";
 import { useFocusEffect } from "@react-navigation/core";
 import ApiProvider, { ApiContext } from "../src/ApiProvider";
 import { PolyUtil } from "node-geometry-library";
-import { ActivityIndicator, Card } from "react-native-paper";
+import { ActivityIndicator, Card, ProgressBar, Colors, Divider } from "react-native-paper";
 import { Coordinate, Journey, JourneyStatus, Meeting, MeetingStatus, PublicUserResponse, SocketEvents, UpdateLocationResponse, User } from "@types";
 import SlidingUpPanel from 'rn-sliding-up-panel';
 import BottomSheet from "../components/BottomSheet";
@@ -19,11 +19,23 @@ import { Button } from "react-native-paper";
 interface MemberDataInterface {
   startLocation: Coordinate,
   eta: number,
+  originalEta: number,
   journeyStatus: string,
   directions: LatLng[],
   user: PublicUserResponse,
-  currentLocation?: Coordinate
+  currentLocation?: Coordinate,
+  color: string
 }
+
+
+const memberColors = [
+  Colors.purple300,
+  Colors.red300,
+  Colors.teal300,
+  Colors.blue300
+]
+
+const { height, width } = Dimensions.get("window");
 
 //Update Location Interval (ms)
 const UPDATE_LOC_INTERVAL = 5 * 1000
@@ -31,21 +43,23 @@ const UPDATE_LOC_INTERVAL = 5 * 1000
 const formatTimeDiff = (sec_num: number): string => {
   var hours = Math.floor(sec_num / 3600) as any;
   var minutes = Math.floor((sec_num - (hours * 3600)) / 60) as any;
-
+  const zeroHours = hours === 0;
   if (hours < 10) { hours = "0" + hours; }
   if (minutes < 10) { minutes = "0" + minutes; }
   let s = '';
-  if (hours) s += `${hours}h `;
-  if (minutes) s += `${minutes}m`;
+  if (!zeroHours) s += `${hours}h `;
+  s += `${minutes}m`;
   return s;
 }
+
+const STARTING_SHEET_HEIGHT = 130;
+const FULL_SHEET_HEIGHT = 300;
 
 const MeetingPage = ({ route, navigation }: AuthNavProps<"Home">) => {
   const item = useContext(MeetingContext);
   const [meeting, setMeeting] = useState(item);
   const { apiClient, socketClient } = useContext(ApiContext);
   const { lat, lng } = meeting.details.location;
-  const { height, width } = Dimensions.get("window");
   const LATITUDE_DELTA = 0.1;
   const LONGITUDE_DELTA = LATITUDE_DELTA * (width / height);
   const [members, setMembers] = useState<MemberDataInterface[]>([]);
@@ -56,6 +70,7 @@ const MeetingPage = ({ route, navigation }: AuthNavProps<"Home">) => {
   const [currentUser, setCurrentUser] = useState<MemberDataInterface>({} as MemberDataInterface);
   const [selectedMember, setSelectedMember] = useState<MemberDataInterface | null>(null);
   const [journeyStarted, setJourneyStarted] = useState<boolean>(false);
+  const [sliderOpen, setSliderOpen] = useState<boolean>(false);
 
   const backAction = () => {
     navigation.navigate("Home");
@@ -66,7 +81,7 @@ const MeetingPage = ({ route, navigation }: AuthNavProps<"Home">) => {
     updateLocationInterval.current && clearInterval(updateLocationInterval.current);
     let point = 0;
     const updateLocation = () => {
-      point += Math.round(currentUser.directions.length / 4);
+      point += Math.round(currentUser.directions.length / 3);
       point = Math.min(point, currentUser.directions.length - 1);
       const currentCord: Coordinate = {
         lat: currentUser.directions[point].latitude,
@@ -81,7 +96,6 @@ const MeetingPage = ({ route, navigation }: AuthNavProps<"Home">) => {
 
       if (currentUser.directions.length - 1 === point) {
         updateLocationInterval.current && clearInterval(updateLocationInterval.current);
-        Alert.alert('You have arived')
         return;
       }
     }
@@ -104,8 +118,10 @@ const MeetingPage = ({ route, navigation }: AuthNavProps<"Home">) => {
             startLocation: journey.settings.startLocation,
             eta: journey.travelTime,
             journeyStatus: journey.status,
+            originalEta: journey.originalTravelTime,
             user: members.find(x => x.id === participant.userId) as PublicUserResponse,
             directions: directions,
+            color: memberColors[i % meeting.participants.length],
             currentLocation: journey.locations.length > 1 ? journey.locations[journey.locations.length - 1] : undefined,
           }
           tempMembers.push(member);
@@ -133,10 +149,10 @@ const MeetingPage = ({ route, navigation }: AuthNavProps<"Home">) => {
       socketClient.on(SocketEvents.LOCATION, (response: UpdateLocationResponse) => {
         setMembers((old: MemberDataInterface[]) => {
           const newList = old.map(x => {
-              if (x.user.id === response.userId){
-              return {...x, eta: response.eta, currentLocation: response.location, journeyStatus: response.journeyStatus}
+            if (x.user.id === response.userId) {
+              return { ...x, eta: response.eta, currentLocation: response.location, journeyStatus: response.journeyStatus }
             }
-            return{...x}
+            return { ...x }
           });
           return [...newList];
         });
@@ -153,59 +169,56 @@ const MeetingPage = ({ route, navigation }: AuthNavProps<"Home">) => {
 
   useEffect(() => {
     //update references
-    if (selectedMember){
-        setSelectedMember((old:MemberDataInterface | null) => {
-          const current = members.find(x => x.user.id === old?.user.id) as MemberDataInterface;
-          return current;
-      })
-    }
-    if (currentUser){
-      setCurrentUser((old:MemberDataInterface | null) => {
+    if (selectedMember) {
+      setSelectedMember((old: MemberDataInterface | null) => {
         const current = members.find(x => x.user.id === old?.user.id) as MemberDataInterface;
         return current;
-    })
-  }
-  },[members])
+      })
+    }
+    if (currentUser) {
+      setCurrentUser((old: MemberDataInterface | null) => {
+        const current = members.find(x => x.user.id === old?.user.id) as MemberDataInterface;
+        return current;
+      })
+    }
+  }, [members])
 
   useEffect(() => {
     if (selectedMember) {
-      panel.current.show();
+      setSliderOpen(true);
       map.current.fitToSuppliedMarkers([selectedMember.user.id, 'destination']);
     }
-  }, [selectedMember]);
+    else{
+      setSliderOpen(false);
+    }
+  }, [selectedMember?.user.id]);
+
+  useEffect(() => {
+    if (currentUser){
+      setJourneyStarted(currentUser.journeyStatus === JourneyStatus.ACTIVE)
+    }
+  }, [currentUser])
 
   useEffect(() => {
     if (journeyStarted) {
-      if (currentUser.journeyStatus === JourneyStatus.COMPLETE){
-        alert('You have arrived');
+      if (currentUser.journeyStatus === JourneyStatus.COMPLETE) {
         return;
-      } 
+      }
       initUpdateLocation();
     }
   }, [journeyStarted]);
 
+  useEffect(() => {
+    if (sliderOpen){
+      panel.current.show(STARTING_SHEET_HEIGHT);
+    }
+    else{
+      panel.current.hide();
+    }
+  }, [sliderOpen])
   if (!currentUser) return <ActivityIndicator />
   return (
     <View>
-      <Card>
-        {
-          currentUser.eta &&  currentUser.journeyStatus !== JourneyStatus.COMPLETE  && 
-            <Card.Title title={`You must leave at ${ttl.toLocaleDateString()} at ${ttl.toLocaleTimeString()}`} subtitle={`to make it at ${new Date(meeting.details.time).toLocaleString()}`} />
-        }
-        {
-          currentUser.eta &&  currentUser.journeyStatus === JourneyStatus.COMPLETE  && 
-            <Card.Title title={`Journey complete`} />
-        }
-        {
-          currentUser.eta && !journeyStarted && currentUser.journeyStatus !== JourneyStatus.COMPLETE &&
-          <Button color='blue' onPress={() => {
-            setJourneyStarted(true);
-          }}>
-            Start
-          </Button>
-        }
-      </Card>
-
       <MapView
         mapPadding={{
           top: 0,
@@ -228,7 +241,7 @@ const MeetingPage = ({ route, navigation }: AuthNavProps<"Home">) => {
             <Polyline
               key={member.user.id}
               coordinates={member.directions}
-              strokeColor={member.user.id === currentUser.user.id ? '#3f50b5' : '#ff7961'}
+              strokeColor={member.color}
               strokeWidth={selectedMember?.user === member.user ? 6 : 4}
               tappable
               onPress={() => {
@@ -251,7 +264,7 @@ const MeetingPage = ({ route, navigation }: AuthNavProps<"Home">) => {
               latitude: member.startLocation.lat,
               longitude: member.startLocation.lng,
             }}
-            pinColor="green"
+            pinColor={member.color}
             onPress={() => {
               console.log(`Click on ${member.user.publicData.username}`);
               setSelectedMember(member);
@@ -266,44 +279,108 @@ const MeetingPage = ({ route, navigation }: AuthNavProps<"Home">) => {
               latitude: member.currentLocation.lat,
               longitude: member.currentLocation.lng,
             }}
-            pinColor="black"
+            pinColor={member.color}
           />
         ))}
       </MapView>
-      <BottomSheet twoLevels={false} height={Math.max(height * 0.45, 200)} panelRef={panel} onClose={() => setSelectedMember(null)}>
+      <BottomSheet fullHeight={FULL_SHEET_HEIGHT} startingHeight={STARTING_SHEET_HEIGHT} panelRef={panel} onClose={() => setSelectedMember(null)}>
         <View
           style={{
-            alignItems: 'center'
+            alignItems: 'center',
           }}
         >
-          <Avatar
-            size="medium"
-            rounded
-            titleStyle={{ color: "white" }}
-            containerStyle={{ backgroundColor: "#2196F3" }}
-            source={{ uri: selectedMember?.user?.publicData.displayPicture }}
-          />
-          <Text style={{
-            marginTop: 10,
-            fontSize: 20
-          }}>
-            {selectedMember?.user.publicData.username}
-          </Text>
+          <View style={{}}>
+            {
+              currentUser.eta && !journeyStarted && currentUser.journeyStatus === JourneyStatus.PENDING &&
+              <View>
+              <Text>
+                Leave at:          {ttl.toLocaleDateString()} {ttl.toLocaleTimeString()}
+              </Text>
+              <Text>
+                Meeting time:  {new Date(meeting.details.time).toLocaleDateString()} {new Date(meeting.details.time).toLocaleTimeString()}
+              </Text>
+              </View>
+            }
+            {
+              currentUser.eta && currentUser.journeyStatus === JourneyStatus.COMPLETE &&
+              <Text>
+                Journey completed
+              </Text>
+            }
+             {
+              currentUser.eta && journeyStarted && currentUser.journeyStatus === JourneyStatus.ACTIVE &&
+              <Text>
+                In progress
+              </Text>
+              }
+            {
+              currentUser.eta && !journeyStarted && currentUser.journeyStatus !== JourneyStatus.COMPLETE &&
+              <Button color='blue' onPress={() => {
+                setJourneyStarted(true);
+              }}>
+                Start
+              </Button>
+            }
+          </View>
         </View>
+
         <View
           style={{
             paddingLeft: 50,
             paddingRight: 50,
-            marginTop: 10
+            marginTop: 20
           }}
         >
           {
             selectedMember ?
               <View>
-                <Text>
-                  Eta: {formatTimeDiff(selectedMember.eta)}
-                </Text>
+                {
+                  [members.find(x => x.user.id === currentUser.user.id) as MemberDataInterface, ...members.filter(x => x.user.id !== currentUser.user.id)].map((x,i) => {
+                    const completed = x.journeyStatus === JourneyStatus.COMPLETE;
+                    const progress = completed ? 1 : 1 - x.eta/x.originalEta;
+                    return (
+                      <Pressable onTouchEnd={() => {
+                        setSelectedMember(x);
+                      }}>
+                      <View style={{marginBottom: 20, flexDirection:'row', alignItems:'center'}}>
+                        <Avatar
+                          size="small"
+                          rounded
+                          source={{ uri: selectedMember?.user?.publicData.displayPicture }}
+                        />
+                            <View style={{marginLeft:10, width:'85%'}}>
 
+                            <View style={{flexDirection:'row', justifyContent:'space-between'}}>
+                              <Text style={{
+                                fontWeight: selectedMember.user.id === x.user.id ? 'bold' : 'normal'
+                              }}
+                              >
+                                {currentUser.user.id === x.user.id ? 'You' : x.user.publicData.username}
+                              </Text>
+                                <Text
+                                  style={{
+                                    fontWeight: selectedMember.user.id === x.user.id ? 'bold' : 'normal'
+                                  }}
+                                >
+                                  {completed ? 'completed' : formatTimeDiff(x.eta)}
+                              </Text>
+                          </View>
+
+                            <ProgressBar  progress={progress} color={x.color}
+                              style={{
+                                height : selectedMember.user.id === x.user.id ? 4 : 3
+                              }}
+                            />
+                          </View>
+                      </View>
+                      {
+                        members.length && i === 0 &&
+                          <Divider style ={{marginBottom: 15}} />
+                      }
+                      </Pressable>
+                    )
+                  })
+                }
               </View>
               :
               <ActivityIndicator />

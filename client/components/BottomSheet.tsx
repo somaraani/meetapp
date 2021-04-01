@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { Text, View, Dimensions, Animated } from "react-native";
 import { Button } from "react-native-paper";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -33,37 +33,37 @@ const styles = {
 
 
 
-const BottomSheet = ({ panelRef, height, children, twoLevels, onClose }) => {
+const BottomSheet = ({ panelRef, startingHeight, children, fullHeight=0, onClose }) => {
     const _draggedValue = useRef(new Animated.Value(0));
-    const totalHeight = twoLevels ? height * 2 : height;
-    const snappingPoints = twoLevels ? [height, height * 2] : [height];
-
+    const totalHeight = fullHeight || startingHeight;
+    const snappingPoints = fullHeight ? [startingHeight, fullHeight] : [startingHeight];
+   
     return (
-                <SlidingUpPanel
-                showBackdrop={false}
-                onBottomReached={() => {
-                    onClose && onClose();
-                }}
-                ref={c => (panelRef.current = c)}
-                draggableRange={{ top: totalHeight, bottom: 0 }}
-                animatedValue={_draggedValue.current}
-                snappingPoints={snappingPoints}
-                height={totalHeight}
-                friction={0.5}
+        <SlidingUpPanel
+            showBackdrop={false}
+            onBottomReached={() => {
+                onClose && onClose();
+            }}
+            ref={c => (panelRef.current = c)}
+            draggableRange={{ top: totalHeight, bottom: 0 }}
+            animatedValue={_draggedValue.current}
+            snappingPoints={snappingPoints}
+            height={totalHeight}
+            friction={0.9}
+        >
+        <View style={styles.panel}>
+            <Button style={styles.closeButton} onTouchEnd={() => {
+                console.log('close panel')
+                panelRef.current.hide();
+            }}
             >
-                <View style={styles.panel}>
-                    <Button style={styles.closeButton} onTouchEnd={() => {
-                        console.log('close panel')
-                        panelRef.current.hide();
-                    }}
-                    >
-                        <Icon name={'close'} color='black' size={20} />
-                    </Button>
-                    <View style={styles.panelBody}>
-                        {children}
-                    </View>
-                </View>
-            </SlidingUpPanel>
+                <Icon name={'close'} color='black' size={20} />
+            </Button>
+            <View style={styles.panelBody}>
+                {children}
+            </View>
+        </View>
+    </SlidingUpPanel>
     );
 }
 

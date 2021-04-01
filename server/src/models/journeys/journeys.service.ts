@@ -181,6 +181,7 @@ export class JourneysService {
         journey.travelTime = etaSeconds;
         if (updatePath){
             journey.path = directionsResponse.routes[0].overview_polyline.points;
+            journey.originalTravelTime = etaSeconds;
         }
 
         //find out if they can make it on time
@@ -197,7 +198,6 @@ export class JourneysService {
     }
 
     async updateLocation(journeyId: string, location: Coordinate) : Promise<Journey> {
-        await this.calculateETA(journeyId, false);
         const journey = await this.journeyModel.findById(journeyId);
 
         if(!journey) {
@@ -212,6 +212,7 @@ export class JourneysService {
         journey.locations.push(location);
         journey.lastUpdated = new Date().toISOString();
         await journey.save();
+        await this.calculateETA(journeyId, false);
 
         if(journey.settings.startLocation == null) {
             throw new BadRequestException(`Journey ${journeyId} does not have a start location, not calculating ETA.`);
