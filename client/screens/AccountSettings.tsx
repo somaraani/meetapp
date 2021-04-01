@@ -14,7 +14,6 @@ const AccountSettings = ({ navigation }) => {
       async function fetchUserData() {
         try {
           let data = await apiClient.getUser();
-          console.log(data);
           setUserData(data);
         } catch (error) {
           console.log(error);
