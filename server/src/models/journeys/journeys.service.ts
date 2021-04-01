@@ -224,6 +224,8 @@ export class JourneysService {
 
         const meetingTime  = new Date(meeting.eta).getTime();
         const arrivalTime = meetingTime + journey.travelTime * 1000;
+        //correct?
+        //const arrivalTime = new Date().getTime() + journey.travelTime * 1000;
 
         if(arrivalTime - meetingTime > this.LATE_TOL) {
             this.logger.debug(`user ${journey.userId} will be late to meeting ${meeting.details.name}`);
@@ -272,7 +274,12 @@ export class JourneysService {
                 await meeting.save();
             }
         }
-
+        //correct?
+        // else if (left){
+        //     //meeting.eta = journey.eta;
+        //     meeting.status = MeetingStatus.ACTIVE;
+        //     await meeting.save();
+        // }
         var jourDoc = await this.journeyModel.findById(journeyId) as JourneyDocument;
         if(left && jourDoc.status == JourneyStatus.PENDING) {
             jourDoc.status = JourneyStatus.ACTIVE;
@@ -285,13 +292,13 @@ export class JourneysService {
                 await jourDoc.save();
             }
             let meetingComplete = true;
-            meeting.participants.forEach( async (participant) => {
-                if (!meetingComplete) return;
+            for (let participant of meeting.participants){
                 const journey = await this.findById(participant.journeyId);
                 if (journey?.status !== JourneyStatus.COMPLETE){
                     meetingComplete = false;
+                    break;
                 }
-            })
+            }
             if (meetingComplete){
                 meeting.status = MeetingStatus.COMPLETE;
                 await meeting.save();
