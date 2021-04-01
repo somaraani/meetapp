@@ -7,7 +7,7 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { CommonActions, DrawerActions } from "@react-navigation/native";
 
 const DrawerContent = (props) => {
-  const { user,apiClient , logout } = useContext(ApiContext);
+  const { user, apiClient, logout } = useContext(ApiContext);
   let [name, setName] = useState("");
   const [email, setEmail] = useState("");
 
@@ -75,7 +75,7 @@ const DrawerContent = (props) => {
                 props.navigation.dispatch({
                   ...CommonActions.reset({
                     index: 0,
-                    routes: [{ name: "MainSettings" }],
+                    routes: [{ name: "MainSettingsContainer" }],
                   }),
                 })
               }
