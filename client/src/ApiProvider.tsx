@@ -6,15 +6,17 @@ import { SocketWrapper } from "../api/SocketWrapper";
 type User = null | any;
 
 interface AppContextInterface {
-  user: User,
-  logout: () => void,
-  login: (username:string, password:string) => Promise<string>,
-  apiClient:ApiWrapper,
-  socketClient:SocketWrapper,
-  loading: boolean
+  user: User;
+  logout: () => void;
+  login: (username: string, password: string) => Promise<string>;
+  apiClient: ApiWrapper;
+  socketClient: SocketWrapper;
+  loading: boolean;
 }
 
-export const ApiContext = React.createContext<AppContextInterface>({} as AppContextInterface);
+export const ApiContext = React.createContext<AppContextInterface>(
+  {} as AppContextInterface
+);
 
 interface ApiProviderProps {}
 
@@ -27,20 +29,21 @@ const ApiProvider: FC<ApiProviderProps> = ({ children }) => {
   const apiClientRef = useRef(new ApiWrapper());
   const apiClient = apiClientRef.current;
   useEffect(() => {
-    AsyncStorage.getItem('user').then(token => {
-      if (token) {
-        setUser(token);
-        apiClient.setToken(token);
-        socketClient.connect(token);
-      }
-      setLoading(false);
-    }).finally(() => {
-      setSocketClientLoaded(true);
-    });
-    
+    AsyncStorage.getItem("user")
+      .then((token) => {
+        if (token) {
+          setUser(token);
+          apiClient.setToken(token);
+          socketClient.connect(token);
+        }
+        setLoading(false);
+      })
+      .finally(() => {
+        setSocketClientLoaded(true);
+      });
   }, []);
 
-  const login = async (email:string, password:string) : Promise<string> => {
+  const login = async (email: string, password: string): Promise<string> => {
     // const { id } = jwt_decode(token);
     // getUser(id, token)
     //   .then((value) => {
@@ -60,11 +63,10 @@ const ApiProvider: FC<ApiProviderProps> = ({ children }) => {
   };
 
   const logout = async () => {
-    try{
-      await apiClient.updateExpoPushToken('');
-    }
-    catch(e){
-      console.log(e)
+    try {
+      await apiClient.updateExpoPushToken("");
+    } catch (e) {
+      console.log(e);
     }
     setUser(null);
     AsyncStorage.removeItem("user");
@@ -85,7 +87,7 @@ const ApiProvider: FC<ApiProviderProps> = ({ children }) => {
         login,
         apiClient,
         socketClient,
-        loading
+        loading,
       }}
     >
       {children}

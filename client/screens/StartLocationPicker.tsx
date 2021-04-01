@@ -14,6 +14,7 @@ import config from "../config";
 import Geocoder from "react-native-geocoding";
 import { MeetingContext } from "../src/MeetingContext";
 import { ApiContext } from "../src/ApiProvider";
+import { useFocusEffect } from "@react-navigation/core";
 
 Geocoder.init(config.GOOGLE_MAPS_API_KEY);
 
@@ -35,16 +36,18 @@ const StartLocationPicker = ({ navigation }) => {
   const searchRef = useRef(null);
   const [disabled, setDisabled] = useState(true);
 
-  useEffect(() => {
-    async function getJourneyId() {
-      let uId = (await apiClient.getUser()).id;
-      setJourneyId(
-        meetingData.participants.find((x) => x.userId === uId).journeyId
-      );
-    }
+  useFocusEffect(
+    React.useCallback(() => {
+      async function getJourneyId() {
+        let uId = (await apiClient.getUser()).id;
+        setJourneyId(
+          meetingData.participants.find((x) => x.userId === uId).journeyId
+        );
+      }
 
-    getJourneyId();
-  }, []);
+      getJourneyId();
+    }, [])
+  );
 
   useEffect(() => {
     navigation.setOptions({
