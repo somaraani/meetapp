@@ -1,6 +1,6 @@
 
 import { BadRequestException, forwardRef, Inject, Injectable, Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { Journey, Meeting, MeetingDetail, MeetingParticipant, Coordinate, SocketEvents, JourneyStatus } from '@types'
+import { Journey, Meeting, MeetingDetail, MeetingParticipant, Coordinate, SocketEvents, JourneyStatus, MeetingStatus } from '@types'
 import { CreateMeetingDTO } from './dto/CreateMeetingDto';
 import { InjectModel } from '@nestjs/mongoose';
 import { MeetingDocument } from './schemas/meeting.schema';
@@ -245,12 +245,16 @@ export class MeetingsService {
 
 
     async reset(meetingId: string) : Promise<void> {
+        const meeting = await this.findById(meetingId) as MeetingDocument;
+        meeting.status = MeetingStatus.PENDING;
+        await meeting.save();
         const journeys = await this.journeyService.findByMeeting(meetingId);
         journeys.forEach(async x => {
             x.locations = [];
             x.status = JourneyStatus.PENDING;
             x.travelTime = x.originalTravelTime;
-            // x.path = ''
+            // x.path = '',
+            // x.settings.startLocation = null
             await x.save();            
         })
     }

@@ -27,13 +27,9 @@ export class AppGateway implements OnGatewayInit {
       return;
     }
     this.socketService.addConnection(tokenData.id, client);
-    console.log(`socket ${client.id} connected`);
-
-    this.socketService.joinRoom(tokenData.id, 'meetingId');
   }
 
   handleDisconnect(client: Socket) {
-    console.log(`socket ${client.id} disconnected`);
     this.socketService.removeConnection(client);
   }
 

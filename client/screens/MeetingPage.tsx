@@ -17,7 +17,7 @@ import moment from "moment";
 import { Button } from "react-native-paper";
 
 interface MemberDataInterface {
-  startLocation: Coordinate,
+  startLocation: Coordinate | null,
   eta: number,
   originalEta: number,
   journeyStatus: string,
@@ -71,7 +71,6 @@ const MeetingPage = ({ route, navigation }: AuthNavProps<"Home">) => {
   const [selectedMember, setSelectedMember] = useState<MemberDataInterface | null>(null);
   const [journeyStarted, setJourneyStarted] = useState<boolean>(false);
   const [sliderOpen, setSliderOpen] = useState<boolean>(false);
-
   const backAction = () => {
     navigation.navigate("Home");
     return true;
@@ -261,8 +260,8 @@ const MeetingPage = ({ route, navigation }: AuthNavProps<"Home">) => {
             key={member.user.id}
             identifier={member.user.id}
             coordinate={{
-              latitude: member.startLocation.lat,
-              longitude: member.startLocation.lng,
+              latitude: member.startLocation ? member.startLocation.lat : 0,
+              longitude: member.startLocation ? member.startLocation.lng : 0,
             }}
             pinColor={member.color}
             onPress={() => {
@@ -289,32 +288,32 @@ const MeetingPage = ({ route, navigation }: AuthNavProps<"Home">) => {
             alignItems: 'center',
           }}
         >
-          <View style={{}}>
+          <View>
             {
-              currentUser.eta && !journeyStarted && currentUser.journeyStatus === JourneyStatus.PENDING &&
+              Boolean(currentUser.eta && !journeyStarted && currentUser.journeyStatus === JourneyStatus.PENDING) &&
               <View>
               <Text>
-                Leave at:          {ttl.toLocaleDateString()} {ttl.toLocaleTimeString()}
+                Leave at:          {moment(ttl).format('ddd MMM DD, hh:mm A')}
               </Text>
               <Text>
-                Meeting time:  {new Date(meeting.details.time).toLocaleDateString()} {new Date(meeting.details.time).toLocaleTimeString()}
+                Meeting time:   {moment(new Date(meeting.details.time)).format('ddd MMM DD, hh:mm A')}
               </Text>
               </View>
             }
             {
-              currentUser.eta && currentUser.journeyStatus === JourneyStatus.COMPLETE &&
+              Boolean(currentUser.journeyStatus === JourneyStatus.COMPLETE) &&
               <Text>
                 Journey completed
               </Text>
             }
              {
-              currentUser.eta && journeyStarted && currentUser.journeyStatus === JourneyStatus.ACTIVE &&
+              Boolean(currentUser.eta && journeyStarted && currentUser.journeyStatus === JourneyStatus.ACTIVE) &&
               <Text>
                 In progress
               </Text>
               }
             {
-              currentUser.eta && !journeyStarted && currentUser.journeyStatus !== JourneyStatus.COMPLETE &&
+              Boolean(currentUser.eta && !journeyStarted && currentUser.journeyStatus !== JourneyStatus.COMPLETE) &&
               <Button color='blue' onPress={() => {
                 setJourneyStarted(true);
               }}>
@@ -339,7 +338,7 @@ const MeetingPage = ({ route, navigation }: AuthNavProps<"Home">) => {
                     const completed = x.journeyStatus === JourneyStatus.COMPLETE;
                     const progress = completed ? 1 : 1 - x.eta/x.originalEta;
                     return (
-                      <Pressable onTouchEnd={() => {
+                      <Pressable key={x.user.id} onTouchEnd={() => {
                         setSelectedMember(x);
                       }}>
                       <View style={{marginBottom: 20, flexDirection:'row', alignItems:'center'}}>

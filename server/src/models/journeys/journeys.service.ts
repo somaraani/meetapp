@@ -10,7 +10,7 @@ import { TasksService } from 'src/tasks/tasks.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { computeDistanceBetween } from 'spherical-geometry-js';
 import { SocketService } from 'src/socket/socket.service';
-
+import moment from 'moment';
 @Injectable()
 export class JourneysService {
 
@@ -50,7 +50,7 @@ export class JourneysService {
         // }
 
         currJourney.settings = settings;
-        currJourney.locations = [currJourney.settings.startLocation];
+        currJourney.locations = [currJourney.settings.startLocation as Coordinate];
         await currJourney.save();
         await this.journeyJob(currJourney.id);
         this.socketService.broadcastToRoom(userId, meeting.id, SocketEvents.MEMBERJOURNEYUPDATE);
@@ -234,10 +234,20 @@ export class JourneysService {
             if(meeting.status != MeetingStatus.ACTIVE && lateMins <= meeting.details.tolerance) {
                 //if user hasnt left, status is waiting for them
                 if(!left) {
-                    meeting.eta = new Date(meeting.eta + meeting.details.tolerance * 60 * 1000).toISOString();
+                    const newEta = new Date(meeting.eta + meeting.details.tolerance * 60 * 1000).toISOString();
+                    meeting.eta = newEta;
                     meeting.status = MeetingStatus.WAITING;
-
                     //TODO send late notice here
+                    meeting.participants.forEach((participant) => {
+                        if(participant.journeyId == journeyId) {
+                            return;
+                        }
+                        this.notificationService.addNotification({
+                            title: meeting.details.name,
+                            body: `Meeting has been delayed to ${moment(newEta).format('ddd MMM DD, hh:mm A')}`,
+                            userId: participant.userId,
+                        })
+                    });
 
                     //cancel all future events until a new ETA is calculated (Unsure about this ??)
                     meeting.participants.forEach((participant) => {
@@ -277,7 +287,7 @@ export class JourneysService {
             let meetingComplete = true;
             meeting.participants.forEach( async (participant) => {
                 if (!meetingComplete) return;
-                const journey = await this.findById(journeyId);
+                const journey = await this.findById(participant.journeyId);
                 if (journey?.status !== JourneyStatus.COMPLETE){
                     meetingComplete = false;
                 }

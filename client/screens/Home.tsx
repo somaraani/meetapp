@@ -1,5 +1,5 @@
 import { useFocusEffect } from "@react-navigation/core";
-import { Meeting, SocketEvents } from "@types";
+import { Meeting, MeetingStatus, SocketEvents } from "@types";
 import React, { useContext, useState } from "react";
 import { StyleSheet, Text, View, Image, ScrollView } from "react-native";
 import { ApiContext } from "../src/ApiProvider";
@@ -10,14 +10,14 @@ import moment from "moment";
 const Home = ({ navigation }: AuthNavProps<"Home">) => {
   const { apiClient, socketClient } = useContext(ApiContext);
 
-  const [meetings, setMeetings] = useState(null);
+  const [meetings, setMeetings] = useState<Meeting[] | null>(null);
 
   useFocusEffect(
     React.useCallback(() => {
       async function fetchMeetings() {
         try {
           let meetingList = await apiClient.getMeetings();
-          setMeetings(meetingList.reverse());
+          setMeetings(meetingList.reverse().filter(x => x.status === MeetingStatus.PENDING));
           // console.log(meetings);
         } catch (error) {
           console.log(error);

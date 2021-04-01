@@ -14,6 +14,8 @@ export class SocketService {
   }
 
   public addConnection(userId: string, socket: Socket) {
+    console.log(`socket ${socket.id} connected`);
+
     while (this.connections[userId]){
       this.removeConnection(this.connections[userId])
     }
@@ -26,6 +28,7 @@ export class SocketService {
   }
 
   public removeConnection(socket: Socket) {
+    console.log(`socket ${socket.id} disconnected`);
     const userId = this.socketUserMap[socket.id];
     delete this.connections[userId];
     delete this.socketUserMap[socket.id];

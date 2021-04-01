@@ -73,7 +73,7 @@ export enum JourneyStatus {
 }
 
 export interface JourneySetting {
-    startLocation: Coordinate,
+    startLocation: Coordinate | null,
     travelMode?: TravelMode,
     avoid?: TravelRestriction[]
 }
