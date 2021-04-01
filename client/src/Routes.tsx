@@ -41,15 +41,91 @@ import {
   MenuTrigger,
 } from "react-native-popup-menu";
 import StartLocationPicker from "../screens/StartLocationPicker";
+import AccountSettings from "../screens/AccountSettings";
+import ChangeName from "../screens/ChangeName";
+import ChangeEmail from "../screens/ChangeEmail";
+import ChangePassword from "../screens/ChangePassword";
 
 const Stack = createStackNavigator<AuthParamList>();
 const MeetingsStack = createStackNavigator<AuthParamList>();
 const MembersStack = createStackNavigator<AuthParamList>();
 const MapStack = createStackNavigator<AuthParamList>();
 const MeetingSettingsStack = createStackNavigator<AuthParamList>();
+const MainSettingsStack = createStackNavigator<AuthParamList>();
+const AccountSettingsStack = createStackNavigator<AuthParamList>();
 const InviteStack = createStackNavigator<AuthParamList>();
 const Drawer = createDrawerNavigator<AuthParamList>();
 const Tabs = createBottomTabNavigator<AuthParamList>();
+
+const AccountSettingsContainer = ({ navigation }) => {
+  return (
+    <AccountSettingsStack.Navigator>
+      <AccountSettingsStack.Screen
+        name="AccountSettings"
+        component={AccountSettings}
+        options={{ title: "Account Settings", headerTitleAlign: "center" }}
+      />
+      <AccountSettingsStack.Screen
+        name="ChangeName"
+        component={ChangeName}
+        options={{
+          title: "Change Name",
+          headerRightContainerStyle: {
+            marginRight: 20,
+          },
+        }}
+      />
+      <AccountSettingsStack.Screen
+        name="ChangeEmail"
+        component={ChangeEmail}
+        options={{
+          title: "Change Email",
+          headerRightContainerStyle: {
+            marginRight: 20,
+          },
+        }}
+      />
+      <AccountSettingsStack.Screen
+        name="ChangePassword"
+        component={ChangePassword}
+        options={{
+          title: "Change Password",
+          headerRightContainerStyle: {
+            marginRight: 20,
+          },
+        }}
+      />
+    </AccountSettingsStack.Navigator>
+  );
+};
+
+const MainSettingsContainer = ({ navigation }) => {
+  return (
+    <MainSettingsStack.Navigator initialRouteName="MainSettings">
+      <MainSettingsStack.Screen
+        name="MainSettings"
+        component={MainSettings}
+        options={{
+          title: "Settings",
+          headerTitleAlign: "center",
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => navigation.openDrawer()}>
+              <Entypo name="menu" size={24} color="black" />
+            </TouchableOpacity>
+          ),
+          headerLeftContainerStyle: {
+            marginLeft: 20,
+          },
+        }}
+      />
+      <MainSettingsStack.Screen
+        name="AccountSettingsContainer"
+        component={AccountSettingsContainer}
+        options={{ headerShown: false }}
+      />
+    </MainSettingsStack.Navigator>
+  );
+};
 
 const InviteContainer = ({ navigation }) => {
   return (
@@ -113,6 +189,7 @@ const MeetingSettingsContainer = () => {
       <MeetingSettingsStack.Screen
         name="StartLocationPicker"
         component={StartLocationPicker}
+        options={{ title: "Choose Your Location" }}
       />
     </MeetingSettingsStack.Navigator>
   );
@@ -358,7 +435,10 @@ export const Routes = () => {
           >
             <Drawer.Screen name="Meetings" component={Meetings} />
             <Drawer.Screen name="Invites" component={InviteContainer} />
-            <Drawer.Screen name="MainSettings" component={MainSettings} />
+            <Drawer.Screen
+              name="MainSettingsContainer"
+              component={MainSettingsContainer}
+            />
           </Drawer.Navigator>
         ) : (
           <Stack.Navigator initialRouteName="Login">
