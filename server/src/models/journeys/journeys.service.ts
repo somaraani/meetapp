@@ -239,7 +239,6 @@ export class JourneysService {
                     const newEta = new Date(meeting.eta + meeting.details.tolerance * 60 * 1000).toISOString();
                     meeting.eta = newEta;
                     meeting.status = MeetingStatus.WAITING;
-                    //TODO send late notice here
                     meeting.participants.forEach((participant) => {
                         if(participant.journeyId == journeyId) {
                             return;
