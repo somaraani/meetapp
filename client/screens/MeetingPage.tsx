@@ -115,14 +115,14 @@ const MeetingPage = ({ route, navigation }: AuthNavProps<"Home">) => {
           const journey = await apiClient.getJourney(participant.journeyId);
           const directions = journey.path ? PolyUtil.decode(journey.path).map(s => ({ latitude: s.lat, longitude: s.lng })) : [];
           const member: MemberDataInterface = {
-            startLocation: journey.settings.startLocation,
+            startLocation: journey.settings?.startLocation,
             eta: journey.travelTime,
             journeyStatus: journey.status,
             originalEta: journey.originalTravelTime,
             user: members.find(x => x.id === participant.userId) as PublicUserResponse,
             directions: directions,
             color: memberColors[i % meeting.participants.length],
-            currentLocation: journey.locations.length > 1 ? journey.locations[journey.locations.length - 1] : undefined,
+            currentLocation: journey.locations?.length > 1 ? journey.locations[journey.locations.length - 1] : undefined,
           }
           tempMembers.push(member);
           if (journey.userId == apiClient.id) {
@@ -254,7 +254,7 @@ const MeetingPage = ({ route, navigation }: AuthNavProps<"Home">) => {
         }
 
         {/* Destination */}
-        <Marker identifier='destination' coordinate={{ latitude: lat, longitude: lng }} />
+        <Marker pinColor='black' identifier='destination' coordinate={{ latitude: lat, longitude: lng }} />
 
         {members.filter(x => x.startLocation).map((member) => (
           <Marker
