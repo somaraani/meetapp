@@ -245,6 +245,7 @@ export class MeetingsService {
 
 
     async reset(meetingId: string) : Promise<void> {
+        this.journeyService.reset();
         const meeting = await this.findById(meetingId) as MeetingDocument;
         meeting.status = MeetingStatus.PENDING;
         await meeting.save();

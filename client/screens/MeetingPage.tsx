@@ -38,7 +38,7 @@ const memberColors = [
 const { height, width } = Dimensions.get("window");
 
 //Update Location Interval (ms)
-const UPDATE_LOC_INTERVAL = 5 * 1000
+const UPDATE_LOC_INTERVAL = 10 * 1000
 
 const formatTimeDiff = (sec_num: number): string => {
   var hours = Math.floor(sec_num / 3600) as any;
@@ -80,7 +80,10 @@ const MeetingPage = ({ route, navigation }: AuthNavProps<"Home">) => {
     updateLocationInterval.current && clearInterval(updateLocationInterval.current);
     let point = 0;
     const updateLocation = () => {
-      point += Math.round(currentUser.directions.length / 3);
+      const etaMin = currentUser.originalEta / 60;
+      const intervalSeconds = UPDATE_LOC_INTERVAL / 1000;
+      const factor = intervalSeconds / etaMin;
+      point += Math.round(currentUser.directions.length * factor);
       point = Math.min(point, currentUser.directions.length - 1);
       const currentCord: Coordinate = {
         lat: currentUser.directions[point].latitude,

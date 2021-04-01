@@ -17,7 +17,7 @@ const Home = ({ navigation }: AuthNavProps<"Home">) => {
       async function fetchMeetings() {
         try {
           let meetingList = await apiClient.getMeetings();
-          setMeetings(meetingList.reverse().filter(x => x.status === MeetingStatus.PENDING));
+          setMeetings(meetingList.reverse().filter(x => x.status !== MeetingStatus.COMPLETE));
           // console.log(meetings);
         } catch (error) {
           console.log(error);

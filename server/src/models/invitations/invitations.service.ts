@@ -1,6 +1,6 @@
 
 import {  BadRequestException, ConflictException, forwardRef, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
-import { Invitation } from '@types'
+import { Invitation, User } from '@types'
 import { InjectModel } from '@nestjs/mongoose';
 import { InvitationDocument } from './schemas/invitation.schema';
 import { Model } from 'mongoose';
@@ -73,8 +73,8 @@ export class InvitationsService {
         });
 
         await invite.save();
-
-        this.notificationService.sendInvitationNotification(invite, meeting, user);
+        const fromUser = await this.userService.findById(meeting.ownerId) as User;
+        this.notificationService.sendInvitationNotification(invite, meeting, fromUser);
         return invite;
     }
 

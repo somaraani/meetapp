@@ -13,6 +13,7 @@ import { SocketService } from 'src/socket/socket.service';
 import moment from 'moment';
 @Injectable()
 export class JourneysService {
+    private tempData: any;
 
     constructor(
         @InjectModel("journey")
@@ -22,8 +23,11 @@ export class JourneysService {
         private navigationService: NavigationService,
         private tasksService: TasksService,
         private notificationService: NotificationsService,
-        private socketService: SocketService
-    ) { }
+        private socketService: SocketService,
+
+    ) {
+        this.tempData = {};
+     }
 
     private readonly LATE_TOL = 2 * 60 * 1000; //tolerence to whats considered "late"
     private readonly LEFT_TOL = 75; //radius considered "left" in metres
@@ -223,7 +227,7 @@ export class JourneysService {
          var left = distance > this.LEFT_TOL;
 
         const meetingTime  = new Date(meeting.eta).getTime();
-        const arrivalTime = meetingTime + journey.travelTime * 1000;
+        const arrivalTime = new Date().getTime() + journey.travelTime * 1000;
 
         if(arrivalTime - meetingTime > this.LATE_TOL) {
             this.logger.debug(`user ${journey.userId} will be late to meeting ${meeting.details.name}`);
@@ -272,7 +276,11 @@ export class JourneysService {
                 await meeting.save();
             }
         }
-
+        else if (left){
+            //meeting.eta = journey.eta;
+            meeting.status = MeetingStatus.ACTIVE;
+            await meeting.save();
+        }
         var jourDoc = await this.journeyModel.findById(journeyId) as JourneyDocument;
         if(left && jourDoc.status == JourneyStatus.PENDING) {
             jourDoc.status = JourneyStatus.ACTIVE;
@@ -285,22 +293,61 @@ export class JourneysService {
                 await jourDoc.save();
             }
             let meetingComplete = true;
-            meeting.participants.forEach( async (participant) => {
-                if (!meetingComplete) return;
+            for (let participant of meeting.participants){
                 const journey = await this.findById(participant.journeyId);
                 if (journey?.status !== JourneyStatus.COMPLETE){
                     meetingComplete = false;
+                    break;
                 }
-            })
+            }
             if (meetingComplete){
                 meeting.status = MeetingStatus.COMPLETE;
                 await meeting.save();
             }
         }
+
+        //FOR DEMO!
+        if (meeting.status === MeetingStatus.ACTIVE){
+            for (let participant of meeting.participants){
+                if(participant.journeyId == journeyId) {
+                    continue;
+                }
+                const participantJourney = await this.findById(participant.journeyId) as Journey;
+                if (participantJourney.status !== JourneyStatus.PENDING){
+                    continue;
+                }
+                if (!this.tempData[participantJourney.id + '_now'] && participantJourney.travelTime + 5 >= jourDoc.travelTime ){
+                    //send notification to leave now
+                    await this.notificationService.addNotification({
+                        title: meeting.details.name,
+                        body: 'You need to leave now',
+                        userId: participant.userId
+                    });
+                    this.tempData[participantJourney.id + '_now'] = true;
+                }
+
+                const warningTime = 15 * 60; //15 min
+                if (!this.tempData[participantJourney.id + '_now'] && !this.tempData[participantJourney.id + '_warn'] && participantJourney.travelTime + warningTime + 5 >= jourDoc.travelTime ){
+                    //send notification to leave now
+                   
+                    await this.notificationService.addNotification({
+                        title: meeting.details.name,
+                        body: 'Prepare to leave in 15 min',
+                        userId: participant.userId
+                    });
+                    this.tempData[participantJourney.id + '_warn'] = true;
+                }
+            }
+        }
+
         return jourDoc;
     }
 
     async findByMeeting(meetingId: string): Promise<JourneyDocument[]> {
         return await this.journeyModel.find({'meetingId' : meetingId});
+    }
+
+    reset = () => {
+        this.tempData = {};
     }
 }
