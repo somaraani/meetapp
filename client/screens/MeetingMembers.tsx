@@ -76,7 +76,9 @@ const MeetingMembers = ({ navigation }) => {
               />
               <ListItem.Content>
                 <ListItem.Title>{m.publicData.displayName} </ListItem.Title>
-                <ListItem.Subtitle>ETA: {m.eta}</ListItem.Subtitle>
+                <ListItem.Subtitle>
+                  ETA: {m.eta ? `${m.eta} mins` : "N/A"}
+                </ListItem.Subtitle>
               </ListItem.Content>
               {m.id === ownerId ? (
                 <Text
