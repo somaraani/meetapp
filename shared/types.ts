@@ -129,4 +129,5 @@ export interface UpdateLocationResponse {
     userId: string,
     location: Coordinate,
     eta: number,
+    journeyStatus: string
 }

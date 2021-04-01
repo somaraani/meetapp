@@ -288,4 +288,8 @@ export class JourneysService {
         }
         return jourDoc;
     }
+
+    async findByMeeting(meetingId: string): Promise<JourneyDocument[]> {
+        return await this.journeyModel.find({'meetingId' : meetingId});
+    }
 }

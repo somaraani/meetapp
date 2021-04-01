@@ -46,6 +46,7 @@ export class AppGateway implements OnGatewayInit {
     const locationResponse : UpdateLocationResponse = {
       location: journey.locations[journey.locations.length - 1],
       eta: journey.travelTime,
+      journeyStatus: journey.status,
       userId: userId
     }
     this.socketService.emitToRoom(meetingId, SocketEvents.LOCATION, locationResponse);
