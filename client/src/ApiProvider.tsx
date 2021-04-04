@@ -63,18 +63,10 @@ const ApiProvider: FC<ApiProviderProps> = ({ children }) => {
   };
 
   const logout = async () => {
-<<<<<<< HEAD
-    try{
-      await apiClient.updateExpoPushToken('');
-    }
-    catch(e){
-      console.log(e)
-=======
     try {
       await apiClient.updateExpoPushToken("");
     } catch (e) {
       console.log(e);
->>>>>>> feature/settings
     }
     setUser(null);
     AsyncStorage.removeItem("user");
