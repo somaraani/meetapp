@@ -84,8 +84,15 @@ const DrawerContent = (props) => {
               icon={({ color, size }) => (
                 <Icon name="file-document" color={color} size={size} />
               )}
-              label="Documentation"
-              onPress={() => console.log("Documentation")}
+              label="Help and FAQ"
+              onPress={() =>
+                props.navigation.dispatch({
+                  ...CommonActions.reset({
+                    index: 0,
+                    routes: [{ name: "HelpFAQ" }],
+                  }),
+                })
+              }
             />
           </Drawer.Section>
         </View>

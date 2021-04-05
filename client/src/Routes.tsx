@@ -19,6 +19,7 @@ import Home from "../screens/Home";
 import DrawerContent from "../components/DrawerContent";
 import MeetingPage from "../screens/MeetingPage";
 import MainSettings from "../screens/MainSettings";
+import HelpFAQ from "../screens/HelpFAQ";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { Entypo } from "@expo/vector-icons";
 import { MeetingContext } from "./MeetingContext";
@@ -48,6 +49,7 @@ const MembersStack = createStackNavigator<AuthParamList>();
 const MapStack = createStackNavigator<AuthParamList>();
 const MeetingSettingsStack = createStackNavigator<AuthParamList>();
 const InviteStack = createStackNavigator<AuthParamList>();
+const HelpFAQStack = createStackNavigator<AuthParamList>();
 const Drawer = createDrawerNavigator<AuthParamList>();
 const Tabs = createBottomTabNavigator<AuthParamList>();
 
@@ -70,6 +72,28 @@ const InviteContainer = ({ navigation }) => {
         component={Invites}
       />
     </InviteStack.Navigator>
+  );
+};
+
+const HelpFAQContainer = ({ navigation }) => {
+  return (
+    <HelpFAQStack.Navigator initialRouteName="HelpFAQ">
+      <HelpFAQStack.Screen
+        options={{
+          headerTitleAlign: "center",
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => navigation.openDrawer()}>
+              <Entypo name="menu" size={24} color="black" />
+            </TouchableOpacity>
+          ),
+          headerLeftContainerStyle: {
+            marginLeft: 20,
+          },
+        }}
+        name="Help and FAQ"
+        component={HelpFAQ}
+      />
+    </HelpFAQStack.Navigator>
   );
 };
 
@@ -359,6 +383,7 @@ export const Routes = () => {
             <Drawer.Screen name="Meetings" component={Meetings} />
             <Drawer.Screen name="Invites" component={InviteContainer} />
             <Drawer.Screen name="MainSettings" component={MainSettings} />
+            <Drawer.Screen name="HelpFAQ" component={HelpFAQContainer} />
           </Drawer.Navigator>
         ) : (
           <Stack.Navigator initialRouteName="Login">
