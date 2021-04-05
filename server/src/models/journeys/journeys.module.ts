@@ -8,9 +8,10 @@ import { MeetingSchema } from '../meetings/schemas/meeting.schema';
 import { NavigationModule } from '../navigation/navigation.module';
 import { TasksModule } from 'src/tasks/tasks.module';
 import { NotificationsModule } from '../notifications/notifications.module';
+import { SocketModule } from 'src/socket/socket.module';
 
 @Module({
-  imports: [MongooseModule.forFeature([{name: 'journey', schema: JourneySchema}]), MongooseModule.forFeature([{name: 'meeting', schema: MeetingSchema}]), NavigationModule, TasksModule, NotificationsModule],
+  imports: [MongooseModule.forFeature([{name: 'journey', schema: JourneySchema}]), MongooseModule.forFeature([{name: 'meeting', schema: MeetingSchema}]), NavigationModule, TasksModule, NotificationsModule, SocketModule],
   controllers: [JourneysController],
   providers: [JourneysService],
   exports: [JourneysService]

@@ -38,6 +38,7 @@
     "class-validator": "^0.13.1",
     "expo-server-sdk": "^3.6.0",
     "jsonwebtoken": "^8.5.1",
+    "moment": "^2.29.1",
     "mongoose": "^5.11.15",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",

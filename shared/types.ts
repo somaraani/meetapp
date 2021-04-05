@@ -58,6 +58,7 @@ export interface Journey {
     userId: string,
     meetingId: string,
     travelTime: number,
+    originalTravelTime: number,
     eta: string,
     lastUpdated: string,
     locations: Coordinate[],
@@ -72,7 +73,7 @@ export enum JourneyStatus {
 }
 
 export interface JourneySetting {
-    startLocation: Coordinate,
+    startLocation: Coordinate | null,
     travelMode?: TravelMode,
     avoid?: TravelRestriction[]
 }
@@ -108,6 +109,8 @@ export enum SocketEvents{
     INVITATION = 'INVITATION',
     LOCATION = 'LOCATION',
     MEMBERUPDATE = 'MEMBERUPDATE',
+    MEETINGUPDATE = 'MEETINGUPDATE',
+    MEMBERJOURNEYUPDATE = 'MEMBERJOURNEYUPDATE',
     JOIN = 'JOIN',
     LEAVE = 'LEAVE',
 }
@@ -115,4 +118,17 @@ export enum SocketEvents{
 export interface PublicUserResponse {
     id: string,
     publicData: PublicUserData
+}
+
+export interface UpdateLocationRequest {
+    userId: string,
+    meetingId: string,
+    location: Coordinate,
+}
+
+export interface UpdateLocationResponse {
+    userId: string,
+    location: Coordinate,
+    eta: number,
+    journeyStatus: string
 }

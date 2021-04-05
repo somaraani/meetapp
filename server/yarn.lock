@@ -4641,7 +4641,7 @@ moment-timezone@^0.5.x:
   dependencies:
     moment ">= 2.9.0"
 
-"moment@>= 2.9.0", moment@>=2.14.0:
+"moment@>= 2.9.0", moment@>=2.14.0, moment@^2.29.1:
   version "2.29.1"
   resolved "https://registry.yarnpkg.com/moment/-/moment-2.29.1.tgz#b2be769fa31940be9eeea6469c075e35006fa3d3"
   integrity sha512-kHmoybcPV8Sqy59DwNDY3Jefr64lK/by/da0ViFcuA4DH0vQg5Q6Ze5VimxkfQNSC+Mls/Kx53s7TjP1RhFEDQ==
@@ -6047,6 +6047,11 @@ spdx-license-ids@^3.0.0:
   version "3.0.7"
   resolved "https://registry.npmjs.org/spdx-license-ids/-/spdx-license-ids-3.0.7.tgz"
   integrity sha512-U+MTEOO0AiDzxwFvoa4JVnMV6mZlJKk2sBLt90s7G0Gd0Mlknc7kxEn3nuDPNZRta7O2uy8oLcZLVT+4sqNZHQ==
+
+spherical-geometry-js@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/spherical-geometry-js/-/spherical-geometry-js-2.0.0.tgz#b810f57d6c4398018072cb05e7605091ecd04dfa"
+  integrity sha512-Bv15UFHk2Bd+kjzjcy8cbOVsEpe1cAUss4gPxUtaRMjfS109DvsXDimHwkvDrE/Vvcut+FoABDsfR5kEeYXOjw==
 
 split-on-first@^1.0.0:
   version "1.1.0"

@@ -8,6 +8,7 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 import { useFocusEffect, useIsFocused } from "@react-navigation/core";
 
 const MeetingMembers = ({ navigation }) => {
+  const meetingData = useContext(MeetingContext);
   const [users, setUsers] = useState<PublicUserResponse[]>();
   const { id, ownerId } = useContext<any>(MeetingContext);
   const { apiClient, socketClient } = useContext(ApiContext);
@@ -15,7 +16,22 @@ const MeetingMembers = ({ navigation }) => {
 
   const getMeetingUsers = async () => {
     let meetingUsers = await apiClient.getUsersFromMeeting(id);
-    setUsers(meetingUsers);
+
+    let tempList = [];
+
+    for (let i = 0; i < meetingUsers.length; i++) {
+      try {
+        let d = await apiClient.getJourney(
+          meetingData.participants.find((x) => x.userId === meetingUsers[i].id)
+            .journeyId
+        );
+        tempList.push({ ...meetingUsers[i], eta: d.travelTime });
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    setUsers(tempList);
   };
 
   const backAction = () => {
@@ -36,6 +52,7 @@ const MeetingMembers = ({ navigation }) => {
         //triggers when another user joins room
         getMeetingUsers();
       });
+
       return () => {
         //remove listner on unmount
         socketClient.off(SocketEvents.MEMBERUPDATE);
@@ -59,7 +76,7 @@ const MeetingMembers = ({ navigation }) => {
               />
               <ListItem.Content>
                 <ListItem.Title>{m.publicData.displayName} </ListItem.Title>
-                <ListItem.Subtitle>{m.publicData.username}</ListItem.Subtitle>
+                <ListItem.Subtitle>ETA: {m.eta}</ListItem.Subtitle>
               </ListItem.Content>
               {m.id === ownerId ? (
                 <Text

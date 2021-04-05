@@ -1,6 +1,6 @@
 
 import { BadRequestException, forwardRef, Inject, Injectable, Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { Journey, Meeting, MeetingDetail, MeetingParticipant, Coordinate, SocketEvents } from '@types'
+import { Journey, Meeting, MeetingDetail, MeetingParticipant, Coordinate, SocketEvents, JourneyStatus, MeetingStatus } from '@types'
 import { CreateMeetingDTO } from './dto/CreateMeetingDto';
 import { InjectModel } from '@nestjs/mongoose';
 import { MeetingDocument } from './schemas/meeting.schema';
@@ -146,7 +146,7 @@ export class MeetingsService {
         });
 
         await meeting.save();
-        this.socketService.emitToRoom(meeting.id, SocketEvents.MEMBERUPDATE);
+        this.socketService.broadcastToRoom(userId, meeting.id, SocketEvents.MEMBERUPDATE);
         return meeting;
     }
 
@@ -228,20 +228,34 @@ export class MeetingsService {
         });
     }
 
-    async updateLocation(userId: string, meetingId: string, location: Coordinate) {
+    async updateLocation(userId: string, meetingId: string, location: Coordinate) : Promise<Journey> {
         const meeting: Meeting | null = await this.findById(meetingId);
         if(!meeting) {
-            this.logger.error("Couldn't find meeting, can't update location of user " + userId);
-            return;
+            throw new NotFoundException("Couldn't find meeting, can't update location of user " + userId);
         }
 
         const journeyId = meeting.participants.find(item => item.userId == userId)?.journeyId;
         if(!journeyId) {
-            this.logger.error("Couldn't find journeyId, can't update location of user " + userId);
-            return;
+            throw new NotFoundException("Couldn't find journeyId, can't update location of user " + userId);
         }
 
-        this.journeyService.updateLocation(journeyId, location);
+        const journey = await this.journeyService.updateLocation(journeyId, location);
+        return journey;
     }
 
+
+    async reset(meetingId: string) : Promise<void> {
+        const meeting = await this.findById(meetingId) as MeetingDocument;
+        meeting.status = MeetingStatus.PENDING;
+        await meeting.save();
+        const journeys = await this.journeyService.findByMeeting(meetingId);
+        journeys.forEach(async x => {
+            x.locations = [];
+            x.status = JourneyStatus.PENDING;
+            x.travelTime = x.originalTravelTime;
+            // x.path = '',
+            // x.settings.startLocation = null
+            await x.save();            
+        })
+    }
 }

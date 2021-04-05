@@ -14,6 +14,8 @@ export class SocketService {
   }
 
   public addConnection(userId: string, socket: Socket) {
+    console.log(`socket ${socket.id} connected`);
+
     while (this.connections[userId]){
       this.removeConnection(this.connections[userId])
     }
@@ -26,6 +28,7 @@ export class SocketService {
   }
 
   public removeConnection(socket: Socket) {
+    console.log(`socket ${socket.id} disconnected`);
     const userId = this.socketUserMap[socket.id];
     delete this.connections[userId];
     delete this.socketUserMap[socket.id];
@@ -42,6 +45,16 @@ export class SocketService {
       this.server.to(roomId).emit(event, message);
     } catch (e) {
       console.log('could not emit to room:' + roomId);
+      console.log(e);
+    }
+  }
+
+  public broadcastToRoom(userId: string,roomId: string, event: SocketEvents, message?: any) {
+    try {
+      const socket = this.connections[userId];
+      socket.broadcast.to(roomId).emit(event, message)
+    } catch (e) {
+      console.log('could not broad to room:' + roomId);
       console.log(e);
     }
   }

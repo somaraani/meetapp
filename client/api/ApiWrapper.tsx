@@ -24,7 +24,7 @@ export class ApiWrapper {
     this.id = "";
   }
 
-  public reset():void{
+  public reset(): void {
     this.token = "";
     this.id = "";
   }
@@ -106,9 +106,9 @@ export class ApiWrapper {
   }
 
   async getUsersFromMeeting(meetingId: string): Promise<PublicUserResponse[]> {
-    console.log('GET ' + meetingId)
+    console.log("GET " + meetingId);
     let res = await axios.get(`${API_URL}meetings/${meetingId}/users`, {
-      headers: { Authorization: `Bearer ${this.token}` }
+      headers: { Authorization: `Bearer ${this.token}` },
     });
     let data = res.data;
     return data;
@@ -185,15 +185,26 @@ export class ApiWrapper {
     });
   }
 
-  async updateInvitation(invitationId: string, accepted: boolean): Promise<Invitation> {
+  async updateInvitation(
+    invitationId: string,
+    accepted: boolean
+  ): Promise<Invitation> {
     let payload = { accepted: accepted };
-    const res = await axios.patch(`${API_URL}invitations/${invitationId}`, payload, {
-      headers: { Authorization: `Bearer ${this.token}` },
-    });
+    const res = await axios.patch(
+      `${API_URL}invitations/${invitationId}`,
+      payload,
+      {
+        headers: { Authorization: `Bearer ${this.token}` },
+      }
+    );
     return res.data;
   }
 
-  async getInvitations(query : {userId: string, status: string, meetingId: string}): Promise<Invitation[]> {
+  async getInvitations(query: {
+    userId: string;
+    status: string;
+    meetingId: string;
+  }): Promise<Invitation[]> {
     let res = await axios.get(`${API_URL}invitations`, {
       headers: { Authorization: `Bearer ${this.token}` },
       params: query,
@@ -202,7 +213,10 @@ export class ApiWrapper {
     return data;
   }
 
-  async createInvitation(userId: string, meetingId: string): Promise<Invitation> {
+  async createInvitation(
+    userId: string,
+    meetingId: string
+  ): Promise<Invitation> {
     let payload = { userId, meetingId };
     let res = await axios.post(`${API_URL}invitations`, payload, {
       headers: { Authorization: `Bearer ${this.token}` },
@@ -218,11 +232,18 @@ export class ApiWrapper {
     return res.data;
   }
 
-  async updateJourneySetting(jouneyId: string, jouneySettings: JourneySetting): Promise<Journey> {
-    let payload = jouneySettings;
-    const res = await axios.put(`${API_URL}journeys/${jouneyId}/settings`, payload, {
-      headers: { Authorization: `Bearer ${this.token}` },
-    });
+  async updateJourneySetting(
+    journeyId: string,
+    journeySettings: JourneySetting
+  ): Promise<Journey> {
+    let payload = journeySettings;
+    const res = await axios.put(
+      `${API_URL}journeys/${journeyId}/settings`,
+      payload,
+      {
+        headers: { Authorization: `Bearer ${this.token}` },
+      }
+    );
     return res.data;
   }
 }

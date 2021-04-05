@@ -98,7 +98,7 @@ const Invites = ({ navigation }) => {
     );
   } else {
     return (
-      <View>
+      <View style={{ flex: 1, padding: 10 }}>
         <ScrollView>
           {invites.map((x, i) => (
             <ListItem key={i} bottomDivider>

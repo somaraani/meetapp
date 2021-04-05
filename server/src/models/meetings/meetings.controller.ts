@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, Logger, NotFoundException, Param, Post, Put, Query, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, HttpCode, Logger, NotFoundException, Param, Post, Put, Query, UnauthorizedException } from '@nestjs/common';
 import { Meeting, MeetingDetail } from '@types';
 import { Auth } from 'src/common/decorators/requests/auth.decorator';
 import { UsersService } from '../users/users.service';
@@ -83,4 +83,15 @@ export class MeetingsController {
 
         return meeting;
     }
+
+
+    //for resetting meeting when TESTING 
+    @Post('reset/:id')
+    async reset(@Param('id') meetingId) {
+        if (!meetingId){
+            throw new BadRequestException('id required')
+        }
+        await this.meetingsService.reset(meetingId);
+    }
+
 }

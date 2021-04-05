@@ -1,16 +1,18 @@
-import { Coordinate, SocketEvents } from '@types';
+import { Coordinate, SocketEvents, UpdateLocationRequest, UpdateLocationResponse } from '@types';
 import { OnGatewayInit, SubscribeMessage, WebSocketGateway } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { AuthService } from './authentication/auth.service';
 import { SocketService } from './socket/socket.service';
 import { MeetingsService } from './models/meetings/meetings.service';
+import { JourneysService } from './models/journeys/journeys.service';
 
 @WebSocketGateway()
 export class AppGateway implements OnGatewayInit {
   constructor(
     private authService: AuthService,
     private socketService: SocketService,
-    private meetingService: MeetingsService
+    private meetingService: MeetingsService,
+    private journeyService: JourneysService
   ) { }
 
   afterInit(server: Server) {
@@ -25,23 +27,25 @@ export class AppGateway implements OnGatewayInit {
       return;
     }
     this.socketService.addConnection(tokenData.id, client);
-    console.log(`socket ${client.id} connected`);
-
-    this.socketService.joinRoom(tokenData.id, 'meetingId');
   }
 
   handleDisconnect(client: Socket) {
-    console.log(`socket ${client.id} disconnected`);
     this.socketService.removeConnection(client);
   }
 
   @SubscribeMessage(SocketEvents.LOCATION)
-  handleMessage(client: Socket, roomId: string, payload: Coordinate): void { //how to get roomId, also can payload be coordinate?
-    //this should be sent to a room, and that room should be the meeting id
-    this.meetingService.updateLocation(client.id, roomId, payload);
-
-    this.socketService.emitToRoom('meetingId', SocketEvents.LOCATION, "User location updated");
-    //can send to service here
+  async handleMessage(client: Socket, request: any): Promise<void> { //how to get roomId, also can payload be coordinate?
+    const {meetingId, location, userId} = request;
+    const journey = await this.meetingService.updateLocation(userId, meetingId, location);
+    const meeting = await this.meetingService.findById(meetingId);
+    this.socketService.emitToRoom(meetingId, SocketEvents.MEETINGUPDATE, meeting);
+    const locationResponse : UpdateLocationResponse = {
+      location: journey.locations[journey.locations.length - 1],
+      eta: journey.travelTime,
+      journeyStatus: journey.status,
+      userId: userId
+    }
+    this.socketService.emitToRoom(meetingId, SocketEvents.LOCATION, locationResponse);
   }
 
   @SubscribeMessage(SocketEvents.JOIN)
